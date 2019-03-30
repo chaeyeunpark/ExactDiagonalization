@@ -24,5 +24,5 @@ endif()
 link_directories("$HOME/local/lib")
 include_directories(PUBLIC "~/local/include/")
 
-add_executable(TestBasis "Tests/testBasis.cpp")
+add_executable(TestBasis "Tests/TestBasis.cpp")
 #target_link_libraries(RBMExact )

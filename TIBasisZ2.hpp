@@ -47,6 +47,14 @@ private:
 		}
 		return -1;
 	}
+	
+	bool checkParity(int rot) const
+	{
+		if (p_ == 1)
+			return ((rot*k_ % this->getN()) == 0);
+		else
+			return ((rot*k_ % this->getN()) == this->getN()/2);
+	}
 
 	void constructBasis()
 	{
@@ -72,7 +80,7 @@ private:
 		{
 			UINT rep = iter->first;
 			auto s = this->findRepresentative(flip(rep));
-			if(s.first == rep && p_ == 1 && 2*k_ != this->getN())
+			if(s.first == rep && checkParity(s.second))
 			{
 				rpts_.emplace_back(rep);
 				parity_[rep] = RepData{rpts_.size()-1, iter->second, 0};
