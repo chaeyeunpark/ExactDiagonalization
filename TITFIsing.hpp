@@ -23,11 +23,11 @@ public:
 		
 	}
 
-	std::map<int,double> getCol(uint32_t n) const
+	std::map<int,double> getCol(UINT n) const
 	{
 		int N = basis_.getN();
 
-		uint32_t a = basis_.getNthRep(n);
+		UINT a = basis_.getNthRep(n);
 		const boost::dynamic_bitset<> bs(N, a);
 
 		std::map<int, double> m;
@@ -40,8 +40,8 @@ public:
 
 				m[n] += -J_*sgn; //ZZ
 				
-				uint32_t s = a;
-				uint32_t t = (1<<i);
+				UINT s = a;
+				UINT t = (1<<i);
 				s ^= t;
 
 				int bidx;

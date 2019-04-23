@@ -26,3 +26,15 @@ include_directories(PUBLIC "~/local/include/")
 
 add_executable(TestBasis "Tests/TestBasis.cpp")
 #target_link_libraries(RBMExact )
+
+add_executable(EDTFI "EDTFI.cpp")
+target_link_libraries(EDTFI mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)
+
+add_executable(TIXXZED "TIXXZED.cpp")
+target_link_libraries(TIXXZED mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)
+
+add_executable(TIXYZED "TIXYZED.cpp")
+target_link_libraries(TIXYZED mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)
+
+add_executable(ED_XXXJ1J2 "ED_XXXJ1J2.cpp")
+target_link_libraries(ED_XXXJ1J2 mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)

@@ -26,7 +26,7 @@ public:
 		return ups_;
 	}
 
-	uint32_t rotl(uint32_t value, unsigned int count) const
+	UINT rotl(UINT value, unsigned int count) const
 	{
 		count %= N_;
 		return ((value << count) & ups_) | (value >> (N_ - count));
@@ -34,11 +34,11 @@ public:
 
 	std::pair<UINT, int> findRepresentative(UINT sigma) const
 	{
-		uint32_t rep = sigma;
+		UINT rep = sigma;
 		int rot = 0;
 		for(int r = 1; r < N_; r++)
 		{
-			uint32_t sr = rotl(sigma, r);
+			UINT sr = rotl(sigma, r);
 			if(sr < rep)
 			{
 				rep = sr;

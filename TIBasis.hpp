@@ -19,7 +19,7 @@ private:
 
 	int checkState(UINT s) 
 	{
-		uint32_t sr = s;
+		UINT sr = s;
 		const auto N = this->getN();
 		for(int r = 1; r <= N; r++)
 		{
@@ -41,7 +41,7 @@ private:
 	void constructBasis()
 	{
 		{
-			uint32_t s = 0;
+			UINT s = 0;
 			int r = checkState(s);
 			if(r > 0)
 			{
@@ -49,7 +49,7 @@ private:
 				rotRpts_.push_back(r);
 			}
 		}
-		for(uint32_t s = 1; s <= this->getUps(); s+=2)
+		for(UINT s = 1; s <= this->getUps(); s+=2)
 		{
 			int r = checkState(s);
 			if(r > 0)
@@ -109,7 +109,7 @@ public:
 
 		double expk = (k_==0)?1.0:-1.0;
 
-		uint32_t bRep;
+		UINT bRep;
 		int bRot;
 		std::tie(bRep, bRot) = this->findRepresentative(bSigma);
 

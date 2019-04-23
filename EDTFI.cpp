@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
 		}
 
 		printf("%f\t%.10f\t%.10f\t%.10f\t%.10f\n",h,ev[0](0), ev[0](1), ev[1](0), ev[1](1));
-
 	}
 
 	return 0;
