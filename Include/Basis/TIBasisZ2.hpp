@@ -167,6 +167,31 @@ public:
 
 		return std::make_pair(pb.index,sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
+	Eigen::VectorXd basisVec(int n) const
+	{
+		const double expk = (k_==0)?1.0:-1.0;
+		Eigen::VectorXd res(1<<(this->getN()));
+		res.setZero();
+
+		auto rep = getNthRep(n);
+		auto p = parity_.at(rep);
+		for(int k = 0; k < p.rot; k++)
+		{
+			res( this->rotl(rep,k)) = pow(expk,k);
+		}
+		if(p.parity == 0)
+		{
+			res /= sqrt(p.rot);
+			return res;
+		}
+		rep = this->flip(rep);
+		for(int k = 0; k < p.rot; k++)
+		{
+			res( this->rotl(rep,k)) = p_*pow(expk,k);
+		}
+		res /= sqrt(2.0*p.rot);
+		return res;
+	}
 	Eigen::MatrixXd basisMatrix() const
 	{
 		double expk = (k_==0)?1.0:-1.0;
