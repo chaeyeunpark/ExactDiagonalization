@@ -1,5 +1,5 @@
-#ifndef ED_TITFI_HPP
-#define ED_TITFI_HPP
+#ifndef CY_TIXXZ_HPP
+#define CY_TIXXZ_HPP
 #include <cstdint>
 #include <cassert>
 #include <algorithm>
@@ -9,16 +9,16 @@
 #include "Basis.hpp"
 
 template<typename UINT>
-class TITFIsing
+class TIXXZ
 {
 private:
 	Basis<UINT>& basis_;
-	double J_;
-	double h_;
+	double J1_;
+	double J2_;
 
 public:
-	TITFIsing(Basis<UINT>& basis, double J, double h)
-		: basis_(basis), J_(J), h_(h)
+	TIXXZ(Basis<UINT>& basis, double J1, double J2)
+		: basis_(basis), J1_(J1), J2_(J2)
 	{
 		
 	}
@@ -38,10 +38,10 @@ public:
 				int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
-				m[n] += -J_*sgn; //ZZ
+				m[n] += J1_*sgn;
 				
 				UINT s = a;
-				UINT t = (1<<i);
+				UINT t = (1<<i) | (1<<j);
 				s ^= t;
 
 				int bidx;
@@ -50,10 +50,34 @@ public:
 				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
 				
 				if(bidx >= 0)
-					m[bidx] += -h_*coeff;
+				{
+					m[bidx] += J1_*(1.0-sgn)*coeff;
+				}
+			}
+			//Next-nearest
+			{
+				int j = (i+2)%N;
+				int sgn = (1-2*bs[i])*(1-2*bs[j]);
+
+				m[n] += J2_*sgn;
+				
+				UINT s = a;
+				UINT t = (1<<i) | (1<<j);
+				s ^= t;
+
+				int bidx;
+				double coeff;
+
+				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
+				
+				if(bidx >= 0)
+				{
+					m[bidx] += J2_*(1.0-sgn)*coeff;
+				}
 			}
 		}
+			
 		return m;
 	}
 };
-#endif //ED_TITFI_HPP
+#endif //CY_TIHAMXXZ_HPP

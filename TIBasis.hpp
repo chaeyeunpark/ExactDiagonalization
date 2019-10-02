@@ -38,6 +38,22 @@ private:
 		return -1;
 	}
 
+	std::pair<UINT, int> getMinRots(UINT sigma) const
+	{
+		UINT rep = sigma;
+		int rot = 0;
+		for(int r = 1; r < this->getN(); r++)
+		{
+			UINT sr = rotl(sigma, r);
+			if(sr < rep)
+			{
+				rep = sr;
+				rot = r;
+			}
+		}
+		return std::make_pair(rep, rot);
+	}
+
 	void constructBasis()
 	{
 		{
@@ -111,7 +127,7 @@ public:
 
 		UINT bRep;
 		int bRot;
-		std::tie(bRep, bRot) = this->findRepresentative(bSigma);
+		std::tie(bRep, bRot) = this->getMinRots(bSigma);
 
 		int bidx = stateIdx(bRep);
 
