@@ -1,4 +1,3 @@
 /home/cecri/work/ExactDiagonalization/debug/CMakeFiles/rebuild_cache.dir
 /home/cecri/work/ExactDiagonalization/debug/CMakeFiles/edit_cache.dir
-/home/cecri/work/ExactDiagonalization/debug/CMakeFiles/TestBasis.dir
-/home/cecri/work/ExactDiagonalization/debug/CMakeFiles/TestLadder.dir
+/home/cecri/work/ExactDiagonalization/debug/CMakeFiles/TestLocalHam.dir

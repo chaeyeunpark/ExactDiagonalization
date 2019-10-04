@@ -1,7 +1,6 @@
 #ifndef CY_TIBASISLADDER_HPP
 #define CY_TIBASISLADDER_HPP
 
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <iostream>
 #include <map>

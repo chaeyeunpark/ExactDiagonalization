@@ -9,7 +9,7 @@ endif()
 
 set (CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-int-in-bool-context ")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-int-in-bool-context -DEIGEN_USE_MKL_ALL")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
@@ -20,13 +20,9 @@ if (OPENMP_FOUND)
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-link_directories("$HOME/local/lib")
-include_directories(PUBLIC "~/local/include/")
+link_directories("~/local/lib")
+include_directories(PUBLIC "~/local/include")
+include_directories(PUBLIC "~/local/include/eigen3")
 
-add_executable(TestBasis "Tests/TestBasis.cpp")
-
-add_executable(ED_XXXJ1J2 "ED_XXXJ1J2.cpp")
-target_link_libraries(ED_XXXJ1J2 mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)
-
-add_executable(ED_XXZ "ED_XXZ.cpp")
-target_link_libraries(ED_XXZ mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)
+add_executable(TestLocalHam "Tests/TestLocalHam.cpp")
+target_link_libraries(TestLocalHam mkl_intel_lp64 mkl_intel_thread mkl_core iomp5 pthread dl)
