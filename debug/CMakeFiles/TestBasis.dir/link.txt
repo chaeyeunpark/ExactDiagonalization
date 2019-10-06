@@ -1,1 +1,0 @@
-/usr/bin/c++  -Wall -Wextra -Wno-int-in-bool-context -DARMA_DONT_USE_WRAPPER -fopenmp -g    CMakeFiles/TestBasis.dir/Tests/TestBasis.cpp.o  -o TestBasis  -L"/home/cecri/work/ExactDiagonalization/\$HOME/local/lib" 

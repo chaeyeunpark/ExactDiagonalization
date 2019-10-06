@@ -1,1 +1,0 @@
-/usr/bin/c++  -Wall -Wextra -Wno-int-in-bool-context -DARMA_DONT_USE_WRAPPER -fopenmp -g    CMakeFiles/TestLadder.dir/TestLadder.cpp.o  -o TestLadder  -L"/home/cecri/work/ExactDiagonalization/\$HOME/local/lib" -Wl,-rpath,"/home/cecri/work/ExactDiagonalization/\$HOME/local/lib" -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -ldl 
