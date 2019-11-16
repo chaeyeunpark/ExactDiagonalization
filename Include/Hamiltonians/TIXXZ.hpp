@@ -23,7 +23,7 @@ public:
 		
 	}
 
-	std::map<std::size_t,double> getCol(UINT n) const
+	std::map<int, double> getCol(UINT n) const
 	{
 		int N = basis_.getN();
 
