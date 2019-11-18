@@ -245,7 +245,7 @@ PLATFORMS
 DEPENDENCIES
   github-pages
   jekyll
-  jekyll-theme-architect
+  jekyll-theme-minimal
   kramdown
 
 BUNDLED WITH
