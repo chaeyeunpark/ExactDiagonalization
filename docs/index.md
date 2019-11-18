@@ -1,7 +1,7 @@
 # Simple exact diagoanlization library
 This library present exact diagonalization implementaions for translational invariant spin-$1/2$ Hamiltonians defined in some simple lattices. 
 
-##Exact diagonalization for one dimensional system
+## Exact diagonalization for one dimensional system
 
 For simplicity, we only consider one dimensional translational invariance. We will consider $Z_2$ parity symmetry later.
 
