@@ -33,7 +33,7 @@ public:
 		std::map<std::size_t, double> m;
 		for(int i = 0; i < N; i++)
 		{
-			//Next-nearest
+			//Nearest
 			{
 				int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);

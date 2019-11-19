@@ -192,6 +192,7 @@ public:
 		res /= sqrt(2.0*p.rot);
 		return res;
 	}
+	/*
 	Eigen::MatrixXd basisMatrix() const
 	{
 		double expk = (k_==0)?1.0:-1.0;
@@ -219,5 +220,6 @@ public:
 		}
 		return res;
 	}
+	*/
 };
 #endif//CY_TI_BASIS_HPP
