@@ -167,6 +167,7 @@ public:
 
 		return std::make_pair(pb.index,sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
+
 	Eigen::VectorXd basisVec(int n) const
 	{
 		const double expk = (k_==0)?1.0:-1.0;
