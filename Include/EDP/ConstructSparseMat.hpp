@@ -1,8 +1,26 @@
 #ifndef EDP_CONSTRUCTSPARSEMAT_HPP
 #define EDP_CONSTRUCTSPARSEMAT_HPP
+#include <Eigen/Dense>
 #include <Eigen/Sparse>
 namespace edp
 {
+
+	template<typename T, class ColFunc>
+	Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> constructMat(std::size_t dim, ColFunc&& colFunc)
+	{
+		Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(dim, dim);
+		res.setZero();
+
+		for(std::size_t i = 0; i < dim; i++)
+		{
+			std::map<std::size_t, T> m = colFunc.getCol(i);
+			for(auto& elt: m)
+			{
+				res(elt.first, i) = elt.second;
+			}
+		}
+		return res;
+	}
 	template<typename T, class ColFunc>
 	Eigen::SparseMatrix<T> constructSparseMat(uint64_t dim, ColFunc&& colFunc)
 	{

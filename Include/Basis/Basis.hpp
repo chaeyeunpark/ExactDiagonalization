@@ -50,6 +50,9 @@ public:
 
 	virtual std::size_t getDim() const = 0;
 	virtual UINT getNthRep(int n) const = 0;
+	/**
+	 * \sum_i h_i|rep[aidx]> = coeff*|rep of bsigma>
+	 */
 	virtual std::pair<int, double> hamiltonianCoeff(UINT bsigma, int adix) const = 0;
 
 	virtual ~Basis(){}

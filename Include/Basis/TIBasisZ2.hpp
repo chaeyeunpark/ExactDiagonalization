@@ -233,7 +233,7 @@ public:
 		res /= sqrt(2.0*p.rot);
 		return res;
 	}
-
+	/*
 	Eigen::MatrixXd basisMatrix() const
 	{
 		double expk = (k_==0)?1.0:-1.0;
@@ -261,33 +261,6 @@ public:
 		}
 		return res;
 	}
-	/*
-	template<typename T>
-	T overlap(int idx, const Eigen::Matrix<T,  Eigen::Dynamic, 1>& rhs) const
-	{
-		double expk = (k_==0)?1.0:-1.0;
-		auto rpt = rpts_[idx]; //representative
-		auto p = parity_.at(rpts_[idx]);
-		double Na = 1.0/double(1 + abs(p.parity))/p.rot;
-		if(p.parity == 0)
-		{
-			T res = 0.0;
-			for(int i = 0; i < p.rot; i++)
-			{
-				res += rhs(rotl(rpt, i))*Na*pow(expk,i);
-			}
-			return res;
-		}
-		else
-		{
-			T res = 0.0;
-			for(int i = 0; i < p.rot; i++)
-			{
-				res += rhs(rotl(rpt, i))*Na*pow(expk,i);
-				res -= rhs(rotl(rpt, i))*Na*pow(expk,i);
-			}
-			return res;
-		}
-	}*/
+	*/
 };
 #endif//CY_TI_BASIS_HPP

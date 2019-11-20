@@ -23,17 +23,17 @@ public:
 		
 	}
 
-	std::map<int,double> getCol(UINT n) const
+	std::map<std::size_t,double> getCol(UINT n) const
 	{
 		int N = basis_.getN();
 
 		UINT a = basis_.getNthRep(n);
 		const boost::dynamic_bitset<> bs(N, a);
 
-		std::map<int, double> m;
+		std::map<std::size_t, double> m;
 		for(int i = 0; i < N; i++)
 		{
-			//Next-nearest
+			//Nearest
 			{
 				int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
