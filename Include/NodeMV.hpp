@@ -61,6 +61,11 @@ public:
 		mkl_sparse_d_mv(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, A_, descA_, x_in, 0.0, y_out);
 	}
 
+	~NodeMV()
+	{
+		mkl_sparse_destroy(A_);
+	}
+
 };
 
 
