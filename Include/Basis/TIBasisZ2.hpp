@@ -134,7 +134,7 @@ public:
 		return parity_.at(s);
 	}
 
-	const std::map<UINT, RepData<UINT> >& getData() const
+	const tbb::concurrent_unordered_map<UINT, RepData<UINT> >& getParityMap() const
 	{
 		return parity_;
 	}
