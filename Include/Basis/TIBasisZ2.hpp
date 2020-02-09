@@ -8,10 +8,14 @@
 #include <Eigen/Dense>
 
 #include "Basis.hpp"
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/parallel_sort.h>
 
+template<typename UINT>
 struct RepData 
 {
-	std::size_t index;
+	typename tbb::concurrent_vector<UINT>::const_iterator iter;
 	int rot;
 	int parity;
 };
@@ -24,10 +28,10 @@ private:
 	const int k_;
 	const int p_;
 
-	std::vector<UINT> rpts_;
-	std::map<UINT, RepData> parity_;
+	tbb::concurrent_vector<UINT> rpts_; //rpts_ is NOT sorted
+	tbb::concurrent_unordered_map<UINT, RepData<UINT> > parity_;
 
-	int checkState(UINT s) 
+	int checkState(UINT s) const
 	{
 		UINT sr = s;
 		const auto N = this->getN();
@@ -58,7 +62,9 @@ private:
 
 	void constructBasis()
 	{
-		std::vector<std::pair<UINT, int> > ss;
+		tbb::concurrent_vector<std::pair<UINT, int> > ss;
+		const int N = this->getN();
+		ss.reserve((1<<(N-3))/N);
 		{
 			UINT s = 0;
 			int r = checkState(s);
@@ -67,34 +73,41 @@ private:
 				ss.emplace_back(s,r);
 			}
 		}
-		for(UINT s = 1; s <= this->getUps(); s+=2)
+
+		tbb::parallel_for(static_cast<UINT>(1), this->getUps(), static_cast<UINT>(2), 
+				[&](UINT s)
 		{
 			int r = checkState(s);
 			if(r > 0)
 			{
 				ss.emplace_back(s,r);
 			}
-		}
+		});
+
+
 		//now ss are sorted candidates
-		for(auto iter = ss.begin(); iter != ss.end(); ++iter)
+		tbb::parallel_for(static_cast<std::size_t>(0), ss.size(), 
+					[&](std::size_t idx)
 		{
-			UINT rep = iter->first;
+			UINT rep = ss[idx].first;
 			auto s = this->findRepresentative(flip(rep));
 			if(s.first == rep && checkParity(s.second))
 			{
-				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{rpts_.size()-1, iter->second, 0};
+				auto inserted = rpts_.emplace_back(rep);
+				parity_[rep] = RepData<UINT>{inserted, ss[idx].second, 0};
 			}
 			else if(s.first > rep)
 			{
-				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{rpts_.size()-1, iter->second, 1};
+				auto inserted = rpts_.emplace_back(rep);
+				parity_[rep] = RepData<UINT>{inserted, ss[idx].second, 1};
 			}
 			else //s.first < rep
 			{
 				;
 			}
-		}
+		});
+		//parity_ and rpts_ constructed
+		//DO NOT REMOVE ANY ELEMENTS AFTERWISE
 
 	}
 
@@ -116,12 +129,12 @@ public:
 	inline int getP() const { return p_; }
 
 
-	RepData getData(UINT s) const
+	RepData<UINT> getData(UINT s) const
 	{
 		return parity_.at(s);
 	}
 
-	const std::map<UINT, RepData>& getData() const
+	const std::map<UINT, RepData<UINT> >& getData() const
 	{
 		return parity_;
 	}
@@ -140,10 +153,8 @@ public:
 	{
 		double expk = (k_==0)?1.0:-1.0;
 
-
 		auto pa = parity_.at(rpts_[aidx]);
 		double Na = 1.0/double(1 + abs(pa.parity))/pa.rot;
-
 
 		double c = 1.0;
 
@@ -163,9 +174,8 @@ public:
 		auto pb = iter->second;
 		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
 
-		assert(pb.index < rpts_.size());
-
-		return std::make_pair(pb.index,sqrt(Nb/Na)*pow(expk, bRot)*c);
+		return std::make_pair(std::distance(rpts_.begin(), pb.iter),
+				sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
 
 	Eigen::VectorXd basisVec(int n) const
@@ -193,33 +203,5 @@ public:
 		res /= sqrt(2.0*p.rot);
 		return res;
 	}
-
-	Eigen::MatrixXd basisMatrix() const
-	{
-		double expk = (k_==0)?1.0:-1.0;
-		Eigen::MatrixXd res(rpts_.size(), 1<<(this->getN()));
-		res.setZero();
-		for(int i = 0; i < rpts_.size(); i++)
-		{
-			auto rep = getNthRep(i);
-			auto p = parity_.at(rep);
-			for(int k = 0; k < p.rot; k++)
-			{
-				res(i, this->rotl(rep,k)) = pow(expk,k);
-			}
-			if(p.parity == 0)
-			{
-				res.row(i).normalize();
-				continue;
-			}
-			rep = this->flip(rep);
-			for(int k = 0; k < p.rot; k++)
-			{
-				res(i, this->rotl(rep,k)) = p_*pow(expk,k);
-			}
-			res.row(i).normalize();
-		}
-		return res;
-	}
 };
-#endif//CY_TI_BASIS_HPP
+#endif//CY_TI_BASIS_Z2_HPP

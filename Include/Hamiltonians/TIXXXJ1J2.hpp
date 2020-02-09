@@ -6,7 +6,7 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 //#include "BitOperations.h"
-#include "Basis.hpp"
+#include "Basis/Basis.hpp"
 
 template<typename UINT>
 class TIXXXJ1J2
