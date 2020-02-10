@@ -7,6 +7,8 @@
 #include <cmath>
 #include <Eigen/Dense>
 
+#include <boost/dynamic_bitset.hpp>
+
 #include "Basis.hpp"
 
 struct RepData 
@@ -136,6 +138,22 @@ public:
 		return rpts_[n];
 	}
 
+	Eigen::VectorXd corrFunc(int n) const
+	{
+		const int N = this->getN();
+		Eigen::VectorXd res(N);
+		res.setZero();
+		UINT rep = rpts_[n];
+		boost::dynamic_bitset<> bs{N, rep};
+		res(0) = 1.0;
+
+		for(int i = 1; i < N; ++i)
+		{
+			res(i) = (1-2*bs[0])*(1-2*bs[i]);
+		}
+		return res;
+	}
+
 	std::pair<int,double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
 		double expk = (k_==0)?1.0:-1.0;
@@ -166,6 +184,28 @@ public:
 		assert(pb.index < rpts_.size());
 
 		return std::make_pair(pb.index,sqrt(Nb/Na)*pow(expk, bRot)*c);
+	}
+
+	std::pair<int, double> coeffAt(UINT sigma) const
+	{
+		double expk = (k_==0)?1.0:-1.0;
+		double c = 1.0;
+		UINT rep;
+		int rot;
+		std::tie(rep, rot) = this->findRepresentative(sigma);
+		auto iter = parity_.find(rep);
+		if(iter == parity_.end())
+		{
+			c *= p_;
+			std::tie(rep, rot) = this->findRepresentative(this->flip(sigma));
+			iter = parity_.find(rep);
+
+			if(iter == parity_.end())
+				return std::make_pair(-1, 0.0);
+		}
+		auto pb = iter->second;
+		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
+		return std::make_pair(pb.index, sqrt(Nb)*pow(expk,rot)*c);
 	}
 
 	Eigen::VectorXd basisVec(int n) const
