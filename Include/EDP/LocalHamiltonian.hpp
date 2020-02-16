@@ -6,9 +6,9 @@ namespace edp
 
 namespace internal
 {
-	inline int ipow(int base, int exp)
+	inline uint32_t ipow(uint32_t base, uint32_t exp)
 	{
-		int result = 1;
+		int result = 1u;
 		while (exp)
 		{
 			if (exp & 1)
@@ -90,7 +90,11 @@ public:
 		return numSites_;
 	}
 
-	std::map<int, T> operator()(int n) const;
+	std::map<uint32_t, T> getCol(uint32_t n) const;
+	inline std::map<uint32_t, T> operator()(uint32_t n) const
+	{
+		return getCol(n);
+	}
 
 	void addTwoSiteTerm(const std::pair<int,int>& site, Eigen::SparseMatrix<T> m)
 	{
@@ -107,17 +111,17 @@ public:
 }
 
 template<typename T>
-std::map<int, T> edp::LocalHamiltonian<T>::operator()(int n) const
+std::map<uint32_t, T> edp::LocalHamiltonian<T>::getCol(uint32_t n) const
 {
 	using internal::ipow;
 	using Eigen::SparseMatrix;
 
-	std::map<int, T> m;
+	std::map<uint32_t, T> m;
 
 	for(auto& twoSiteTerm : twoSiteTerms_)
 	{
-		int a = (n/ipow(d_,twoSiteTerm.sites.first))%d_;
-		int b = (n/ipow(d_,twoSiteTerm.sites.second))%d_;
+		auto a = (n/ipow(d_,twoSiteTerm.sites.first))%d_;
+		auto b = (n/ipow(d_,twoSiteTerm.sites.second))%d_;
 		//auto col = twoSiteTerm.m.col(a*d_ + b);
 		auto col = a*d_ + b;
 		for(typename SparseMatrix<T>::InnerIterator it(twoSiteTerm.m, col); it; ++it)
