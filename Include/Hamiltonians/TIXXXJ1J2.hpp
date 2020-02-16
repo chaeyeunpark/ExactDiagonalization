@@ -12,12 +12,12 @@ template<typename UINT>
 class TIXXXJ1J2
 {
 private:
-	Basis<UINT>& basis_;
+	const Basis<UINT>& basis_;
 	double J1_;
 	double J2_;
 
 public:
-	TIXXXJ1J2(Basis<UINT>& basis, double J1, double J2)
+	TIXXXJ1J2(const Basis<UINT>& basis, double J1, double J2)
 		: basis_(basis), J1_(J1), J2_(J2)
 	{
 		
