@@ -8,11 +8,11 @@ template<typename UINT>
 class Basis
 {
 private:
-	const int N_;
+	const unsigned int N_;
 	const UINT ups_;
 public:
 
-	Basis(int N)
+	Basis(unsigned int N)
 		: N_{N}, ups_{(UINT(1) << N_) -1}
 	{
 	}
@@ -32,11 +32,11 @@ public:
 		return ((value << count) & ups_) | (value >> (N_ - count));
 	}
 
-	std::pair<UINT, int> findRepresentative(UINT sigma) const
+	std::pair<UINT, unsigned int> findMinRots(UINT sigma) const
 	{
 		UINT rep = sigma;
-		int rot = 0;
-		for(int r = 1; r < N_; r++)
+		unsigned int rot = 0u;
+		for(unsigned int r = 1; r < N_; r++)
 		{
 			UINT sr = rotl(sigma, r);
 			if(sr < rep)

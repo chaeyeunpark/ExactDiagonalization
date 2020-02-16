@@ -7,10 +7,11 @@
 #include <cmath>
 #include <Eigen/Dense>
 
-#include "Basis.hpp"
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_sort.h>
+
+#include "Basis.hpp"
 
 struct RepData 
 {
@@ -73,7 +74,7 @@ private:
 			}
 		}
 
-		tbb::parallel_for(static_cast<UINT>(1), UINT(1)<<UINT(N), static_cast<UINT>(2), 
+		tbb::parallel_for(static_cast<UINT>(1), (UINT(1)<<UINT(N)), static_cast<UINT>(2), 
 				[&](UINT s)
 		{
 			int r = checkState(s);
