@@ -12,7 +12,7 @@ private:
 	const UINT ups_;
 public:
 
-	Basis(int N)
+	Basis(int N) 
 		: N_{N}, ups_{(UINT(1) << N_) -1}
 	{
 	}
@@ -49,11 +49,11 @@ public:
 	}
 
 	virtual std::size_t getDim() const = 0;
-	virtual UINT getNthRep(int n) const = 0;
+	virtual UINT getNthRep(std::size_t n) const = 0;
 	/**
 	 * \sum_i h_i|rep[aidx]> = coeff*|rep of bsigma>
 	 */
-	virtual std::pair<int, double> hamiltonianCoeff(UINT bsigma, int adix) const = 0;
+	virtual std::pair<int, double> hamiltonianCoeff(UINT bsigma, std::size_t adix) const = 0;
 
 	virtual ~Basis(){}
 };

@@ -84,10 +84,12 @@ public:
 	}
 
 	TIBasis(const TIBasis& ) = default;
-	TIBasis(TIBasis&& ) = default;
+	/* Default move constructor is not supported in intel c compiler */
+	//TIBasis(TIBasis&& ) = default;
 
 	TIBasis& operator=(const TIBasis& ) = default;
-	TIBasis& operator=(TIBasis&& ) = default;
+	/* Default move assignment is not supported in intel c compiler */
+	//TIBasis& operator=(TIBasis&& ) = default;
 
 	inline int getK() const { return k_; }
 
@@ -96,7 +98,7 @@ public:
 		return rotRpts_[n];
 	}
 	
-	int stateIdx(UINT rep) const
+	std::size_t stateIdx(UINT rep) const
 	{
 		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep);
 		return distance(rpts_.begin(), iter);
@@ -112,13 +114,12 @@ public:
 		return rpts_.size();
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(std::size_t n) const override
 	{
 		return rpts_[n];
 	}
 
-
-	std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
+	std::pair<int, double> hamiltonianCoeff(UINT bSigma, std::size_t aidx) const override
 	{
 		using std::sqrt;
 		using std::pow;
@@ -129,7 +130,7 @@ public:
 		int bRot;
 		std::tie(bRep, bRot) = this->getMinRots(bSigma);
 
-		int bidx = stateIdx(bRep);
+		std::size_t bidx = stateIdx(bRep);
 
 		if(bidx >= getDim())
 		{
@@ -141,7 +142,5 @@ public:
 
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot));
 	}
-
-
 };
 #endif//CY_TI_BASIS_HPP

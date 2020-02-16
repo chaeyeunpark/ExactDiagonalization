@@ -75,10 +75,10 @@ public:
 	{
 	}
 	LocalHamiltonian(const LocalHamiltonian&) = default;
-	LocalHamiltonian(LocalHamiltonian&&) = default;
+	//LocalHamiltonian(LocalHamiltonian&&) = default;
 
 	LocalHamiltonian& operator=(const LocalHamiltonian&) = default;
-	LocalHamiltonian& operator=(LocalHamiltonian&&) = default;
+	//LocalHamiltonian& operator=(LocalHamiltonian&&) = default;
 
 	void clearTerms()
 	{

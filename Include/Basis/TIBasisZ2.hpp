@@ -97,7 +97,6 @@ private:
 				;
 			}
 		}
-
 	}
 
 public:
@@ -133,12 +132,12 @@ public:
 		return rpts_.size();
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(std::size_t n) const override
 	{
 		return rpts_[n];
 	}
 
-	Eigen::VectorXd corrFunc(int n) const
+	Eigen::VectorXd corrFunc(std::size_t n) const
 	{
 		const int N = this->getN();
 		Eigen::VectorXd res(N);
@@ -154,7 +153,7 @@ public:
 		return res;
 	}
 
-	std::pair<int,double> hamiltonianCoeff(UINT bSigma, int aidx) const override
+	std::pair<int,double> hamiltonianCoeff(UINT bSigma, std::size_t aidx) const override
 	{
 		double expk = (k_==0)?1.0:-1.0;
 
