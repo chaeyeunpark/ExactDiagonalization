@@ -26,7 +26,7 @@ public:
 	{
 		tbb::parallel_for(0u, nThreads_, [&](unsigned int idx)
 		{
-			mvs_[idx]->perform_op(x_in + (dim_*idx)/nThreads_, y_out + (dim_*idx)/nThreads_);
+			mvs_[idx]->perform_op(x_in, y_out + (dim_*idx)/nThreads_);
 		});	
 	}
 
