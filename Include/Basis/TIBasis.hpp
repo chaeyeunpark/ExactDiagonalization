@@ -5,7 +5,13 @@
 #include <cmath>
 #include <iostream>
 
-#include "Basis.hpp"
+#include <Eigen/Dense>
+
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_sort.h>
+
+#include "Basis/Basis.hpp"
 
 template<typename UINT>
 class TIBasis
@@ -14,8 +20,8 @@ class TIBasis
 private:
 	const int k_;
 
-	std::vector<UINT> rpts_; //Representatives
-	std::vector<int> rotRpts_; //R value for each representative
+	tbb::concurrent_vector<std::pair<UINT, int> > rpts_; //Representatives
+
 
 	int checkState(UINT s) 
 	{
@@ -44,7 +50,7 @@ private:
 		int rot = 0;
 		for(int r = 1; r < this->getN(); r++)
 		{
-			UINT sr = rotl(sigma, r);
+			UINT sr = this->rotl(sigma, r);
 			if(sr < rep)
 			{
 				rep = sr;
@@ -56,24 +62,30 @@ private:
 
 	void constructBasis()
 	{
+		auto rptComp = 
+			[](const std::pair<UINT, int>& a, const std::pair<UINT, int>& b) -> bool
+		{
+			return a.first < b.first;
+		};
 		{
 			UINT s = 0;
 			int r = checkState(s);
 			if(r > 0)
 			{
-				rpts_.push_back(s);
-				rotRpts_.push_back(r);
+				rpts_.emplace_back(s, r);
 			}
 		}
-		for(UINT s = 1; s <= this->getUps(); s+=2)
+		tbb::parallel_for(static_cast<UINT>(1), this->getUps(), static_cast<UINT>(2),
+				[&](UINT s)
 		{
 			int r = checkState(s);
 			if(r > 0)
 			{
-				rpts_.push_back(s);
-				rotRpts_.push_back(r);
+				rpts_.emplace_back(s,r);
 			}
-		}
+		});
+
+		tbb::parallel_sort(rpts_.begin(), rpts_.end(), rptComp);
 	}
 
 public:
@@ -93,16 +105,21 @@ public:
 
 	inline int rotRpt(int n) const
 	{
-		return rotRpts_[n];
+		return rpts_[n].second;
 	}
 	
 	int stateIdx(UINT rep) const
 	{
-		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep);
+		auto rptComp = 
+			[](const std::pair<UINT, int>& a, UINT v) -> bool
+		{
+			return a.first < v;
+		};
+		auto iter = std::lower_bound(rpts_.begin(), rpts_.end(), rep, rptComp);
 		return distance(rpts_.begin(), iter);
 	}
 
-	std::vector<UINT> getRepresentatives() const
+	const tbb::concurrent_vector<std::pair<UINT, int> >& getRepresentatives() const
 	{
 		return rpts_;
 	}
@@ -114,7 +131,7 @@ public:
 
 	UINT getNthRep(int n) const override
 	{
-		return rpts_[n];
+		return rpts_[n].first;
 	}
 
 
@@ -136,12 +153,26 @@ public:
 			return std::make_pair(-1, 0.0);
 		}
 
-		double Na = 1.0/rotRpts_[aidx];
-		double Nb = 1.0/rotRpts_[bidx];
+		double Na = 1.0/rpts_[aidx].second;
+		double Nb = 1.0/rpts_[bidx].second;
 
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot));
 	}
 
+	Eigen::VectorXd basisVec(unsigned int n) const
+	{
+		const double expk = (k_==0)?1.0:-1.0;
+		Eigen::VectorXd res(1<<(this->getN()));
+		res.setZero();
+
+		auto rep = rpts_[n].first;
+		for(int k = 0; k < rpts_[n].second; k++)
+		{
+			res( this->rotl(rep,k)) = pow(expk,k);
+		}
+		res /= sqrt(rpts_[n].second);
+		return res;
+	}
 
 };
 #endif//CY_TI_BASIS_HPP
