@@ -89,7 +89,7 @@ private:
 					[&](std::size_t idx)
 		{
 			UINT rep = ss[idx].first;
-			auto s = this->findRepresentative(flip(rep));
+			auto s = this->findMinRots(flip(rep));
 			if(s.first == rep && checkParity(s.second))
 			{
 				auto inserted = rpts_.emplace_back(rep);
@@ -166,12 +166,12 @@ public:
 
 		UINT bRep;
 		int bRot;
-		std::tie(bRep, bRot) = this->findRepresentative(bSigma);
+		std::tie(bRep, bRot) = this->findMinRots(bSigma);
 		auto iter = parity_.find(bRep);
 		if(iter == parity_.end())
 		{
 			c *= p_;
-			std::tie(bRep, bRot) = this->findRepresentative(this->flip(bSigma));
+			std::tie(bRep, bRot) = this->findMinRots(this->flip(bSigma));
 			iter = parity_.find(bRep);
 
 			if(iter == parity_.end())

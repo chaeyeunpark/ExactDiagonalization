@@ -6,7 +6,7 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 //#include "BitOperations.h"
-#include "Basis.hpp"
+#include "Basis/Basis.hpp"
 
 template<typename UINT>
 class TITFIsing
@@ -25,23 +25,23 @@ public:
 
 	std::map<std::size_t,double> getCol(UINT n) const
 	{
-		int N = basis_.getN();
+		unsigned int N = basis_.getN();
 
 		UINT a = basis_.getNthRep(n);
 		const boost::dynamic_bitset<> bs(N, a);
 
 		std::map<std::size_t, double> m;
-		for(int i = 0; i < N; i++)
+		for(unsigned int i = 0; i < N; i++)
 		{
 			//Next-nearest
 			{
-				int j = (i+1)%N;
+				unsigned int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
 				m[n] += -J_*sgn; //ZZ
 				
 				UINT s = a;
-				s ^= basis.mask(i);
+				s ^= basis_.mask({i});
 
 				int bidx;
 				double coeff;

@@ -6,13 +6,13 @@
 #include <ios>
 
 //#include "TIBasis.hpp"
-#include "TIBasisZ2.hpp"
-#include "TITFIsing.hpp"
+#include "Basis/TIBasisZ2.hpp"
+#include "Hamiltonians/TITFIsing.hpp"
 #include "NodeMV.hpp"
 
 int main(int argc, char* argv[])
 {
-	constexpr int N = 28;
+	constexpr int N = 24;
 	using UINT = uint32_t;
 
 	std::cout << "#N: " << N << std::endl;
