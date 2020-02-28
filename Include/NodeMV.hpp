@@ -9,7 +9,6 @@
 class NodeMV
 {
 private:
-
 	std::size_t dim_;
 	std::size_t rows_;
 
@@ -19,8 +18,8 @@ private:
 
 	sparse_matrix_t A_;
 	matrix_descr descA_;
-public:
 
+public:
 	template<class ColFunc>
 	explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end, ColFunc&& col)
 		: dim_(dim)

@@ -99,15 +99,13 @@ public:
 	}
 
 	TIBasis(const TIBasis& ) = default;
-	TIBasis(TIBasis&& ) = default;
+	//TIBasis(TIBasis&& ) = default;
 
 	TIBasis& operator=(const TIBasis& ) = default;
-	TIBasis& operator=(TIBasis&& ) = default;
+	//TIBasis& operator=(TIBasis&& ) = default;
 
 	inline unsigned int getK() const { return k_; }
 
-
-	
 	unsigned int stateIdx(UINT rep) const
 	{
 		auto comp = [](const std::pair<UINT, unsigned int>& v1, UINT v2)
@@ -138,7 +136,6 @@ public:
 		return rpts_[n].second;
 	}
 
-
 	std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
 		using std::sqrt;
@@ -162,7 +159,5 @@ public:
 
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot));
 	}
-
-
 };
 #endif//CY_TI_BASIS_HPP

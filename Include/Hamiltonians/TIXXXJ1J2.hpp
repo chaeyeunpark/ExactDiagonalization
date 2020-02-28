@@ -31,18 +31,17 @@ public:
 		const boost::dynamic_bitset<> bs(N, a);
 
 		std::map<int, double> m;
-		for(int i = 0; i < N; i++)
+		for(unsigned int i = 0; i < N; i++)
 		{
 			//Next-nearest
 			{
-				int j = (i+1)%N;
+				unsigned int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
 				m[n] += J1_*sgn;
 				
 				UINT s = a;
-				UINT t = (1<<i) | (1<<j);
-				s ^= t;
+				s ^= basis_.mask({i,j});
 
 				int bidx;
 				double coeff;
@@ -54,14 +53,13 @@ public:
 			}
 			//Next-next-nearest
 			{
-				int j = (i+2)%N;
+				unsigned int j = (i+2)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
 				m[n] += J2_*sgn;
 				
 				UINT s = a;
-				UINT t = (1<<i) | (1<<j);
-				s ^= t;
+				s ^= basis_.mask({i,j});
 		
 				int bidx;
 				double coeff;

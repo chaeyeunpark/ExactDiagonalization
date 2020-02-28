@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <tuple>
+#include <initializer_list>
+
 
 template<typename UINT>
 class Basis
@@ -24,6 +26,14 @@ public:
 	inline UINT getUps() const
 	{
 		return ups_;
+	}
+
+	UINT mask(std::initializer_list<unsigned int> pos) const
+	{
+		UINT s = 0;
+		for(unsigned int p: pos)
+			s ^= (UINT(1) << p);
+		return s;
 	}
 
 	UINT rotl(UINT value, unsigned int count) const

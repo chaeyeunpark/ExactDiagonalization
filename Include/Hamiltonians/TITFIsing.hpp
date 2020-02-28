@@ -12,12 +12,12 @@ template<typename UINT>
 class TITFIsing
 {
 private:
-	Basis<UINT>& basis_;
+	const Basis<UINT>& basis_;
 	double J_;
 	double h_;
 
 public:
-	TITFIsing(Basis<UINT>& basis, double J, double h)
+	TITFIsing(const Basis<UINT>& basis, double J, double h)
 		: basis_(basis), J_(J), h_(h)
 	{
 		
@@ -41,8 +41,7 @@ public:
 				m[n] += -J_*sgn; //ZZ
 				
 				UINT s = a;
-				UINT t = (1<<i);
-				s ^= t;
+				s ^= basis.mask(i);
 
 				int bidx;
 				double coeff;

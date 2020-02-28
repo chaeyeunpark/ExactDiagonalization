@@ -7,8 +7,8 @@ template<typename UINT>
 class BasisJz
 {
 private:
-	int N_;
-	int nup_;
+	unsigned int N_;
+	unsigned int nup_;
 	
 public:
 	struct BasisJzIterator : public std::iterator<std::forward_iterator_tag, UINT>
@@ -68,11 +68,11 @@ public:
 	}
 	BasisJzIterator begin()
 	{
-		return BasisJzIterator{(1u<<nup_)-1};
+		return BasisJzIterator{(UINT(1)<<UINT(nup_))-1};
 	}
 	BasisJzIterator end()
 	{
-		BasisJzIterator r{((1u<<nup_)-1) << (N_-nup_)};
+		BasisJzIterator r{((UINT(1)<<UINT(nup_))-1) << (UINT(N_)-UINT(nup_))};
 		r.next();
 		return r;
 	}
