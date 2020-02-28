@@ -13,10 +13,9 @@
 
 #include "Basis.hpp"
 
-template<typename UINT>
 struct RepData 
 {
-	typename tbb::concurrent_vector<UINT>::const_iterator iter;
+	std::size_t rptIdx;
 	int rot;
 	int parity;
 };
@@ -30,7 +29,7 @@ private:
 	const int p_;
 
 	tbb::concurrent_vector<UINT> rpts_; //rpts_ is NOT sorted
-	tbb::concurrent_unordered_map<UINT, RepData<UINT> > parity_;
+	tbb::concurrent_unordered_map<UINT, RepData > parity_;
 
 	int checkState(UINT s) const
 	{
@@ -64,7 +63,7 @@ private:
 	void constructBasis()
 	{
 		tbb::concurrent_vector<std::pair<UINT, int> > ss;
-		const int N = this->getN();
+		const unsigned int N = this->getN();
 		ss.reserve((1<<(N-3))/N);
 		{
 			UINT s = 0;
@@ -86,7 +85,6 @@ private:
 		});
 
 
-		//now ss are sorted candidates
 		tbb::parallel_for(static_cast<std::size_t>(0), ss.size(), 
 					[&](std::size_t idx)
 		{
@@ -95,20 +93,27 @@ private:
 			if(s.first == rep && checkParity(s.second))
 			{
 				auto inserted = rpts_.emplace_back(rep);
-				parity_[rep] = RepData<UINT>{inserted, ss[idx].second, 0};
+				parity_[rep] = RepData{0, ss[idx].second, 0};
 			}
 			else if(s.first > rep)
 			{
 				auto inserted = rpts_.emplace_back(rep);
-				parity_[rep] = RepData<UINT>{inserted, ss[idx].second, 1};
+				parity_[rep] = RepData{0, ss[idx].second, 1};
 			}
 			else //s.first < rep
 			{
 				;
 			}
 		});
+
+		//sort to make it consistent over different instances
+		tbb::parallel_sort(rpts_);
+		for(std::size_t idx = 0; idx < rpts_.size(); ++idx)
+		{
+			parity_[rpts_[idx]].rptIdx = idx;
+		}
+
 		//parity_ and rpts_ constructed
-		//DO NOT REMOVE ANY ELEMENTS AFTERWISE
 
 	}
 
@@ -130,12 +135,12 @@ public:
 	inline int getP() const { return p_; }
 
 
-	RepData<UINT> getData(UINT s) const
+	RepData getData(UINT s) const
 	{
 		return parity_.at(s);
 	}
 
-	const tbb::concurrent_unordered_map<UINT, RepData<UINT> >& getParityMap() const
+	const tbb::concurrent_unordered_map<UINT, RepData >& getParityMap() const
 	{
 		return parity_;
 	}
@@ -175,11 +180,11 @@ public:
 		auto pb = iter->second;
 		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
 
-		return std::make_pair(std::distance(rpts_.begin(), pb.iter),
+		return std::make_pair(pb.rptIdx,
 				sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
 
-	Eigen::VectorXd basisVec(int n) const
+	Eigen::VectorXd basisVec(unsigned int n) const
 	{
 		const double expk = (k_==0)?1.0:-1.0;
 		Eigen::VectorXd res(1<<(this->getN()));
