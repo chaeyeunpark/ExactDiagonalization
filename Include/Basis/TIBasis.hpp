@@ -108,12 +108,6 @@ public:
 
 	inline unsigned int getK() const { return k_; }
 
-	inline int rotRpt(int n) const
-	{
-		return rpts_[n].second;
-	}
-	
-
 	unsigned int stateIdx(UINT rep) const
 	{
 		auto comp = [](const std::pair<UINT, unsigned int>& v1, UINT v2)
