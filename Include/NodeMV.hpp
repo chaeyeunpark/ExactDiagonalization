@@ -5,13 +5,10 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
-#include <limits>
-#include <exception>
 
 class NodeMV
 {
 private:
-
 	std::size_t dim_;
 	std::size_t rows_;
 
@@ -21,8 +18,8 @@ private:
 
 	sparse_matrix_t A_;
 	matrix_descr descA_;
-public:
 
+public:
 	template<class ColFunc>
 	explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end, ColFunc&& col)
 		: dim_(dim)
@@ -36,21 +33,16 @@ public:
 		ptrB[0] = 0;
 		for(std::size_t i = 0; i < rows_; i++)
 		{
-			auto rr = col(i + row_start);
+			auto rr = col.getCol(i + row_start);
 			ptrB[i+1] = ptrB[i] + rr.size();
 			std::transform(rr.begin(), rr.end(), back_inserter(colIdx), get_first);
 			std::transform(rr.begin(), rr.end(), back_inserter(values), get_second);
 		}
 		sparse_status_t m = mkl_sparse_d_create_csr(&A_, SPARSE_INDEX_BASE_ZERO, rows_, dim, 
 				ptrB.data(), ptrB.data()+1, colIdx.data(), values.data());
-		if(m == SPARSE_STATUS_ALLOC_FAILED)
-			throw std::bad_alloc();
-		else if(m != SPARSE_STATUS_SUCCESS)
-			throw std::bad_exception();
 		descA_.type = SPARSE_MATRIX_TYPE_GENERAL;
 
-		mkl_sparse_set_mv_hint(A_, SPARSE_OPERATION_NON_TRANSPOSE, descA_, std::numeric_limits<MKL_INT>::max());
-		//mkl_sparse_set_mv_hint(A_, SPARSE_OPERATION_NON_TRANSPOSE, descA_, 1000);
+		mkl_sparse_set_mv_hint(A_, SPARSE_OPERATION_NON_TRANSPOSE, descA_, 100000);
 	}
 
 	std::size_t rows() const
@@ -72,6 +64,7 @@ public:
 	{
 		mkl_sparse_destroy(A_);
 	}
+
 };
 
 

@@ -1,9 +1,9 @@
 #include <iostream>
-#include "Basis/TIBasis.hpp"
-#include "Basis/TIBasisZ2.hpp"
+#include "TIBasis.hpp"
+#include "TIBasisZ2.hpp"
 #include "EDP/ConstructSparseMat.hpp"
 #include "XXZ.hpp"
-#include "Hamiltonians/TIXXZ.hpp"
+#include "TIXXZ.hpp"
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -66,7 +66,7 @@ void PrintRpts(Basis&& basis)
 		std::cout << basis.getNthRep(i) << std::endl;
 	}
 }
-TEST_CASE("TIBasisZ2 test basis matrices", "[z2_basis_check]")
+TEST_CASE("TIBasisZ2 test", "[basis]")
 {
 	const std::array<int, 2> ps{-1,1};
 	
@@ -79,34 +79,6 @@ TEST_CASE("TIBasisZ2 test basis matrices", "[z2_basis_check]")
 				printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
 				TIBasisZ2<uint32_t> basis(N,K,p);
 				CheckBasis(basis);
-			}
-		}
-	}
-}
-TEST_CASE("TIBasisZ2 test coeffs", "[z2_basis_check]")
-{
-	const std::array<int, 2> ps{-1,1};
-	
-	for(int N = 4; N <= 12; N+=2)
-	{
-		for(int K: {0, N/2})
-		{
-			for(int p: ps)
-			{
-				printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
-				TIBasisZ2<uint32_t> basis(N,K,p);
-
-				auto mat = basis.basisMatrix();
-				for(int s = 0; s < (1<<N); ++s)
-				{
-					int idx;
-					double coeff;
-					std::tie(idx, coeff) = basis.coeffAt(s);
-					if(idx != -1)
-					{
-						REQUIRE(std::abs(coeff - mat(idx,s)) < 1e-7);
-					}
-				}
 			}
 		}
 	}

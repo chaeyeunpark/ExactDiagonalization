@@ -12,12 +12,12 @@ template<typename UINT>
 class TIXXZ
 {
 private:
-	Basis<UINT>& basis_;
+	const Basis<UINT>& basis_;
 	double J_;
 	double delta_;
 
 public:
-	TIXXZ(Basis<UINT>& basis, double J, double delta)
+	TIXXZ(const Basis<UINT>& basis, double J, double delta)
 		: basis_(basis), J_(J), delta_(delta)
 	{
 		
@@ -41,8 +41,7 @@ public:
 				m[n] += J_*delta_*sgn;
 				
 				UINT s = a;
-				UINT t = (1<<i) | (1<<j);
-				s ^= t;
+				s ^= basis.mask({i,j});
 
 				int bidx;
 				double coeff;

@@ -7,13 +7,15 @@
 #include <cmath>
 #include <Eigen/Dense>
 
-#include <boost/dynamic_bitset.hpp>
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/parallel_sort.h>
 
 #include "Basis.hpp"
 
 struct RepData 
 {
-	std::size_t index;
+	std::size_t rptIdx;
 	int rot;
 	int parity;
 };
@@ -26,10 +28,10 @@ private:
 	const int k_;
 	const int p_;
 
-	std::vector<UINT> rpts_;
-	std::map<UINT, RepData> parity_;
+	tbb::concurrent_vector<UINT> rpts_; //rpts_ is NOT sorted
+	tbb::concurrent_unordered_map<UINT, RepData > parity_;
 
-	int checkState(UINT s) 
+	int checkState(UINT s) const
 	{
 		UINT sr = s;
 		const auto N = this->getN();
@@ -60,7 +62,9 @@ private:
 
 	void constructBasis()
 	{
-		std::vector<std::pair<UINT, int> > ss;
+		tbb::concurrent_vector<std::pair<UINT, int> > ss;
+		const unsigned int N = this->getN();
+		ss.reserve((1<<(N-3))/N);
 		{
 			UINT s = 0;
 			int r = checkState(s);
@@ -69,34 +73,48 @@ private:
 				ss.emplace_back(s,r);
 			}
 		}
-		for(UINT s = 1; s <= this->getUps(); s+=2)
+
+		tbb::parallel_for(static_cast<UINT>(1), (UINT(1)<<UINT(N)), static_cast<UINT>(2), 
+				[&](UINT s)
 		{
 			int r = checkState(s);
 			if(r > 0)
 			{
 				ss.emplace_back(s,r);
 			}
-		}
-		//now ss are sorted candidates
-		for(auto iter = ss.begin(); iter != ss.end(); ++iter)
+		});
+
+
+		tbb::parallel_for(static_cast<std::size_t>(0), ss.size(), 
+					[&](std::size_t idx)
 		{
-			UINT rep = iter->first;
-			auto s = this->findRepresentative(flip(rep));
+			UINT rep = ss[idx].first;
+			auto s = this->findMinRots(flip(rep));
 			if(s.first == rep && checkParity(s.second))
 			{
-				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{rpts_.size()-1, iter->second, 0};
+				auto inserted = rpts_.emplace_back(rep);
+				parity_[rep] = RepData{0, ss[idx].second, 0};
 			}
 			else if(s.first > rep)
 			{
-				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{rpts_.size()-1, iter->second, 1};
+				auto inserted = rpts_.emplace_back(rep);
+				parity_[rep] = RepData{0, ss[idx].second, 1};
 			}
 			else //s.first < rep
 			{
 				;
 			}
+		});
+
+		//sort to make it consistent over different instances
+		tbb::parallel_sort(rpts_);
+		for(std::size_t idx = 0; idx < rpts_.size(); ++idx)
+		{
+			parity_[rpts_[idx]].rptIdx = idx;
 		}
+
+		//parity_ and rpts_ constructed
+
 	}
 
 public:
@@ -122,7 +140,7 @@ public:
 		return parity_.at(s);
 	}
 
-	const std::map<UINT, RepData>& getData() const
+	const tbb::concurrent_unordered_map<UINT, RepData >& getParityMap() const
 	{
 		return parity_;
 	}
@@ -132,46 +150,28 @@ public:
 		return rpts_.size();
 	}
 
-	UINT getNthRep(std::size_t n) const override
+	UINT getNthRep(int n) const override
 	{
 		return rpts_[n];
 	}
 
-	Eigen::VectorXd corrFunc(std::size_t n) const
-	{
-		const int N = this->getN();
-		Eigen::VectorXd res(N);
-		res.setZero();
-		UINT rep = rpts_[n];
-		boost::dynamic_bitset<> bs{N, rep};
-		res(0) = 1.0;
-
-		for(int i = 1; i < N; ++i)
-		{
-			res(i) = (1-2*bs[0])*(1-2*bs[i]);
-		}
-		return res;
-	}
-
-	std::pair<int,double> hamiltonianCoeff(UINT bSigma, std::size_t aidx) const override
+	std::pair<int,double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
 		double expk = (k_==0)?1.0:-1.0;
 
-
 		auto pa = parity_.at(rpts_[aidx]);
 		double Na = 1.0/double(1 + abs(pa.parity))/pa.rot;
-
 
 		double c = 1.0;
 
 		UINT bRep;
 		int bRot;
-		std::tie(bRep, bRot) = this->findRepresentative(bSigma);
+		std::tie(bRep, bRot) = this->findMinRots(bSigma);
 		auto iter = parity_.find(bRep);
 		if(iter == parity_.end())
 		{
 			c *= p_;
-			std::tie(bRep, bRot) = this->findRepresentative(this->flip(bSigma));
+			std::tie(bRep, bRot) = this->findMinRots(this->flip(bSigma));
 			iter = parity_.find(bRep);
 
 			if(iter == parity_.end())
@@ -180,34 +180,11 @@ public:
 		auto pb = iter->second;
 		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
 
-		assert(pb.index < rpts_.size());
-
-		return std::make_pair(pb.index,sqrt(Nb/Na)*pow(expk, bRot)*c);
+		return std::make_pair(pb.rptIdx,
+				sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
 
-	std::pair<int, double> coeffAt(UINT sigma) const
-	{
-		double expk = (k_==0)?1.0:-1.0;
-		double c = 1.0;
-		UINT rep;
-		int rot;
-		std::tie(rep, rot) = this->findRepresentative(sigma);
-		auto iter = parity_.find(rep);
-		if(iter == parity_.end())
-		{
-			c *= p_;
-			std::tie(rep, rot) = this->findRepresentative(this->flip(sigma));
-			iter = parity_.find(rep);
-
-			if(iter == parity_.end())
-				return std::make_pair(-1, 0.0);
-		}
-		auto pb = iter->second;
-		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
-		return std::make_pair(pb.index, sqrt(Nb)*pow(expk,rot)*c);
-	}
-
-	Eigen::VectorXd basisVec(int n) const
+	Eigen::VectorXd basisVec(unsigned int n) const
 	{
 		const double expk = (k_==0)?1.0:-1.0;
 		Eigen::VectorXd res(1<<(this->getN()));
@@ -232,34 +209,5 @@ public:
 		res /= sqrt(2.0*p.rot);
 		return res;
 	}
-	/*
-	Eigen::MatrixXd basisMatrix() const
-	{
-		double expk = (k_==0)?1.0:-1.0;
-		Eigen::MatrixXd res(rpts_.size(), 1<<(this->getN()));
-		res.setZero();
-		for(int i = 0; i < rpts_.size(); i++)
-		{
-			auto rep = getNthRep(i);
-			auto p = parity_.at(rep);
-			for(int k = 0; k < p.rot; k++)
-			{
-				res(i, this->rotl(rep,k)) = pow(expk,k);
-			}
-			if(p.parity == 0)
-			{
-				res.row(i).normalize();
-				continue;
-			}
-			rep = this->flip(rep);
-			for(int k = 0; k < p.rot; k++)
-			{
-				res(i, this->rotl(rep,k)) = p_*pow(expk,k);
-			}
-			res.row(i).normalize();
-		}
-		return res;
-	}
-	*/
 };
-#endif//CY_TI_BASIS_HPP
+#endif//CY_TI_BASIS_Z2_HPP
