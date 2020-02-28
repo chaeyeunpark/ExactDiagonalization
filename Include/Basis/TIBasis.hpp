@@ -5,23 +5,23 @@
 #include <cmath>
 #include <iostream>
 
-#include <Eigen/Dense>
-
 #include <tbb/concurrent_vector.h>
-#include <tbb/parallel_for.h>
+#include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_sort.h>
+#include <tbb/parallel_do.h>
+#include <tbb/parallel_for.h>
 
-#include "Basis/Basis.hpp"
+#include "BasisJz.hpp"
+#include "Basis.hpp"
 
 template<typename UINT>
 class TIBasis
 	: public Basis<UINT>
 {
 private:
-	const int k_;
+	const unsigned int k_;
 
-	tbb::concurrent_vector<std::pair<UINT, int> > rpts_; //Representatives
-
+	tbb::concurrent_vector<std::pair<UINT,unsigned int> > rpts_; //Representatives
 
 	int checkState(UINT s) 
 	{
@@ -44,39 +44,19 @@ private:
 		return -1;
 	}
 
-	std::pair<UINT, int> getMinRots(UINT sigma) const
+	void constructBasisFull()
 	{
-		UINT rep = sigma;
-		int rot = 0;
-		for(int r = 1; r < this->getN(); r++)
-		{
-			UINT sr = this->rotl(sigma, r);
-			if(sr < rep)
-			{
-				rep = sr;
-				rot = r;
-			}
-		}
-		return std::make_pair(rep, rot);
-	}
-
-	void constructBasis()
-	{
-		auto rptComp = 
-			[](const std::pair<UINT, int>& a, const std::pair<UINT, int>& b) -> bool
-		{
-			return a.first < b.first;
-		};
 		{
 			UINT s = 0;
 			int r = checkState(s);
 			if(r > 0)
 			{
-				rpts_.emplace_back(s, r);
+				rpts_.emplace_back(s,r);
 			}
 		}
-		tbb::parallel_for(static_cast<UINT>(1), this->getUps(), static_cast<UINT>(2),
-				[&](UINT s)
+		const unsigned int N = this->getN();
+		tbb::parallel_for(UINT(1), (UINT(1)<<UINT(N)), UINT(2), 
+			[&](UINT s)
 		{
 			int r = checkState(s);
 			if(r > 0)
@@ -84,42 +64,62 @@ private:
 				rpts_.emplace_back(s,r);
 			}
 		});
+		tbb::parallel_sort(rpts_.begin(), rpts_.end());
+	}
 
-		tbb::parallel_sort(rpts_.begin(), rpts_.end(), rptComp);
+	void constructBasisJz()
+	{
+		const unsigned int n = this->getN();
+		const unsigned int nup = n/2;
+
+		BasisJz<UINT> basis(n,nup);
+
+		tbb::parallel_do(basis.begin(), basis.end(), [&](UINT s)
+		{
+			int r = checkState(s);
+			if(r > 0)
+			{
+				rpts_.emplace_back(s,r);
+			}
+		});
+		tbb::parallel_sort(rpts_.begin(), rpts_.end());
 	}
 
 public:
-	TIBasis(int N, int k)
+	TIBasis(unsigned int N, unsigned int k, bool useU1)
 		: Basis<UINT>(N), k_(k)
 	{
-		constructBasis();
+		if(useU1)
+		{
+			constructBasisJz();
+		}
+		else
+		{
+			constructBasisFull();
+		}
 	}
 
 	TIBasis(const TIBasis& ) = default;
-	//TIBasis(TIBasis&& ) = default;
+	TIBasis(TIBasis&& ) = default;
 
 	TIBasis& operator=(const TIBasis& ) = default;
-	//TIBasis& operator=(TIBasis&& ) = default;
+	TIBasis& operator=(TIBasis&& ) = default;
 
 	inline unsigned int getK() const { return k_; }
 
-	inline int rotRpt(int n) const
-	{
-		return rpts_[n].second;
-	}
+
 	
 	unsigned int stateIdx(UINT rep) const
 	{
-		auto rptComp = 
-			[](const std::pair<UINT, int>& a, UINT v) -> bool
+		auto comp = [](const std::pair<UINT, unsigned int>& v1, UINT v2)
 		{
-			return a.first < v;
+			return v1.first < v2;
 		};
-		auto iter = std::lower_bound(rpts_.begin(), rpts_.end(), rep, rptComp);
+		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
 		return distance(rpts_.begin(), iter);
 	}
 
-	const tbb::concurrent_vector<std::pair<UINT, int> >& getRepresentatives() const
+	tbb::concurrent_vector<std::pair<UINT,unsigned int> > getRepresentatives() const
 	{
 		return rpts_;
 	}
@@ -134,6 +134,12 @@ public:
 		return rpts_[n].first;
 	}
 
+	inline unsigned int rotRpt(int n) const
+	{
+		return rpts_[n].second;
+	}
+
+
 	std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
 		using std::sqrt;
@@ -143,9 +149,9 @@ public:
 
 		UINT bRep;
 		int bRot;
-		std::tie(bRep, bRot) = this->getMinRots(bSigma);
+		std::tie(bRep, bRot) = this->findMinRots(bSigma);
 
-		int bidx = stateIdx(bRep);
+		auto bidx = stateIdx(bRep);
 
 		if(bidx >= getDim())
 		{
@@ -171,6 +177,6 @@ public:
 		}
 		res /= sqrt(rpts_[n].second);
 		return res;
-	}
+
 };
 #endif//CY_TI_BASIS_HPP
