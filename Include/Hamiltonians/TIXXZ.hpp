@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <map>
 #include <boost/dynamic_bitset.hpp>
-//#include "BitOperations.h"
+
 #include "Basis/Basis.hpp"
 
 template<typename UINT>
@@ -25,23 +25,23 @@ public:
 
 	std::map<int, double> getCol(UINT n) const
 	{
-		int N = basis_.getN();
+		unsigned int N = basis_.getN();
 
 		UINT a = basis_.getNthRep(n);
 		const boost::dynamic_bitset<> bs(N, a);
 
 		std::map<int, double> m;
-		for(int i = 0; i < N; i++)
+		for(unsigned int i = 0; i < N; i++)
 		{
 			//Next-nearest
 			{
-				int j = (i+1)%N;
+				unsigned int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
 				m[n] += J_*delta_*sgn;
 				
 				UINT s = a;
-				s ^= basis.mask({i,j});
+				s ^= basis_.mask({i,j});
 
 				int bidx;
 				double coeff;
