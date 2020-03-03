@@ -9,7 +9,6 @@
 class NodeMV
 {
 private:
-
 	std::size_t dim_;
 	std::size_t rows_;
 
@@ -19,8 +18,8 @@ private:
 
 	sparse_matrix_t A_;
 	matrix_descr descA_;
-public:
 
+public:
 	template<class ColFunc>
 	explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end, ColFunc&& col)
 		: dim_(dim)
@@ -59,6 +58,11 @@ public:
 	void perform_op(const double* x_in, double* y_out) const
 	{
 		mkl_sparse_d_mv(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, A_, descA_, x_in, 0.0, y_out);
+	}
+
+	~NodeMV()
+	{
+		mkl_sparse_destroy(A_);
 	}
 
 };

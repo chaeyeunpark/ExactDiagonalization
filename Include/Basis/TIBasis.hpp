@@ -5,6 +5,14 @@
 #include <cmath>
 #include <iostream>
 
+#include <Eigen/Dense>
+
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/parallel_sort.h>
+#include <tbb/parallel_do.h>
+
+#include "BasisJz.hpp"
 #include "Basis.hpp"
 
 template<typename UINT>
@@ -12,10 +20,9 @@ class TIBasis
 	: public Basis<UINT>
 {
 private:
-	const int k_;
+	const unsigned int k_;
 
-	std::vector<UINT> rpts_; //Representatives
-	std::vector<int> rotRpts_; //R value for each representative
+	tbb::concurrent_vector<std::pair<UINT,unsigned int> > rpts_; //Representatives
 
 	int checkState(UINT s) 
 	{
@@ -38,71 +45,80 @@ private:
 		return -1;
 	}
 
-	std::pair<UINT, int> getMinRots(UINT sigma) const
-	{
-		UINT rep = sigma;
-		int rot = 0;
-		for(int r = 1; r < this->getN(); r++)
-		{
-			UINT sr = rotl(sigma, r);
-			if(sr < rep)
-			{
-				rep = sr;
-				rot = r;
-			}
-		}
-		return std::make_pair(rep, rot);
-	}
-
-	void constructBasis()
+	void constructBasisFull()
 	{
 		{
 			UINT s = 0;
 			int r = checkState(s);
 			if(r > 0)
 			{
-				rpts_.push_back(s);
-				rotRpts_.push_back(r);
+				rpts_.emplace_back(s,r);
 			}
 		}
-		for(UINT s = 1; s <= this->getUps(); s+=2)
+
+		const unsigned int N = this->getN();
+		tbb::parallel_for(UINT(1), (UINT(1)<<UINT(N)), UINT(2), [&](UINT s)
 		{
 			int r = checkState(s);
 			if(r > 0)
 			{
-				rpts_.push_back(s);
-				rotRpts_.push_back(r);
+				rpts_.emplace_back(s,r);
 			}
-		}
+		});
+		tbb::parallel_sort(rpts_.begin(), rpts_.end());
+	}
+
+	void constructBasisJz()
+	{
+		const unsigned int n = this->getN();
+		const unsigned int nup = n/2;
+
+		BasisJz<UINT> basis(n,nup);
+
+		tbb::parallel_do(basis.begin(), basis.end(), [&](UINT s)
+		{
+			int r = checkState(s);
+			if(r > 0)
+			{
+				rpts_.emplace_back(s,r);
+			}
+		});
+		tbb::parallel_sort(rpts_.begin(), rpts_.end());
 	}
 
 public:
-	TIBasis(int N, int k)
+	TIBasis(unsigned int N, unsigned int k, bool useU1)
 		: Basis<UINT>(N), k_(k)
 	{
-		constructBasis();
+		if(useU1)
+		{
+			constructBasisJz();
+		}
+		else
+		{
+			constructBasisFull();
+		}
 	}
 
 	TIBasis(const TIBasis& ) = default;
-	TIBasis(TIBasis&& ) = default;
+	//TIBasis(TIBasis&& ) = default;
 
 	TIBasis& operator=(const TIBasis& ) = default;
-	TIBasis& operator=(TIBasis&& ) = default;
+	//TIBasis& operator=(TIBasis&& ) = default;
 
-	inline int getK() const { return k_; }
+	inline unsigned int getK() const { return k_; }
 
-	inline int rotRpt(int n) const
+	unsigned int stateIdx(UINT rep) const
 	{
-		return rotRpts_[n];
-	}
-	
-	int stateIdx(UINT rep) const
-	{
-		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep);
+		auto comp = [](const std::pair<UINT, unsigned int>& v1, UINT v2)
+		{
+			return v1.first < v2;
+		};
+		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
 		return distance(rpts_.begin(), iter);
 	}
 
-	std::vector<UINT> getRepresentatives() const
+	tbb::concurrent_vector<std::pair<UINT,unsigned int> > getRepresentatives() const
 	{
 		return rpts_;
 	}
@@ -114,9 +130,13 @@ public:
 
 	UINT getNthRep(int n) const override
 	{
-		return rpts_[n];
+		return rpts_[n].first;
 	}
 
+	inline unsigned int rotRpt(int n) const
+	{
+		return rpts_[n].second;
+	}
 
 	std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
@@ -127,21 +147,34 @@ public:
 
 		UINT bRep;
 		int bRot;
-		std::tie(bRep, bRot) = this->getMinRots(bSigma);
+		std::tie(bRep, bRot) = this->findMinRots(bSigma);
 
-		int bidx = stateIdx(bRep);
+		auto bidx = stateIdx(bRep);
 
 		if(bidx >= getDim())
 		{
 			return std::make_pair(-1, 0.0);
 		}
 
-		double Na = 1.0/rotRpts_[aidx];
-		double Nb = 1.0/rotRpts_[bidx];
+		double Na = 1.0/rpts_[aidx].second;
+		double Nb = 1.0/rpts_[bidx].second;
 
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot));
 	}
 
+	Eigen::VectorXd basisVec(unsigned int n) const
+	{
+		const double expk = (k_==0)?1.0:-1.0;
+		Eigen::VectorXd res(1<<(this->getN()));
+		res.setZero();
 
+		auto rep = rpts_[n].first;
+		for(int k = 0; k < rpts_[n].second; k++)
+		{
+			res( this->rotl(rep,k)) = pow(expk,k);
+		}
+		res /= sqrt(rpts_[n].second);
+		return res;
+	}
 };
 #endif//CY_TI_BASIS_HPP

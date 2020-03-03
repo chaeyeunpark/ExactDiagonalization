@@ -13,7 +13,7 @@ namespace edp
 
 		for(std::size_t i = 0; i < dim; i++)
 		{
-			std::map<std::size_t, T> m = colFunc.getCol(i);
+			auto m = colFunc.getCol(i);
 			for(auto& elt: m)
 			{
 				res(elt.first, i) = elt.second;
@@ -29,7 +29,7 @@ namespace edp
 		tripletList.reserve(3*dim);
 		for(uint64_t col = 0; col < dim; ++col)
 		{
-			auto m = colFunc(col);
+			auto m = colFunc.getCol(col);
 			for(const auto& v: m)
 			{
 				tripletList.emplace_back(v.first, col, v.second);

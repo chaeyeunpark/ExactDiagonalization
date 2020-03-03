@@ -6,18 +6,18 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 //#include "BitOperations.h"
-#include "Basis.hpp"
+#include "Basis/Basis.hpp"
 
 template<typename UINT>
 class TIXXXJ1J2
 {
 private:
-	Basis<UINT>& basis_;
+	const Basis<UINT>& basis_;
 	double J1_;
 	double J2_;
 
 public:
-	TIXXXJ1J2(Basis<UINT>& basis, double J1, double J2)
+	TIXXXJ1J2(const Basis<UINT>& basis, double J1, double J2)
 		: basis_(basis), J1_(J1), J2_(J2)
 	{
 		
@@ -31,18 +31,17 @@ public:
 		const boost::dynamic_bitset<> bs(N, a);
 
 		std::map<int, double> m;
-		for(int i = 0; i < N; i++)
+		for(unsigned int i = 0; i < N; i++)
 		{
 			//Next-nearest
 			{
-				int j = (i+1)%N;
+				unsigned int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
 				m[n] += J1_*sgn;
 				
 				UINT s = a;
-				UINT t = (1<<i) | (1<<j);
-				s ^= t;
+				s ^= basis_.mask({i,j});
 
 				int bidx;
 				double coeff;
@@ -54,14 +53,13 @@ public:
 			}
 			//Next-next-nearest
 			{
-				int j = (i+2)%N;
+				unsigned int j = (i+2)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
 
 				m[n] += J2_*sgn;
 				
 				UINT s = a;
-				UINT t = (1<<i) | (1<<j);
-				s ^= t;
+				s ^= basis_.mask({i,j});
 		
 				int bidx;
 				double coeff;

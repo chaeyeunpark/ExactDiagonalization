@@ -3,16 +3,18 @@
 #include <cstddef>
 #include <cstdint>
 #include <tuple>
+#include <initializer_list>
+
 
 template<typename UINT>
 class Basis
 {
 private:
-	const int N_;
+	const unsigned int N_;
 	const UINT ups_;
 public:
 
-	Basis(int N)
+	Basis(unsigned int N)
 		: N_{N}, ups_{(UINT(1) << N_) -1}
 	{
 	}
@@ -26,17 +28,25 @@ public:
 		return ups_;
 	}
 
+	UINT mask(std::initializer_list<unsigned int> pos) const
+	{
+		UINT s = 0;
+		for(unsigned int p: pos)
+			s ^= (UINT(1) << p);
+		return s;
+	}
+
 	UINT rotl(UINT value, unsigned int count) const
 	{
 		count %= N_;
 		return ((value << count) & ups_) | (value >> (N_ - count));
 	}
 
-	std::pair<UINT, int> findRepresentative(UINT sigma) const
+	std::pair<UINT, unsigned int> findMinRots(UINT sigma) const
 	{
 		UINT rep = sigma;
-		int rot = 0;
-		for(int r = 1; r < N_; r++)
+		unsigned int rot = 0u;
+		for(unsigned int r = 1; r < N_; r++)
 		{
 			UINT sr = rotl(sigma, r);
 			if(sr < rep)
@@ -50,9 +60,6 @@ public:
 
 	virtual std::size_t getDim() const = 0;
 	virtual UINT getNthRep(int n) const = 0;
-	/**
-	 * \sum_i h_i|rep[aidx]> = coeff*|rep of bsigma>
-	 */
 	virtual std::pair<int, double> hamiltonianCoeff(UINT bsigma, int adix) const = 0;
 
 	virtual ~Basis(){}
