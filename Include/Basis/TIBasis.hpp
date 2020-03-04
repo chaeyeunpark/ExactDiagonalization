@@ -115,7 +115,14 @@ public:
 			return v1.first < v2;
 		};
 		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
-		return distance(rpts_.begin(), iter);
+		if((iter == rpts_.end()) || (iter->first != rep))
+		{
+			return getDim();
+		}
+		else
+		{
+			return distance(rpts_.begin(), iter);
+		}
 	}
 
 	tbb::concurrent_vector<std::pair<UINT,unsigned int> > getRepresentatives() const
@@ -162,18 +169,17 @@ public:
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot));
 	}
 
-	Eigen::VectorXd basisVec(unsigned int n) const
+	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const
 	{
 		const double expk = (k_==0)?1.0:-1.0;
-		Eigen::VectorXd res(1<<(this->getN()));
-		res.setZero();
+		std::vector<std::pair<UINT,double>> res;
 
 		auto rep = rpts_[n].first;
+		double norm = 1.0/sqrt(rpts_[n].second);
 		for(int k = 0; k < rpts_[n].second; k++)
 		{
-			res( this->rotl(rep,k)) = pow(expk,k);
+			res.emplace_back( this->rotl(rep,k), pow(expk,k)*norm);
 		}
-		res /= sqrt(rpts_[n].second);
 		return res;
 	}
 };

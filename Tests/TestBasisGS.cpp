@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/Eigenvalues> 
@@ -20,6 +19,7 @@
 #include <algorithm>
 
 #include "Basis/TIBasisZ2.hpp"
+#include "Basis/ToOriginalBasis.hpp"
 #include "Hamiltonians/TIXXZ.hpp"
 #include "NodeMV.hpp"
 
@@ -195,16 +195,14 @@ public:
 			REQUIRE(false);
 		double gsEnergy1 = eigs.eigenvalues()[0];
 
-		std::cout << gsEnergy1 << std::endl;
-
 		REQUIRE(std::abs(gsEnergy_ - gsEnergy1) < 1e-4);
-		Eigen::VectorXd subspaceGs = eigs.eigenvectors().col(0);
-		Eigen::VectorXd gsVec1(1<<N);
-		gsVec1.setZero();
-		for(uint32_t i = 0; i < dim; ++i)
+		VectorXd subspaceGs = eigs.eigenvectors().col(0);
+		VectorXd gsVec1;
 		{
-			gsVec1 += subspaceGs(i)*basis.basisVec(i);
+			auto v = toOriginalVector(basis, subspaceGs.data());
+			gsVec1 = Map<VectorXd>(v.data(), 1<<N);
 		}
+
 		double gsEnergy2 = double(gsVec1.transpose()*hamFull_*gsVec1)/double(gsVec1.transpose()*gsVec1);
 
 		REQUIRE(std::abs(gsEnergy1 - gsEnergy2) < 1e-6);
@@ -212,15 +210,14 @@ public:
 	}
 };
 
-TEST_CASE("Compare GS of XXZ using LocalHamiltonian and TIBasis", "[XXZGS]") {
+TEST_CASE("Compare GS of XXZ using LocalHamiltonian and TIBasis", "[XXZGS]") 
+{
 	std::random_device rd;
 	std::default_random_engine re{rd()};
 	std::uniform_int_distribution<> uid(0, N-1);
 	std::uniform_real_distribution<> urd;
 
-	using cx_double = std::complex<double>;
 	using namespace Eigen;
-	using UINT = uint32_t;
 	SECTION("TIBasis Z2 XXZ N=8") {
 		CompareXXZ<8> test(1.0);
 		test.Test();

@@ -5,7 +5,6 @@
 #include <vector>
 #include <cassert>
 #include <cmath>
-#include <Eigen/Dense>
 
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
@@ -52,7 +51,7 @@ private:
 		return -1;
 	}
 	
-	bool checkParity(int rot) const
+	inline bool checkParity(int rot) const
 	{
 		if (p_ == 1)
 			return ((rot*k_ % this->getN()) == 0);
@@ -92,12 +91,12 @@ private:
 			auto s = this->findMinRots(flip(rep));
 			if(s.first == rep && checkParity(s.second))
 			{
-				auto inserted = rpts_.emplace_back(rep);
+				rpts_.emplace_back(rep);
 				parity_[rep] = RepData{0, ss[idx].second, 0};
 			}
 			else if(s.first > rep)
 			{
-				auto inserted = rpts_.emplace_back(rep);
+				rpts_.emplace_back(rep);
 				parity_[rep] = RepData{0, ss[idx].second, 1};
 			}
 			else //s.first < rep
@@ -118,7 +117,7 @@ private:
 	}
 
 public:
-	TIBasisZ2(int N, int k, int p)
+	TIBasisZ2(unsigned int N, unsigned int k, int p)
 		: Basis<UINT>{N}, k_(k), p_(p)
 	{
 		assert(k == 0 || ((k == N/2) && (N%2 == 0)));
@@ -183,30 +182,39 @@ public:
 		return std::make_pair(pb.rptIdx,
 				sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
+	
 
-	Eigen::VectorXd basisVec(unsigned int n) const
+	/// return a vector of index/value pairs
+	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const
 	{
 		const double expk = (k_==0)?1.0:-1.0;
-		Eigen::VectorXd res(1<<(this->getN()));
-		res.setZero();
+		std::vector<std::pair<UINT,double>> res;
 
 		auto rep = getNthRep(n);
 		auto p = parity_.at(rep);
+		double norm;
+		if(p.parity == 0)
+		{
+			 norm = 1.0/sqrt(p.rot);
+		}
+		else
+		{
+			norm = 1.0/sqrt(2.0*p.rot);
+		}
+
 		for(int k = 0; k < p.rot; k++)
 		{
-			res( this->rotl(rep,k)) = pow(expk,k);
+			res.emplace_back(this->rotl(rep,k), pow(expk,k)*norm);
 		}
 		if(p.parity == 0)
 		{
-			res /= sqrt(p.rot);
 			return res;
 		}
 		rep = this->flip(rep);
 		for(int k = 0; k < p.rot; k++)
 		{
-			res( this->rotl(rep,k)) = p_*pow(expk,k);
+			res.emplace_back(this->rotl(rep,k), p_*pow(expk,k)*norm);
 		}
-		res /= sqrt(2.0*p.rot);
 		return res;
 	}
 };

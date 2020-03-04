@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <tuple>
+#include <vector>
 #include <initializer_list>
 
 
@@ -61,6 +62,8 @@ public:
 	virtual std::size_t getDim() const = 0;
 	virtual UINT getNthRep(int n) const = 0;
 	virtual std::pair<int, double> hamiltonianCoeff(UINT bsigma, int adix) const = 0;
+
+	virtual std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const = 0;
 
 	virtual ~Basis(){}
 };

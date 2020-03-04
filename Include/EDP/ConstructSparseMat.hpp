@@ -13,7 +13,7 @@ namespace edp
 
 		for(std::size_t i = 0; i < dim; i++)
 		{
-			auto m = colFunc.getCol(i);
+			auto m = colFunc(i);
 			for(auto& elt: m)
 			{
 				res(elt.first, i) = elt.second;
@@ -29,7 +29,7 @@ namespace edp
 		tripletList.reserve(3*dim);
 		for(uint64_t col = 0; col < dim; ++col)
 		{
-			auto m = colFunc.getCol(col);
+			auto m = colFunc(col);
 			for(const auto& v: m)
 			{
 				tripletList.emplace_back(v.first, col, v.second);
@@ -49,7 +49,6 @@ namespace edp
 
 		using TripletT = Eigen::Triplet<T>;
 		std::vector<TripletT> tripletList;
-#pragma omp parallel for
 		for(int i = 0; i < n; i++)
 		{
 			std::map<uint32_t, T> m = t(basis[i]);
@@ -60,7 +59,6 @@ namespace edp
 				if(iter == basis.end())
 					break;
 				auto j = std::distance(basis.begin(), iter);
-#pragma omp critical
 				{
 					tripletList.emplace_back(i, j, kv.second);
 				}
