@@ -46,4 +46,24 @@ std::vector<double> toOriginalVector(const Basis<UINT>& basis, const double* st)
 	tbb::parallel_reduce(tbb::blocked_range<size_t>(0u, basis.getDim()), sv);
 	return sv.my_;
 }
+/// version with less momory
+template<typename UINT, template<typename> class Basis>
+std::vector<double> toOriginalVectorLM(const Basis<UINT>& basis, const double* st)
+{
+	using Mutex = tbb::queuing_mutex;
+	Mutex mux[16];
+	unsigned int N = basis.getN();
+	UINT size = UINT(1)<<UINT(N);
+	std::vector<double> res(size, 0.0);
+	tbb::parallel_for(0u, (unsigned int)basis.getDim(), [&](unsigned int n)
+	{
+		auto v = basis.basisVec(n);
+		for(const auto p: v)
+		{
+			Mutex::scoped_lock lock(mux[(p.first >> (N-4))]);
+			res[p.first] += st[n]*p.second;
+		}
+	});
+	return res;
+}
 #endif//ED_TOOTIGINALBASIS_HPP
