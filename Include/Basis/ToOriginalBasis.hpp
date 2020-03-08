@@ -50,8 +50,6 @@ std::vector<double> toOriginalVector(const Basis<UINT>& basis, const double* st)
 template<typename UINT, template<typename> class Basis>
 std::vector<double> toOriginalVectorLM(const Basis<UINT>& basis, const double* st)
 {
-	using Mutex = tbb::queuing_mutex;
-	Mutex mux[16];
 	unsigned int N = basis.getN();
 	UINT size = UINT(1)<<UINT(N);
 	std::vector<double> res(size, 0.0);
@@ -60,7 +58,6 @@ std::vector<double> toOriginalVectorLM(const Basis<UINT>& basis, const double* s
 		auto v = basis.basisVec(n);
 		for(const auto p: v)
 		{
-			Mutex::scoped_lock lock(mux[(p.first >> (N-4))]);
 			res[p.first] += st[n]*p.second;
 		}
 	});
