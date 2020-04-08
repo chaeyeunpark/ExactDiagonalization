@@ -29,7 +29,7 @@ public:
 		return ups_;
 	}
 
-	UINT mask(std::initializer_list<unsigned int> pos) const
+	UINT mask(std::initializer_list<uint32_t> pos) const
 	{
 		UINT s = 0;
 		for(unsigned int p: pos)

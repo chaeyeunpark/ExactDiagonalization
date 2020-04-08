@@ -12,7 +12,7 @@
 
 int main(int argc, char* argv[])
 {
-	constexpr int N = 24;
+	constexpr int N = 20;
 	using UINT = uint32_t;
 
 	std::cout << "#N: " << N << std::endl;

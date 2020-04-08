@@ -33,7 +33,7 @@ public:
 		std::map<int, double> m;
 		for(unsigned int i = 0; i < N; i++)
 		{
-			//Next-nearest
+			//Nearest neighbors
 			{
 				unsigned int j = (i+1)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
@@ -51,7 +51,7 @@ public:
 				if(bidx >= 0)
 					m[bidx] += J1_*(1-sgn)*coeff;
 			}
-			//Next-next-nearest
+			//Next-nearest neighbors
 			{
 				unsigned int j = (i+2)%N;
 				int sgn = (1-2*bs[i])*(1-2*bs[j]);
