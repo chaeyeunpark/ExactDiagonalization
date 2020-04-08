@@ -6,27 +6,33 @@
 class ParallelMV
 {
 private:
-	unsigned int nThreads_;
+	uint32_t nDiv_;
 	std::size_t dim_;
 	std::vector<std::unique_ptr<NodeMV>> mvs_;
+
 public:
 	template<typename ColFunc>
-	ParallelMV(const std::size_t dim, ColFunc&& col)
+	ParallelMV(const std::size_t dim, ColFunc&& col, int32_t nDiv = -1)
 		: dim_(dim)
 	{
-		nThreads_ = tbb::task_scheduler_init::default_num_threads();
-		mvs_.resize(nThreads_);
-		tbb::parallel_for(0u, nThreads_, [&](unsigned int idx)
+		if(nDiv < 0)
+			nDiv_ = tbb::task_scheduler_init::default_num_threads();
+		else
+			nDiv_ = uint32_t(nDiv);
+		mvs_.resize(nDiv_);
+		tbb::parallel_for(uint32_t(0u), nDiv_, 
+			[&](uint32_t idx)
 		{
-			mvs_[idx] = std::make_unique<NodeMV>(dim, (dim*idx)/nThreads_, (dim*(idx+1))/nThreads_, col);
+			mvs_[idx] = std::make_unique<NodeMV>(dim, (dim*idx)/nDiv_, (dim*(idx+1))/nDiv_, col);
 		});
 	}
 
 	void perform_op(const double* x_in, double* y_out) const
 	{
-		tbb::parallel_for(0u, nThreads_, [&](unsigned int idx)
+		tbb::parallel_for(uint32_t(0u), nDiv_, 
+			[&](uint32_t idx)
 		{
-			mvs_[idx]->perform_op(x_in, y_out + (dim_*idx)/nThreads_);
+			mvs_[idx]->perform_op(x_in, y_out + (dim_*idx)/nDiv_);
 		});	
 	}
 
