@@ -16,11 +16,14 @@ private:
 	double J1_;
 	double J2_;
 
+	int sign_ = 1;
+
 public:
-	TIXXXJ1J2(const Basis<UINT>& basis, double J1, double J2)
+	TIXXXJ1J2(const Basis<UINT>& basis, double J1, double J2, bool signRule = false)
 		: basis_(basis), J1_(J1), J2_(J2)
 	{
-		
+		if(signRule)
+			sign_ = -1;
 	}
 
 	std::map<int,double> getCol(UINT n) const
@@ -49,7 +52,7 @@ public:
 				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
 				
 				if(bidx >= 0)
-					m[bidx] += J1_*(1-sgn)*coeff;
+					m[bidx] += J1_*(1-sgn)*sign_*coeff;
 			}
 			//Next-nearest neighbors
 			{
