@@ -1,11 +1,14 @@
 # Simple exact diagoanlization library
-This library present exact diagonalization implementaions for translational invariant spin-$1/2$ Hamiltonians defined in some simple lattices. 
+This library presents exact diagonalization (ED) implementaions for translational invariant spin-$1/2$ Hamiltonians defined in several simple lattices. 
 
 ## Exact diagonalization for one dimensional system
 
-For simplicity, we only consider one dimensional translational invariance. We will consider $Z_2$ parity symmetry later.
 
-We divide the full Hamiltonian $H$ as translational invariance components. Thus, we write
+To deal with a symmetry in ED, we divide the full Hamiltonian $H$ in symmetric subspaces. 
+We will explain how to construct this subspace briefly in this section.
+
+For simplicity, we only consider translational invariant system in one dimension. The $Z_2$ parity symmetry will be discussed later.
+First, we write the Hamiltonian as
 $$ H^{\alpha} = \sum_{j=0}^{N-1} h_j^{\alpha}$$
 where we use $\alpha$ to indicate how they map the configuration.
 In typical cases, each $\alpha$ represents Pauli strings in the Hamiltonian.
@@ -36,6 +39,11 @@ and $1 = \langle \sigma(k) | \sigma(k) \rangle$
 yields
 
 $$ N_\sigma = N^2/R_\sigma.$$
+
+For each $\sigma \in \mathbb{Z}_2^N$, we define representative of $\sigma$ as $\mathrm{rep}(\sigma) = \min\\{\sigma, T \sigma, T^2 \sigma, \cdots, T^{N-1}\sigma\\}$.
+Then for all representatives $\mathrm{R} = \\{\mathrm{rep}(\sigma)\\}$ and given $k$,
+$\\{|\sigma(k)\rangle | \sigma \in \mathrm{R}\\}$
+will be basis vectors for the translational invariant subspace with momentum $k$.
 
 
 

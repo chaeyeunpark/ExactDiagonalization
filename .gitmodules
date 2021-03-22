@@ -1,0 +1,3 @@
+[submodule "externals/spectra"]
+	path = externals/spectra
+	url = https://github.com/yixuan/spectra.git
