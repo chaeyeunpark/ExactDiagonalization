@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include <random>
 #include <Spectra/SymEigsSolver.h>
+#include <Spectra/SymEigsSolver.h>
 #include <fstream>
 #include <ios>
 
@@ -12,7 +13,7 @@
 
 int main(int argc, char* argv[])
 {
-	constexpr int N = 20;
+	constexpr int N = 10;
 	using UINT = uint32_t;
 
 	std::cout << "#N: " << N << std::endl;

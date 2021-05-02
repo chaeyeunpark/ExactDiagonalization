@@ -1,11 +1,20 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(ED)
-include_directories("${CMAKE_SOURCE_DIR}/Include" ${Spectra_Root}/include)
+include_directories("${CMAKE_SOURCE_DIR}/Include")
+include_directories("${CMAKE_SOURCE_DIR}/externals/spectra/include")
+include_directories("${CMAKE_SOURCE_DIR}/externals")
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
+
+set(CATCH_URL "https://github.com/catchorg/Catch2/releases/download/v2.11.1/catch.hpp")
+set(CATCH_DOWNLOAD_PATH "${CMAKE_SOURCE_DIR}/externals/catch.hpp")
+if (NOT EXISTS "${CATCH_DOWNLOAD_PATH}")
+	file(DOWNLOAD "${CATCH_URL}" "${CATCH_DOWNLOAD_PATH}")
+endif()
+
 
 set (CMAKE_CXX_STANDARD 14)
 enable_testing() 

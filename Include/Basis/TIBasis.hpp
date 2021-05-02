@@ -6,7 +6,7 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_sort.h>
-#include <tbb/parallel_do.h>
+#include <tbb/parallel_for_each.h>
 
 #include "BasisJz.hpp"
 #include "Basis.hpp"
@@ -71,7 +71,7 @@ private:
 
 		BasisJz<UINT> basis(n,nup);
 
-		tbb::parallel_do(basis.begin(), basis.end(), [&](UINT s)
+		tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s)
 		{
 			int r = checkState(s);
 			if(r > 0)

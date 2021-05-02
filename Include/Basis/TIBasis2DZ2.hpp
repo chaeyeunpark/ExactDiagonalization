@@ -120,7 +120,7 @@ private:
 
 			BasisJz<UINT> basis(n,nup);
 
-			tbb::parallel_do(basis.begin(), basis.end(), [&](UINT s)
+			tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s)
 			{
 				uint32_t numRep = checkState(s);
 				if(numRep > 0)
