@@ -1,11 +1,7 @@
-#ifndef CY_TI_BASIS_HPP
-#define CY_TI_BASIS_HPP
-
+#pragma once
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <iostream>
-
-#include <Eigen/Dense>
 
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
@@ -183,4 +179,3 @@ public:
 		return res;
 	}
 };
-#endif//CY_TI_BASIS_HPP

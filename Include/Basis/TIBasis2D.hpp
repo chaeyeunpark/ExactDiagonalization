@@ -1,5 +1,4 @@
-#ifndef CY_TIBASIS2D_HPP
-#define CY_TIBASIS2D_HPP
+#pragma once
 
 #include <cmath>
 #include <iostream>
@@ -244,4 +243,3 @@ public:
 	}
 
 };
-#endif//CY_TIBASIS2D_HPP

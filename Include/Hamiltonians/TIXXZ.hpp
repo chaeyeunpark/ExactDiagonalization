@@ -1,5 +1,4 @@
-#ifndef CY_TIXXZ_HPP
-#define CY_TIXXZ_HPP
+#pragma once
 #include <cstdint>
 #include <cassert>
 #include <algorithm>
@@ -57,4 +56,3 @@ public:
 		return m;
 	}
 };
-#endif //CY_TIHAMXXZ_HPP

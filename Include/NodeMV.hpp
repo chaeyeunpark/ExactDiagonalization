@@ -1,5 +1,4 @@
-#ifndef CY_MPI_NODE_MV_HPP
-#define CY_MPI_NODE_MV_HPP
+#pragma once
 
 #include <mkl.h>
 #include <vector>
@@ -67,6 +66,3 @@ public:
 
 };
 
-
-
-#endif//CY_MPI_NODE_MV_HPP

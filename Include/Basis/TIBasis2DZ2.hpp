@@ -1,5 +1,4 @@
-#ifndef CY_TIBASIS2D_HPP
-#define CY_TIBASIS2D_HPP
+#pragma once
 
 #include <cmath>
 #include <iostream>
@@ -308,6 +307,4 @@ public:
 
 		return std::vector<std::pair<UINT, double>>(res.begin(), res.end());
 	}
-
 };
-#endif//CY_TIBASIS2D_HPP

@@ -1,5 +1,4 @@
-#ifndef CY_TI_BASIS_Z2_HPP
-#define CY_TI_BASIS_Z2_HPP
+#pragma once
 
 #include <map>
 #include <vector>
@@ -218,4 +217,3 @@ public:
 		return res;
 	}
 };
-#endif//CY_TI_BASIS_Z2_HPP
