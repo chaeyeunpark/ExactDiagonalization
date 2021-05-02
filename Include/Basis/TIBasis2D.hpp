@@ -1,6 +1,4 @@
-#ifndef CY_TIBASIS2D_HPP
-#define CY_TIBASIS2D_HPP
-
+#pragma once
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -204,9 +202,7 @@ public:
 		uint32_t aNumRep = rpts_[aidx].second;
 		double Na = aNumRep;
 
-		UINT bRep;
-		uint32_t bRotX, bRotY;
-		std::tie(bRep, bRotX, bRotY) = getMinRots(bSigma);
+		auto [bRep, bRotX, bRotY] = getMinRots(bSigma);
 		auto iter = std::lower_bound(rpts_.begin(), rpts_.end(), std::make_pair(bRep, 0u));
 		if(iter == rpts_.end() || iter->first != bRep)
 		{
@@ -242,6 +238,4 @@ public:
 
 		return std::vector<std::pair<UINT, double>>(res.begin(), res.end());
 	}
-
 };
-#endif//CY_TIBASIS2D_HPP

@@ -42,8 +42,8 @@ namespace edp
 	}
 
 	//basis must be sorted
-	template<typename T, typename ColFunc>
-	Eigen::SparseMatrix<T> constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis)
+	template<typename T, typename ColFunc, class RandomIterable>
+	Eigen::SparseMatrix<T> constructSubspaceMat(ColFunc&& t, RandomIterable& basis)
 	{
 		const int n = basis.size();
 

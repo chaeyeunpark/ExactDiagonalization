@@ -8,10 +8,6 @@
 
 #include "Basis.hpp"
 
-#ifndef NDEBUG
-#include <Eigen/Dense>
-#endif
-
 namespace ED
 {
 

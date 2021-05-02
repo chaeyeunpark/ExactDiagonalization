@@ -15,6 +15,8 @@ private:
 	const UINT ups_;
 public:
 
+	using UINT_ = UINT;
+
 	Basis(unsigned int N)
 		: N_{N}, ups_{(UINT(1) << N_) -1}
 	{
@@ -32,8 +34,8 @@ public:
 	UINT mask(std::initializer_list<uint32_t> pos) const
 	{
 		UINT s = 0;
-		for(unsigned int p: pos)
-			s ^= (UINT(1) << p);
+		for(uint32_t p: pos)
+			s ^= (UINT(1u) << UINT(p));
 		return s;
 	}
 

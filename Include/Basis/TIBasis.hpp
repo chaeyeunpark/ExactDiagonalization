@@ -5,8 +5,6 @@
 #include <cmath>
 #include <iostream>
 
-#include <Eigen/Dense>
-
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_sort.h>
