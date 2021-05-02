@@ -1,8 +1,6 @@
-#ifndef ED_PARALLELMV_HPP
-#define ED_PARALLELMV_HPP
-#include <tbb/task_scheduler_init.h>
-#include <tbb/parallel_for.h>
+#include <tbb/tbb.h>
 #include "NodeMV.hpp"
+
 class ParallelMV
 {
 private:
@@ -16,7 +14,7 @@ public:
 		: dim_(dim)
 	{
 		if(nDiv < 0)
-			nDiv_ = tbb::task_scheduler_init::default_num_threads();
+			nDiv_ = tbb::this_task_arena::max_concurrency();
 		else
 			nDiv_ = uint32_t(nDiv);
 		mvs_.resize(nDiv_);
@@ -46,4 +44,3 @@ public:
 	}
 
 };
-#endif//ED_PARALLELMV_HPP

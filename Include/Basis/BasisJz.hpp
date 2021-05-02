@@ -39,7 +39,7 @@ public:
 			next();
 			return r;
 		}
-		void next()
+		void next() //https://stackoverflow.com/questions/8281951/bit-hack-to-generate-all-integers-with-a-given-number-of-1s
 		{
 			UINT t = n_ | (n_-1);
 			UINT w = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(n_) + 1));
