@@ -124,6 +124,9 @@ public:
 		constructBasis();
 	}
 
+	TIBasisZ2(const TIBasisZ2& ) = default;
+	TIBasisZ2(TIBasisZ2&& ) = default;
+
 	inline UINT flip(UINT value) const
 	{
 		return ((this->getUps())^value);
