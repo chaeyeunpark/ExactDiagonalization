@@ -14,7 +14,7 @@
 #include <tbb/tbb.h>
 
 template<typename UINT>
-class TIBasis2D
+class TIBasis2DZ2
 	: public Basis<UINT>
 {
 public:
@@ -176,13 +176,13 @@ private:
 
 
 public:
-	TIBasis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1, int parity = 1)
+	TIBasis2DZ2(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1, int parity = 1)
 		: Basis<UINT>(Lx*Ly), Lx_(Lx), Ly_(Ly),
 		kx_(kx), ky_(ky), parity_(parity),
 		px_{(~UINT(0)) >> (sizeof(UINT)*8 - Lx_)}
 	{
 		assert((parity == 1) || (parity == -1));
-		constructBasis();
+		constructBasis(useU1);
 	}
 
 	UINT rotateY(UINT sigma, int32_t r) const
@@ -207,9 +207,9 @@ public:
 	}
 
 
-	TIBasis2D<UINT>(const TIBasis2D<UINT>& ) = default;
+	TIBasis2DZ2<UINT>(const TIBasis2DZ2<UINT>& ) = default;
 
-	TIBasis2D<UINT>& operator=(const TIBasis2D<UINT>& ) = default;
+	TIBasis2DZ2<UINT>& operator=(const TIBasis2DZ2<UINT>& ) = default;
 
 	inline uint32_t getLx() const { return Lx_; }
 	inline uint32_t getLy() const { return Ly_; }
@@ -237,7 +237,7 @@ public:
 		return ((this->getUps())^value);
 	}
 
-	inline std::size_t toIdx(uint32_t nx, uint32_t ny) const 
+	inline uint32_t toIdx(uint32_t nx, uint32_t ny) const 
 	{
 		return ny*Lx_ + nx;
 	}

@@ -8,19 +8,23 @@
 #include "Basis/Basis.hpp"
 #include "Basis/TIBasis2D.hpp"
 
-template<typename UINT>
+template<typename UINT, class Basis>
 class TIJ1J2_2D
 {
 private:
-	const TIBasis2D<UINT>& basis_;
+	const Basis& basis_;
 	double J1_;
 	double J2_;
+	int sign_;
 
 public:
-	TIJ1J2_2D(const TIBasis2D<UINT>& basis, double J1, double J2)
+	TIJ1J2_2D(const Basis& basis, double J1, double J2, bool signRule = false)
 		: basis_(basis), J1_(J1), J2_(J2)
 	{
-		
+		if(signRule)
+			sign_ = -1;
+		else
+			sign_ = 1;
 	}
 
 	std::map<int,double> getCol(UINT n) const
@@ -40,9 +44,9 @@ public:
 				//Nearest neighbor x
 				{
 				auto j = basis_.toIdx((nx+1)%Lx, ny);
-				int sgn = (1-2*bs[i])*(1-2*bs[j]);
+				int zz = (1-2*bs[i])*(1-2*bs[j]);
 
-				m[n] += J1_*sgn;
+				m[n] += J1_*zz;
 				
 				UINT s = a;
 				s ^= basis_.mask({i,j});
@@ -53,14 +57,14 @@ public:
 				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
 				
 				if(bidx >= 0)
-					m[bidx] += J1_*(1-sgn)*coeff;
+					m[bidx] += J1_*(1-zz)*coeff*sign_;
 				}
 				//Nearest neighbor y
 				{
 				auto j = basis_.toIdx(nx, (ny+1)%Ly);
-				int sgn = (1-2*bs[i])*(1-2*bs[j]);
+				int zz = (1-2*bs[i])*(1-2*bs[j]);
 
-				m[n] += J1_*sgn;
+				m[n] += J1_*zz;
 				
 				UINT s = a;
 				s ^= basis_.mask({i,j});
@@ -71,14 +75,14 @@ public:
 				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
 				
 				if(bidx >= 0)
-					m[bidx] += J1_*(1-sgn)*coeff;
+					m[bidx] += J1_*(1-zz)*coeff*sign_;
 				}
 				//Next-nearest neighbor right up
 				{
 				auto j = basis_.toIdx((nx+1)%Lx, (ny+1)%Ly);
-				int sgn = (1-2*bs[i])*(1-2*bs[j]);
+				int zz = (1-2*bs[i])*(1-2*bs[j]);
 
-				m[n] += J2_*sgn;
+				m[n] += J2_*zz;
 				
 				UINT s = a;
 				s ^= basis_.mask({i,j});
@@ -89,14 +93,14 @@ public:
 				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
 				
 				if(bidx >= 0)
-					m[bidx] += J2_*(1-sgn)*coeff;
+					m[bidx] += J2_*(1-zz)*coeff;
 				}
 				//Next-nearest neighbor right down
 				{
 				auto j = basis_.toIdx((nx+1)%Lx, (ny-1+Ly)%Ly);
-				int sgn = (1-2*bs[i])*(1-2*bs[j]);
+				int zz = (1-2*bs[i])*(1-2*bs[j]);
 
-				m[n] += J2_*sgn;
+				m[n] += J2_*zz;
 				
 				UINT s = a;
 				s ^= basis_.mask({i,j});
@@ -107,7 +111,7 @@ public:
 				std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
 				
 				if(bidx >= 0)
-					m[bidx] += J2_*(1-sgn)*coeff;
+					m[bidx] += J2_*(1-zz)*coeff;
 				}
 			}
 		}
