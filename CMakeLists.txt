@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(ED)
-include_directories("${CMAKE_SOURCE_DIR}/Include")
-include_directories("${CMAKE_SOURCE_DIR}/externals/spectra/include")
-include_directories("${CMAKE_SOURCE_DIR}/externals")
+include_directories("${PROJECT_SOURCE_DIR}/Include")
+include_directories("${PROJECT_SOURCE_DIR}/externals/spectra/include")
+include_directories("${PROJECT_SOURCE_DIR}/externals")
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
 set(CATCH_URL "https://github.com/catchorg/Catch2/releases/download/v2.11.1/catch.hpp")
-set(CATCH_DOWNLOAD_PATH "${CMAKE_SOURCE_DIR}/externals/catch.hpp")
+set(CATCH_DOWNLOAD_PATH "${PROJECT_SOURCE_DIR}/externals/catch.hpp")
 if (NOT EXISTS "${CATCH_DOWNLOAD_PATH}")
 	file(DOWNLOAD "${CATCH_URL}" "${CATCH_DOWNLOAD_PATH}")
 endif()
@@ -41,8 +41,6 @@ link_libraries(tbb pthread m dl)
 add_executable(EDTFI "Examples/EDTFI.cpp")
 target_link_libraries(EDTFI Eigen3::Eigen)
 
-add_executable(TestBasis2D "Tests/TestBasis2D.cpp")
-target_link_libraries(TestBasis2D Eigen3::Eigen)
 
 add_executable(TestBasis "Tests/TestBasis.cpp")
 target_link_libraries(TestBasis Eigen3::Eigen)
@@ -50,6 +48,14 @@ add_test(
     NAME TestBasis
     COMMAND TestBasis
 )
+
+add_executable(TestBasis2D "Tests/TestBasis2D.cpp")
+target_link_libraries(TestBasis2D Eigen3::Eigen)
+add_test(    
+    NAME TestBasis2D
+    COMMAND TestBasis2D
+)
+
 
 add_executable(TestBasisGS "Tests/TestBasisGS.cpp")
 target_link_libraries(TestBasisGS Eigen3::Eigen)
@@ -66,4 +72,4 @@ add_test(
 )
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}    
-    DEPENDS TestBasis TestBasisGS TestLocalHam)
+    DEPENDS TestBasis TestBasis2D TestBasisGS TestLocalHam)
