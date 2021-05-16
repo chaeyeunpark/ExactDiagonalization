@@ -33,6 +33,10 @@ private:
 			}
 			else if(sr == s)
 			{
+				/* s is smller than rotl(s,1), rot(s, 2), ..., rot(s, r-1)
+				 * when we fall in this else if clause. As rot(s,r) == s,
+				 * s is the smallest among rotl(s, 1), ..., rotl(s, N-1).
+				 */
 				if((k_ % (N/r)) != 0)
 					return -1; //this representative is not allowed for k
 				return r;
