@@ -52,8 +52,8 @@ private:
 	int phase(int rot) const
 	{
 		//return exp(2 \Pi I k*rot)
-		int sgn = 1;
-		if ((k*rot % N) == 0)
+		int N = this->getN();
+		if ((k_*rot % N) == 0)
 			return 1;
 		else
 			return -1;
@@ -73,7 +73,7 @@ private:
 
 			tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s)
 			{
-				uint32_t r = checkState(s);
+				int r = checkState(s);
 				if(r > 0)
 				{
 					candids.emplace_back(s, r);
@@ -112,12 +112,12 @@ private:
 			if(s.first == rep && phase(s.second)*p_ == 1)
 			{
 				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{0, candids[idx].second, 0};
+				parity_.emplace(rep, RepData{0, candids[idx].second, 0});
 			}
 			else if(s.first > rep)
 			{
 				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{0, candids[idx].second, 1};
+				parity_.emplace(rep, RepData{0, candids[idx].second, 1});
 			}
 			else //s.first < rep
 			{

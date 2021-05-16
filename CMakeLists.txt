@@ -73,3 +73,6 @@ add_test(
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}    
     DEPENDS TestBasis TestBasis2D TestBasisGS TestLocalHam)
+
+add_executable(TestTIBasisZ2 "Tests/TestTIBasisZ2.cpp")
+

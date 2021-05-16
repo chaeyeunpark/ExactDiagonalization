@@ -126,6 +126,23 @@ void PrintRpts(Basis&& basis)
 		std::cout << basis.getNthRep(i) << std::endl;
 	}
 }
+
+TEST_CASE("TIBasis works?", "[ti-basis]")
+{
+	int K = 0;
+	for(int N = 20; N <= 28; N+=4)
+	{
+		TIBasis<uint32_t> basis(N, K, true);
+		
+		for(uint32_t i = 0; i < basis.getDim(); ++i)
+		{
+			uint32_t rep = basis.getNthRep(i);
+			const auto [rep2, rot] = basis.findMinRots(rep);
+			REQUIRE(rep2 == rep);
+		}
+	}
+}
+
 TEST_CASE("TIBasis test", "[basis]")
 {
 	SECTION("Not use U1")
@@ -160,7 +177,7 @@ TEST_CASE("TIBasis test", "[basis]")
 	}
 
 }
-TEST_CASE("TIBasisZ2 test", "[basis]")
+TEST_CASE("TIBasisZ2 test", "[basis-z2]")
 {
 	const std::array<int, 2> ps{-1,1};
 	
@@ -171,11 +188,29 @@ TEST_CASE("TIBasisZ2 test", "[basis]")
 			for(int p: ps)
 			{
 				printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
-				TIBasisZ2<uint32_t> basis(N,K,p);
+				TIBasisZ2<uint32_t> basis(N,K,false,p);
 				MatrixXd r = basisMatrix(basis).transpose();
 				TestBasisMatrix(r);
 				CheckTIBasisParity(basis, r);
 				CheckBasisXXZ(basis, r);
+			}
+		}
+	}
+	SECTION("Use U1")
+	{
+		for(int N = 4; N <= 12; N+=2)
+		{
+			for(int K: {0, N/2})
+			{
+				for(int p: ps)
+				{
+					printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
+					TIBasisZ2<uint32_t> basis(N, K, true, p);
+					MatrixXd r = basisMatrix(basis).transpose();
+					TestBasisMatrix(r);
+					CheckTIBasis(basis, r);
+					CheckBasisXXZ(basis, r);
+				}
 			}
 		}
 	}
