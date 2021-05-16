@@ -5,11 +5,10 @@
 #include <cassert>
 #include <cmath>
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/concurrent_unordered_map.h>
-#include <tbb/parallel_sort.h>
+#include <tbb/tbb.h>
 
 #include "Basis.hpp"
+#include "BasisJz.hpp"
 
 struct RepData 
 {
@@ -58,45 +57,66 @@ private:
 			return ((rot*k_ % this->getN()) == this->getN()/2);
 	}
 
-	void constructBasis()
+	void constructBasis(bool useU1)
 	{
-		tbb::concurrent_vector<std::pair<UINT, int> > ss;
+		tbb::concurrent_vector<std::pair<UINT, int> > candids;
 		const unsigned int N = this->getN();
-		ss.reserve((1<<(N-3))/N);
+		candids.reserve((1<<(N-3))/N);
+
+		if(useU1)
 		{
-			UINT s = 0;
-			int r = checkState(s);
-			if(r > 0)
+			const unsigned int n = this->getN();
+			const unsigned int nup = n/2;
+
+			BasisJz<UINT> basis(n,nup);
+
+			tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s)
 			{
-				ss.emplace_back(s,r);
+				uint32_t r = checkState(s);
+				if(r > 0)
+				{
+					candids.emplace_back(s, r);
+				}
+			});
+		}
+		else
+		{
+			{//insert 0
+				UINT s = 0;
+				int r = checkState(s);
+				if(r > 0)
+				{
+					candids.emplace_back(s,r);
+				}
 			}
+
+			//insert other candids. Exclude even as their LSB is 0 (shifted one must be smaller)
+			tbb::parallel_for(static_cast<UINT>(1), (UINT(1)<<UINT(N)), static_cast<UINT>(2), 
+					[&](UINT s)
+			{
+				int r = checkState(s);
+				if(r > 0)
+				{
+					candids.emplace_back(s,r);
+				}
+			});
 		}
 
-		tbb::parallel_for(static_cast<UINT>(1), (UINT(1)<<UINT(N)), static_cast<UINT>(2), 
-				[&](UINT s)
-		{
-			int r = checkState(s);
-			if(r > 0)
-			{
-				ss.emplace_back(s,r);
-			}
-		});
 
-
-		tbb::parallel_for(static_cast<std::size_t>(0), ss.size(), 
+		tbb::parallel_for(static_cast<std::size_t>(0), candids.size(), 
 					[&](std::size_t idx)
 		{
-			UINT rep = ss[idx].first;
+			UINT rep = candids[idx].first;
 			auto s = this->findMinRots(flip(rep));
 			if(s.first == rep && checkParity(s.second))
 			{
 				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{0, ss[idx].second, 0};
+				parity_[rep] = RepData{0, candids[idx].second, 0};
 			}
 			else if(s.first > rep)
 			{
 				rpts_.emplace_back(rep);
-				parity_[rep] = RepData{0, ss[idx].second, 1};
+				parity_[rep] = RepData{0, candids[idx].second, 1};
 			}
 			else //s.first < rep
 			{
@@ -116,12 +136,12 @@ private:
 	}
 
 public:
-	TIBasisZ2(unsigned int N, unsigned int k, int p)
+	TIBasisZ2(unsigned int N, unsigned int k, bool useU1, int p)
 		: Basis<UINT>{N}, k_(k), p_(p)
 	{
 		assert(k == 0 || ((k == N/2) && (N%2 == 0)));
 		assert(p_ == 1 || p_ == -1);
-		constructBasis();
+		constructBasis(useU1);
 	}
 
 	TIBasisZ2(const TIBasisZ2& ) = default;
