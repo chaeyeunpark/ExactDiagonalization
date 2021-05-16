@@ -54,7 +54,7 @@ private:
 	{
 		if (p_ == 1)
 			return ((rot*k_ % this->getN()) == 0);
-		else
+		else //if p_ == -1
 			return ((rot*k_ % this->getN()) == this->getN()/2);
 	}
 
@@ -87,7 +87,7 @@ private:
 					[&](std::size_t idx)
 		{
 			UINT rep = ss[idx].first;
-			auto s = this->findMinRots(flip(rep));
+			auto s = this->findMinRots(flip(rep)); //s is the representative for flip(rep)
 			if(s.first == rep && checkParity(s.second))
 			{
 				rpts_.emplace_back(rep);
