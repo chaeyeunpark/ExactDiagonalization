@@ -97,9 +97,9 @@ public:
 	}
 
 	TIBasis(const TIBasis& ) = default;
-	//TIBasis(TIBasis&& ) = default;
+	TIBasis(TIBasis&& ) = default;
 
-	TIBasis& operator=(const TIBasis& ) = default;
+	//TIBasis& operator=(const TIBasis& ) = default;
 	//TIBasis& operator=(TIBasis&& ) = default;
 
 	inline unsigned int getK() const { return k_; }

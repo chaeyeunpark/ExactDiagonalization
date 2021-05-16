@@ -33,13 +33,12 @@ private:
 	const int parity_; //Z2_parity
 	const UINT px_;
 
-
 	tbb::concurrent_vector<UINT> rpts_; //Representatives
 	tbb::concurrent_unordered_map<UINT, RepData> repDatas_;
 
 	/**
-	 * In two dimension, there are several different rotations that gives 
-	 * the same representation
+	 * In the two dimensional case, several different rotations can give
+	 * the same representative
 	 * */
 	std::tuple<UINT, uint32_t, uint32_t> getMinRots(UINT sigma) const
 	{
@@ -185,6 +184,9 @@ public:
 		constructBasis(useU1);
 	}
 
+	TIBasis2DZ2<UINT>(const TIBasis2DZ2<UINT>& ) = default;
+	TIBasis2DZ2<UINT>(TIBasis2DZ2<UINT>&& ) = default;
+
 	UINT rotateY(UINT sigma, int32_t r) const
 	{
 		return this->rotl(sigma, Lx_*r);
@@ -207,9 +209,8 @@ public:
 	}
 
 
-	TIBasis2DZ2<UINT>(const TIBasis2DZ2<UINT>& ) = default;
 
-	TIBasis2DZ2<UINT>& operator=(const TIBasis2DZ2<UINT>& ) = default;
+
 
 	inline uint32_t getLx() const { return Lx_; }
 	inline uint32_t getLy() const { return Ly_; }
