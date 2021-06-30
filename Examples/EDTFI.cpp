@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	{
 		Eigen::VectorXd ev[2];
 		{
-			TIBasisZ2<UINT> basis(N, 0, 1);
+			TIBasisZ2<UINT> basis(N, 0, false, 1);
 			TITFIsing<UINT> ham(basis, 1.0, h);
 			const int dim = basis.getDim();
 
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 			ev[0] = eigs.eigenvalues();
 		}
 		{
-			TIBasisZ2<UINT> basis(N, 0, -1);
+			TIBasisZ2<UINT> basis(N, 0, false, -1);
 			TITFIsing<UINT> ham(basis, 1.0, h);
 			const int dim = basis.getDim();
 

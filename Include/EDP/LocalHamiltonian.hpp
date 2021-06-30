@@ -123,13 +123,13 @@ std::map<uint32_t, T> edp::LocalHamiltonian<T>::getCol(uint32_t n) const
 		auto a = (n/ipow(d_,twoSiteTerm.sites.first))%d_;
 		auto b = (n/ipow(d_,twoSiteTerm.sites.second))%d_;
 		//auto col = twoSiteTerm.m.col(a*d_ + b);
-		auto col = a*d_ + b;
+		auto col = b*d_ + a;
 		for(typename SparseMatrix<T>::InnerIterator it(twoSiteTerm.m, col); it; ++it)
 		{
 			int r = it.row();
 			int t = n;
-			t = swapBaseD(t, twoSiteTerm.sites.first, r/d_);
-			t = swapBaseD(t, twoSiteTerm.sites.second, r%d_);
+			t = swapBaseD(t, twoSiteTerm.sites.first, r%d_);
+			t = swapBaseD(t, twoSiteTerm.sites.second, r/d_);
 			m[t] += it.value();
 		}
 	}
