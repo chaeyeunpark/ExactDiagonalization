@@ -21,12 +21,12 @@ protected:
 	std::tuple<UINT, uint32_t, uint32_t> getMinRots(UINT sigma) const
 	{
 		UINT rep = sigma;
-		uint32_t rotX = Lx_;
-		uint32_t rotY = Ly_;
-		for(uint32_t rx = 1; rx <= Lx_; rx++)
+		uint32_t rotX = 0;
+		uint32_t rotY = 0;
+		for(uint32_t rx = 0; rx < Lx_; rx++)
 		{
 			UINT srx = rotateX(sigma, rx);
-			for(uint32_t ry = 1; ry <= Ly_; ry++)
+			for(uint32_t ry = 0; ry < Ly_; ry++)
 			{
 				UINT sr = rotateY(srx, ry);
 				if(sr < rep)
