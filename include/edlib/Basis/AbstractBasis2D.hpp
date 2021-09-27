@@ -1,18 +1,21 @@
 #pragma once
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include "AbstractBasis.hpp"
 
-#include "Basis.hpp"
-
+namespace edlib
+{
 template<typename UINT>
-class Basis2D
-	: public Basis<UINT>
+class AbstractBasis2D
+	: public AbstractBasis<UINT>
 {
 protected:
 	const uint32_t Lx_;
 	const uint32_t Ly_;
 	const uint32_t kx_;
 	const uint32_t ky_;
-	const UINT px_ = (~UINT(0)) >> (sizeof(UINT)*8 - Lx_);
+	const UINT px_ = (~UINT(0)) >> (sizeof(UINT)*CHAR_BIT - Lx_);
 
 	/**
 	 * In two dimension, there are several different rotations that gives 
@@ -87,17 +90,19 @@ protected:
 	}
 
 public:
-	Basis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky)
-		: Basis<UINT>(Lx*Ly), Lx_{Lx}, Ly_{Ly}, kx_{kx}, ky_{ky}
+	AbstractBasis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky)
+		: AbstractBasis<UINT>(Lx*Ly), Lx_{Lx}, Ly_{Ly}, kx_{kx}, ky_{ky}
 	{
 	}
 
-	UINT rotateY(UINT sigma, int32_t r) const
+	UINT rotateY(UINT sigma, uint32_t r) const
 	{
-		return this->rotl(sigma, Lx_*r);
+		const auto N = this->getN();
+		const uint32_t count = Lx_*r;
+		return ((sigma << count) & this->getUps()) | (sigma >> (N - count));
 	}
 
-	UINT rotateX(UINT sigma, int32_t r) const
+	UINT rotateX(UINT sigma, uint32_t r) const
 	{
 		assert((r >= 0) && (r <= Lx_));
 		const auto Lx = Lx_;
@@ -125,3 +130,4 @@ public:
 	}
 
 };
+} // namespace edlib

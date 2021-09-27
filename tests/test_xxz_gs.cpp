@@ -10,18 +10,21 @@
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
 
-#include <EDP/LocalHamiltonian.hpp>
-#include <EDP/ConstructSparseMat.hpp>
 
 #include <iostream>
 #include <cassert>
 #include <random>
 #include <algorithm>
 
-#include "Basis/TIBasisZ2.hpp"
-#include "Basis/ToOriginalBasis.hpp"
-#include "Hamiltonians/TIXXZ.hpp"
-#include "NodeMV.hpp"
+#include "edlib/Basis/Basis1DZ2.hpp"
+#include "edlib/Basis/ToOriginalBasis.hpp"
+#include "edlib/Hamiltonians/TIXXZ.hpp"
+#include "edlib/Op/NodeMV.hpp"
+
+#include "edlib/EDP/LocalHamiltonian.hpp"
+#include "edlib/EDP/ConstructSparseMat.hpp"
+
+using namespace edlib;
 
 Eigen::SparseMatrix<double> getSX()
 {
@@ -31,6 +34,7 @@ Eigen::SparseMatrix<double> getSX()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<std::complex<double> > getSY()
 {
 	Eigen::SparseMatrix<std::complex<double> > res(2,2);
@@ -57,7 +61,7 @@ twoQubitOp(int N, int pos1, int pos2,
 		const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& v2)
 {
 	using namespace Eigen;
-	const uint32_t dim = (1<<N);
+	const uint32_t dim = (1u << N);
 
 	assert(pos1 < pos2);
 
@@ -88,7 +92,7 @@ singleQubitOp(int N, int pos,
 		const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& v)
 {
 	using namespace Eigen;
-	const uint32_t dim = (1<<N);
+	const uint32_t dim = (1u << N);
 
 	using MatrixT = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> ;
 	MatrixT res(1,1);
@@ -115,6 +119,7 @@ Eigen::SparseMatrix<double> getSXXYY()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<double> getSXX()
 {
 	Eigen::SparseMatrix<double> res(4,4);
@@ -125,6 +130,7 @@ Eigen::SparseMatrix<double> getSXX()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<double> getSYY()
 {
 	Eigen::SparseMatrix<double> res(4,4);
@@ -146,22 +152,24 @@ Eigen::SparseMatrix<double> getSZZ()
 	res.makeCompressed();
 	return res;
 }
-constexpr int N = 10;
+
 template<int N>
 class CompareXXZ
 {
 private:
 	double delta_;
-	TIBasisZ2<uint32_t> basis;
+	Basis1DZ2<uint32_t> basis_;
 
 	Eigen::MatrixXd hamFull_;
 	double gsEnergy_;
 	Eigen::VectorXd gsVec_;
 public:
+
 	constexpr static int k = (N/2)*((N/2)%2);
 	constexpr static int parity = 1-2*((N/2)%2);
-	CompareXXZ(double delta):
-		delta_{delta}, basis{N, k, parity}
+
+	CompareXXZ(double delta)
+		: delta_{delta}, basis_{N, k, parity, true}
 	{
 		using namespace Eigen;
 		static_assert(N % 2 == 0, "N must be even");
@@ -169,7 +177,7 @@ public:
 		edp::LocalHamiltonian<double> lh(N,2);
 		for(int i = 0; i < N; i++)
 		{
-			lh.addTwoSiteTerm(std::make_pair(i, (i+1)%N), getSXXYY() + delta_*getSZZ());
+			lh.addTwoSiteTerm({i, (i+1) % N}, getSXXYY() + delta_*getSZZ());
 		}
 		hamFull_ = MatrixXd(edp::constructSparseMat<double>(1<<N, lh));
 		SelfAdjointEigenSolver<MatrixXd> es;
@@ -183,8 +191,8 @@ public:
 	void Test()
 	{
 		using namespace Eigen;
-		TIXXZ<uint32_t> ham(basis, 1.0, delta_);
-		const int dim = basis.getDim();
+		TIXXZ<uint32_t> ham(basis_, 1.0, delta_);
+		const int dim = basis_.getDim();
 
 		NodeMV mv(dim, 0, dim, ham);
 
@@ -199,7 +207,7 @@ public:
 		VectorXd subspaceGs = eigs.eigenvectors().col(0);
 		VectorXd gsVec1;
 		{
-			auto v = toOriginalVector(basis, subspaceGs.data());
+			auto v = toOriginalVector(basis_, subspaceGs.data());
 			gsVec1 = Map<VectorXd>(v.data(), 1<<N);
 		}
 
@@ -212,12 +220,6 @@ public:
 
 TEST_CASE("Compare GS of XXZ using LocalHamiltonian and TIBasis", "[XXZGS]") 
 {
-	std::random_device rd;
-	std::default_random_engine re{rd()};
-	std::uniform_int_distribution<> uid(0, N-1);
-	std::uniform_real_distribution<> urd;
-
-	using namespace Eigen;
 	SECTION("TIBasis Z2 XXZ N=8") {
 		CompareXXZ<8> test(1.0);
 		test.Test();

@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues> 
 
@@ -10,13 +9,13 @@
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
 
-#include <EDP/LocalHamiltonian.hpp>
-#include <EDP/ConstructSparseMat.hpp>
-
 #include <iostream>
 #include <cassert>
 #include <random>
 #include <algorithm>
+
+#include "edlib/EDP/LocalHamiltonian.hpp"
+#include "edlib/EDP/ConstructSparseMat.hpp"
 
 Eigen::SparseMatrix<double> getSX()
 {
@@ -26,6 +25,7 @@ Eigen::SparseMatrix<double> getSX()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<std::complex<double> > getSY()
 {
 	Eigen::SparseMatrix<std::complex<double> > res(2,2);
@@ -110,6 +110,7 @@ Eigen::SparseMatrix<double> getSXXYY()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<double> getSXX()
 {
 	Eigen::SparseMatrix<double> res(4,4);
@@ -120,6 +121,7 @@ Eigen::SparseMatrix<double> getSXX()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<double> getSYY()
 {
 	Eigen::SparseMatrix<double> res(4,4);

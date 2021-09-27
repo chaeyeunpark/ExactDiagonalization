@@ -5,20 +5,20 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 //#include "BitOperations.h"
-#include "Basis/Basis.hpp"
-#include "Basis/TIBasis2D.hpp"
+#include "../Basis/AbstractBasis2D.hpp"
 
-template<typename UINT, class Basis>
+template<typename UINT>
 class TIJ1J2_2D
 {
 private:
-	const Basis& basis_;
+	const edlib::AbstractBasis2D<UINT>& basis_;
 	double J1_;
 	double J2_;
 	int sign_;
 
 public:
-	TIJ1J2_2D(const Basis& basis, double J1, double J2, bool signRule = false)
+	TIJ1J2_2D(const edlib::AbstractBasis2D<UINT>& basis, double J1, double J2, 
+			bool signRule = false)
 		: basis_(basis), J1_(J1), J2_(J2)
 	{
 		if(signRule)

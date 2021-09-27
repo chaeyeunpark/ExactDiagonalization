@@ -7,53 +7,35 @@
 
 #include <tbb/tbb.h>
 
-#include "Basis.hpp"
+#include "AbstractBasis1D.hpp"
 #include "BasisJz.hpp"
 
-struct RepData 
+namespace edlib
 {
-	std::size_t rptIdx;
-	int rot;
-	int parity;
-};
 
 template<typename UINT>
-class TIBasisZ2
-	: public Basis<UINT>
+class Basis1DZ2
+	: public AbstractBasis1D<UINT>
 {
+public:
+	struct RepData 
+	{
+		std::size_t rptIdx;
+		int rot;
+		int parity;
+	};
+
 private:
-	const int k_;
 	const int p_;
 
-	tbb::concurrent_vector<UINT> rpts_; //rpts_ is NOT sorted
-	tbb::concurrent_unordered_map<UINT, RepData > parity_;
+	tbb::concurrent_vector<UINT> rpts_; 
+	tbb::concurrent_unordered_map<UINT, RepData> parity_;
 
-	int checkState(UINT s) const
-	{
-		UINT sr = s;
-		const auto N = this->getN();
-		for(int r = 1; r <= N; r++)
-		{
-			sr = this->rotl(s, r);
-			if(sr < s)
-			{
-				return -1; //s is not a representative
-			}
-			else if(sr == s)
-			{
-				if((k_ % (N/r)) != 0)
-					return -1; //this representative is not allowed for this k
-				return r;
-			}
-		}
-		return -1;
-	}
-	
 	int phase(int rot) const
 	{
-		//return exp(2 \Pi I k*rot)
+		const auto k = this->getK();
 		int N = this->getN();
-		if ((k_*rot % N) == 0)
+		if ((k*rot % N) == 0)
 			return 1;
 		else
 			return -1;
@@ -73,7 +55,7 @@ private:
 
 			tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s)
 			{
-				int r = checkState(s);
+				int r = this->checkState(s);
 				if(r > 0)
 				{
 					candids.emplace_back(s, r);
@@ -84,7 +66,7 @@ private:
 		{
 			{//insert 0
 				UINT s = 0;
-				int r = checkState(s);
+				int r = this->checkState(s);
 				if(r > 0)
 				{
 					candids.emplace_back(s, r);
@@ -95,14 +77,13 @@ private:
 			tbb::parallel_for(static_cast<UINT>(1), (UINT(1)<<UINT(N)), static_cast<UINT>(2), 
 					[&](UINT s)
 			{
-				int r = checkState(s);
+				int r = this->checkState(s);
 				if(r > 0)
 				{
 					candids.emplace_back(s, r);
 				}
 			});
 		}
-
 
 		tbb::parallel_for(static_cast<std::size_t>(0), candids.size(), 
 					[&](std::size_t idx)
@@ -138,25 +119,23 @@ private:
 	}
 
 public:
-	TIBasisZ2(unsigned int N, unsigned int k, bool useU1, int p)
-		: Basis<UINT>{N}, k_(k), p_(p)
+	Basis1DZ2(unsigned int N, unsigned int k, int p, bool useU1)
+		: AbstractBasis1D<UINT>{N, k}, p_(p)
 	{
 		assert(k == 0 || ((k == N/2) && (N%2 == 0)));
 		assert(p_ == 1 || p_ == -1);
 		constructBasis(useU1);
 	}
 
-	TIBasisZ2(const TIBasisZ2& ) = default;
-	TIBasisZ2(TIBasisZ2&& ) = default;
+	Basis1DZ2(const Basis1DZ2& ) = default;
+	Basis1DZ2(Basis1DZ2&& ) = default;
 
 	inline UINT flip(UINT value) const
 	{
 		return ((this->getUps())^value);
 	}
 
-	inline int getK() const { return k_; }
 	inline int getP() const { return p_; }
-
 
 	RepData getData(UINT s) const
 	{
@@ -180,7 +159,8 @@ public:
 
 	std::pair<int,double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
-		double expk = (k_==0)?1.0:-1.0;
+		const auto k = this->getK();
+		double expk = (k == 0)?1.0:-1.0;
 
 		auto pa = parity_.at(rpts_[aidx]);
 		double Na = 1.0/double(1 + abs(pa.parity))/pa.rot;
@@ -211,7 +191,8 @@ public:
 	/// return a vector of index/value pairs
 	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const override
 	{
-		const double expk = (k_==0)?1.0:-1.0;
+		const auto k = this->getK();
+		const double expk = (k == 0)?1.0:-1.0;
 		std::vector<std::pair<UINT,double>> res;
 
 		auto rep = getNthRep(n);
@@ -242,3 +223,5 @@ public:
 		return res;
 	}
 };
+
+} // namespace edlib

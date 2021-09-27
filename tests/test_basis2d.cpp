@@ -1,14 +1,22 @@
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>
+
 #include <iostream>
-#include "Basis/TIBasis2D.hpp"
-#include "Basis/FullBasis.hpp"
-#include "Hamiltonians/TITFI2D.hpp"
-#include "NodeMV.hpp"
 
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
 
-#include <EDP/LocalHamiltonian.hpp>
-#include <EDP/ConstructSparseMat.hpp>
+#include "edlib/Basis/Basis2D.hpp"
+#include "edlib/Basis/FullBasis.hpp"
+#include "edlib/Hamiltonians/TITFI2D.hpp"
+#include "edlib/Op/NodeMV.hpp"
+
+#include "edlib/EDP/LocalHamiltonian.hpp"
+#include "edlib/EDP/ConstructSparseMat.hpp"
+
+#include "utils.hpp"
+
+using namespace edlib;
 
 Eigen::SparseMatrix<double> getSZZ()
 {
@@ -20,6 +28,7 @@ Eigen::SparseMatrix<double> getSZZ()
 	res.makeCompressed();
 	return res;
 }
+
 Eigen::SparseMatrix<double> getSX()
 {
 	Eigen::SparseMatrix<double> res(2,2);
@@ -29,25 +38,32 @@ Eigen::SparseMatrix<double> getSX()
 	return res;
 }
 
-int main()
+TEST_CASE("Print", "[basis2d]")
 {
 	const int Lx = 3;
 	const int Ly = 2;
 	const int N = Lx*Ly;
-	TIBasis2D<uint32_t> basis2D(Lx, Ly, 0 ,0, false);
+	Basis2D<uint32_t> basis(Lx, Ly, 0, 0, false);
+	
+	Eigen::MatrixXd bmat = basisMatrix(basis);
 
-	for(int i = 0; i < basis2D.getDim(); i++)
+	for(uint32_t n = 0; n < basis.getDim(); ++n)
 	{
-		std::cout << basis2D.getNthRep(i) << std::endl;
-		for(const auto p: basis2D.basisVec(i))
-		{
-			std::cout << p.first << "\t" 
-				<< p.second << std::endl;
-		}
+		std::cout << bmat.col(n).norm() << std::endl;
 	}
 
-	double gsEnergy1;
+}
 
+TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]") 
+{
+	const int Lx = 3;
+	const int Ly = 2;
+	const int N = Lx*Ly;
+	Basis2D<uint32_t> basis2D(Lx, Ly, 0, 0, false);
+
+	double h = 10.0;
+
+	double gsEnergy1;
 	{
 		edp::LocalHamiltonian<double> lh(N, 2);
 		for(uint32_t nx = 0; nx < Lx; ++nx)
@@ -60,17 +76,10 @@ int main()
 				lh.addTwoSiteTerm(
 					std::make_pair(Lx*ny+nx, Lx*ny+((nx+1) % Lx)), -getSZZ()
 				);
-				lh.addOneSiteTerm(Lx*ny+nx, -3.0*getSX());
+				lh.addOneSiteTerm(Lx*ny+nx, -h*getSX());
 			}
 		}
 		Eigen::SparseMatrix<double> m = edp::constructSparseMat<double>(1<<N, lh);
-		/*
-		Eigen::MatrixXd hamFull = m;
-		Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es;
-		es.compute(hamFull);
-
-		std::cout << es.eigenvalues() << std::endl;
-		*/
 
 		Spectra::SparseSymMatProd<double> op(m);
 		Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, decltype(op)> eigs(&op, 2, 6);
@@ -82,7 +91,7 @@ int main()
 
 	double gsEnergy2;
 	{
-		TITFI2D<uint32_t> ham(basis2D, 1.0, 3.0);
+		TITFI2D<uint32_t> ham(basis2D, 1.0, h);
 		const int dim = basis2D.getDim();
 		NodeMV mv(dim, 0, dim, ham);
 		Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 4);
@@ -92,8 +101,5 @@ int main()
 		gsEnergy2 = eigs.eigenvalues()[0];
 	}
 
-	std::cout << gsEnergy1 << "\t" << gsEnergy2 << std::endl;
-
-
-	return 0;
+	REQUIRE_THAT(gsEnergy1, Catch::Matchers::WithinAbs(gsEnergy2, 1e-8));
 }

@@ -8,14 +8,16 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Basis2D.hpp"
+#include "AbstractBasis2D.hpp"
 #include "BasisJz.hpp"
 
 #include <tbb/tbb.h>
 
+namespace edlib
+{
 template<typename UINT>
-class TIBasis2D
-	: public Basis2D<UINT>
+class Basis2D
+	: public AbstractBasis2D<UINT>
 {
 private:
 	tbb::concurrent_vector< std::pair<UINT, uint32_t> > rpts_; //Representatives and number of repretations
@@ -58,15 +60,15 @@ private:
 
 
 public:
-	TIBasis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1)
-		: Basis2D<UINT>(Lx, Ly, kx, ky)
+	Basis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1)
+		: AbstractBasis2D<UINT>(Lx, Ly, kx, ky)
 	{
 		constructBasis(useU1);
 	}
 
-	TIBasis2D<UINT>(const TIBasis2D<UINT>& ) = default;
+	Basis2D<UINT>(const Basis2D<UINT>& ) = default;
 
-	TIBasis2D<UINT>& operator=(const TIBasis2D<UINT>& ) = default;
+	Basis2D<UINT>& operator=(const Basis2D<UINT>& ) = default;
 	std::size_t getDim() const override
 	{
 		return rpts_.size();
@@ -75,6 +77,10 @@ public:
 	UINT getNthRep(int n) const override
 	{
 		return rpts_[n].first;
+	}
+	uint32_t repetitions(int n) const
+	{
+		return rpts_[n].second;
 	}
 
 	inline UINT flip(UINT value) const
@@ -134,3 +140,4 @@ public:
 		return std::vector<std::pair<UINT, double>>(res.begin(), res.end());
 	}
 };
+} //namespace edlib

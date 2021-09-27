@@ -1,22 +1,21 @@
-#ifndef ED_TITFI_HPP
-#define ED_TITFI_HPP
+#pragma once
 #include <cstdint>
 #include <cassert>
 #include <algorithm>
 #include <map>
 #include <boost/dynamic_bitset.hpp>
-#include "Basis/TIBasis2D.hpp"
+#include "../Basis/AbstractBasis2D.hpp"
 
 template<typename UINT>
 class TITFI2D
 {
 private:
-	TIBasis2D<UINT>& basis_;
+	edlib::AbstractBasis2D<UINT>& basis_;
 	double J_;
 	double h_;
 
 public:
-	TITFI2D(TIBasis2D<UINT>& basis, double J, double h)
+	TITFI2D(edlib::AbstractBasis2D<UINT>& basis, double J, double h)
 		: basis_(basis), J_(J), h_(h)
 	{
 		
@@ -58,4 +57,3 @@ public:
 		return m;
 	}
 };
-#endif //ED_TITFI_HPP

@@ -5,18 +5,18 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 
-#include "Basis/Basis.hpp"
+#include "../Basis/AbstractBasis1D.hpp"
 
 template<typename UINT>
 class TIXXZ
 {
 private:
-	const Basis<UINT>& basis_;
+	const edlib::AbstractBasis1D<UINT>& basis_;
 	double J_;
 	double delta_;
 
 public:
-	TIXXZ(const Basis<UINT>& basis, double J, double delta)
+	TIXXZ(const edlib::AbstractBasis1D<UINT>& basis, double J, double delta)
 		: basis_(basis), J_(J), delta_(delta)
 	{
 		

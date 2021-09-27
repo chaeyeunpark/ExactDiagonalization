@@ -9,21 +9,23 @@
 #include <tbb/parallel_for_each.h>
 
 #include "BasisJz.hpp"
-#include "Basis.hpp"
+#include "AbstractBasis1D.hpp"
 
+namespace edlib
+{
 template<typename UINT>
-class TIBasis
-	: public Basis<UINT>
+class Basis1D
+	: public AbstractBasis1D<UINT>
 {
 private:
-	const unsigned int k_;
-
-	tbb::concurrent_vector<std::pair<UINT,unsigned int> > rpts_; //Representatives
+	tbb::concurrent_vector<std::pair<UINT, unsigned int>> rpts_; //Representatives
 
 	int checkState(UINT s) 
 	{
 		UINT sr = s;
 		const auto N = this->getN();
+		const auto k = this->getK();
+
 		for(int r = 1; r <= N; r++)
 		{
 			sr = this->rotl(s, r);
@@ -37,7 +39,7 @@ private:
 				 * when we fall in this else if clause. As rot(s,r) == s,
 				 * s is the smallest among rotl(s, 1), ..., rotl(s, N-1).
 				 */
-				if((k_ % (N/r)) != 0)
+				if((k % (N/r)) != 0)
 					return -1; //this representative is not allowed for k
 				return r;
 			}
@@ -47,6 +49,7 @@ private:
 
 	void constructBasisFull()
 	{
+		// insert 0
 		{
 			UINT s = 0;
 			int r = checkState(s);
@@ -56,6 +59,7 @@ private:
 			}
 		}
 
+		// iterate over all odd numbers
 		const unsigned int N = this->getN();
 		tbb::parallel_for(UINT(1), (UINT(1)<<UINT(N)), UINT(2), [&](UINT s)
 		{
@@ -87,8 +91,8 @@ private:
 	}
 
 public:
-	TIBasis(unsigned int N, unsigned int k, bool useU1)
-		: Basis<UINT>(N), k_(k)
+	Basis1D(unsigned int N, unsigned int k, bool useU1)
+		: AbstractBasis1D<UINT>(N, k)
 	{
 		if(useU1)
 		{
@@ -100,13 +104,11 @@ public:
 		}
 	}
 
-	TIBasis(const TIBasis& ) = default;
-	TIBasis(TIBasis&& ) = default;
+	Basis1D(const Basis1D& ) = default;
+	Basis1D(Basis1D&& ) = default;
 
-	//TIBasis& operator=(const TIBasis& ) = default;
-	//TIBasis& operator=(TIBasis&& ) = default;
-
-	inline unsigned int getK() const { return k_; }
+	//Basis1D& operator=(const Basis1D& ) = default;
+	//Basis1D& operator=(Basis1D&& ) = default;
 
 	unsigned int stateIdx(UINT rep) const
 	{
@@ -150,7 +152,8 @@ public:
 		using std::sqrt;
 		using std::pow;
 
-		double expk = (k_==0)?1.0:-1.0;
+		const auto k = this->getK();
+		double expk = (k == 0)?1.0:-1.0;
 
 		UINT bRep;
 		int bRot;
@@ -171,15 +174,17 @@ public:
 
 	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const
 	{
-		const double expk = (k_==0)?1.0:-1.0;
+		const auto k = this->getK();
+		const double expk = (k == 0)?1.0:-1.0;
 		std::vector<std::pair<UINT,double>> res;
 
 		auto rep = rpts_[n].first;
 		double norm = 1.0/sqrt(rpts_[n].second);
-		for(int k = 0; k < rpts_[n].second; k++)
+		for(unsigned int r = 0; r < rpts_[n].second; r++)
 		{
-			res.emplace_back( this->rotl(rep,k), pow(expk,k)*norm);
+			res.emplace_back( this->rotl(rep, r), pow(expk, r)*norm);
 		}
 		return res;
 	}
 };
+} // namespace edlib

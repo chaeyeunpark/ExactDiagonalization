@@ -1,15 +1,20 @@
 #include <iostream>
-#include "Basis/TIBasis.hpp"
-#include "Basis/TIBasisZ2.hpp"
-#include "Basis/ToOriginalBasis.hpp"
-#include "EDP/ConstructSparseMat.hpp"
+
+#include "edlib/Basis/Basis1D.hpp"
+#include "edlib/Basis/Basis1DZ2.hpp"
+#include "edlib/Basis/ToOriginalBasis.hpp"
+#include "edlib/EDP/ConstructSparseMat.hpp"
+#include "edlib/Hamiltonians/TIXXZ.hpp"
+
+#include "utils.hpp"
 #include "XXZ.hpp"
-#include "Hamiltonians/TIXXZ.hpp"
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
 using namespace Eigen;
+using namespace edlib;
+
 template<typename Basis>
 VectorXd translate(Basis&& basis, const VectorXd& r)
 {
@@ -32,27 +37,15 @@ VectorXd flip(Basis&& basis, const VectorXd& r)
 	return res;
 }
 
-template<typename UINT, template<typename> class Basis>
-MatrixXd basisMatrix(const Basis<UINT>& basis)
-{
-	MatrixXd res = MatrixXd::Zero(basis.getDim(), 1u << basis.getN());
-	for(unsigned int n = 0; n < basis.getDim(); ++n)
-	{
-		for(const auto p: basis.basisVec(n))
-		{
-			res(n, p.first) = p.second;
-		}
-	}
-	return res;
-}
 
 template<class Basis>
-void CheckTIBasisParity(Basis&& basis, const MatrixXd& r)
+void CheckBasis1DParity(Basis&& basis, const MatrixXd& r)
 {
 	const int N = basis.getN();
-	const int K = basis.getK();
+	const int k = basis.getK();
 	const int p = basis.getP();
-	const int expk = (K==0)?1:-1;
+
+	const int expk = (k == 0)?1:-1;
 
 	for(int i = 0; i < r.cols(); i++)
 	{
@@ -70,6 +63,7 @@ void TestBasisMatrix(const MatrixXd& r)
 		auto c = r.col(i);
 		REQUIRE_THAT( c.norm(), WithinAbs(1.0, 1e-6));
 	}
+
 	for(int i = 0; i < r.cols()-1; i++)
 	{
 		for(int j = i+1; j < r.cols(); j++)
@@ -83,11 +77,11 @@ void TestBasisMatrix(const MatrixXd& r)
 
 
 template<class Basis>
-void CheckTIBasis(Basis&& basis, const MatrixXd& r)
+void CheckBasis1D(Basis&& basis, const MatrixXd& r)
 {
 	const int N = basis.getN();
-	const int K = basis.getK();
-	const int expk = (K==0)?1:-1;
+	const int k = basis.getK();
+	const int expk = (k == 0)?1:-1;
 
 	for(int i = 0; i < r.cols(); i++)
 	{
@@ -100,7 +94,8 @@ template<class Basis>
 void CheckBasisXXZ(Basis&& basis, const MatrixXd& r)
 {
 	TIXXZ<uint32_t> tiXXZ(basis, 1.0, 0.9);
-	auto hamTI = edp::constructSparseMat<double>(basis.getDim(), [&tiXXZ](uint32_t col){ return tiXXZ.getCol(col); });
+	auto hamTI = edp::constructSparseMat<double>(basis.getDim(), 
+			[&tiXXZ](uint32_t col){ return tiXXZ.getCol(col); });
 
 	const int N = basis.getN();
 
@@ -113,10 +108,7 @@ void CheckBasisXXZ(Basis&& basis, const MatrixXd& r)
 		std::cout << mat << std::endl;
 		std::cout << MatrixXd(hamTI) << std::endl;
 	}
-	//REQUIRE( (Eigen::MatrixXd(hamTI) - mat).norm() < 1e-10);
 }
-
-
 
 template<class Basis>
 void PrintRpts(Basis&& basis)
@@ -127,12 +119,12 @@ void PrintRpts(Basis&& basis)
 	}
 }
 
-TEST_CASE("TIBasis works?", "[ti-basis]")
+TEST_CASE("Basis1D works?", "[ti-basis]")
 {
 	int K = 0;
-	for(int N = 20; N <= 28; N+=4)
+	for(int N = 20; N <= 28; N += 4)
 	{
-		TIBasis<uint32_t> basis(N, K, true);
+		Basis1D<uint32_t> basis(N, K, true);
 		
 		for(uint32_t i = 0; i < basis.getDim(); ++i)
 		{
@@ -143,72 +135,75 @@ TEST_CASE("TIBasis works?", "[ti-basis]")
 	}
 }
 
-TEST_CASE("TIBasis test", "[basis]")
+TEST_CASE("Basis1D test", "[basis]")
 {
 	SECTION("Not use U1")
 	{
-		for(int N = 4; N <= 12; N+=2)
+		for(int N = 4; N <= 12; N += 2)
 		{
 			for(int K: {0, N/2})
 			{
 				printf("Testing N: %d, K: %d\n", N, K);
-				TIBasis<uint32_t> basis(N, K, false);
-				MatrixXd r = basisMatrix(basis).transpose();
-				TestBasisMatrix( r);
-				CheckTIBasis(basis, r);
+				Basis1D<uint32_t> basis(N, K, false);
+				MatrixXd r = basisMatrix(basis);
+				TestBasisMatrix(r);
+				CheckBasis1D(basis, r);
 				CheckBasisXXZ(basis, r);
 			}
 		}
 	}
 	SECTION("Use U1")
 	{
-		for(int N = 4; N <= 12; N+=2)
+		for(int N = 4; N <= 12; N += 2)
 		{
 			for(int K: {0, N/2})
 			{
 				printf("Testing N: %d, K: %d\n", N, K);
-				TIBasis<uint32_t> basis(N, K, true);
-				MatrixXd r = basisMatrix(basis).transpose();
+				Basis1D<uint32_t> basis(N, K, true);
+				MatrixXd r = basisMatrix(basis);
 				TestBasisMatrix(r);
-				CheckTIBasis(basis, r);
+				CheckBasis1D(basis, r);
 				CheckBasisXXZ(basis, r);
 			}
 		}
 	}
-
 }
-TEST_CASE("TIBasisZ2 test", "[basis-z2]")
+
+TEST_CASE("Basis1DZ2 test", "[basis-z2]")
 {
 	const std::array<int, 2> ps{-1,1};
-	
-	for(int N = 4; N <= 12; N+=2)
+
+	SECTION("Not use U1")
 	{
-		for(int K: {0, N/2})
-		{
-			for(int p: ps)
-			{
-				printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
-				TIBasisZ2<uint32_t> basis(N,K,false,p);
-				MatrixXd r = basisMatrix(basis).transpose();
-				TestBasisMatrix(r);
-				CheckTIBasisParity(basis, r);
-				CheckBasisXXZ(basis, r);
-			}
-		}
-	}
-	SECTION("Use U1")
-	{
-		for(int N = 4; N <= 12; N+=2)
+		for(int N = 4; N <= 12; N += 2)
 		{
 			for(int K: {0, N/2})
 			{
 				for(int p: ps)
 				{
 					printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
-					TIBasisZ2<uint32_t> basis(N, K, true, p);
-					MatrixXd r = basisMatrix(basis).transpose();
+					Basis1DZ2<uint32_t> basis(N, K, p, false);
+					MatrixXd r = basisMatrix(basis);
 					TestBasisMatrix(r);
-					CheckTIBasis(basis, r);
+					CheckBasis1DParity(basis, r);
+					CheckBasisXXZ(basis, r);
+				}
+			}
+		}
+	}
+	SECTION("Use U1")
+	{
+		for(int N = 4; N <= 12; N += 2)
+		{
+			for(int K: {0, N/2})
+			{
+				for(int p: ps)
+				{
+					printf("Testing N: %d, K: %d, p: %d\n", N, K, p);
+					Basis1DZ2<uint32_t> basis(N, K, p, true);
+					MatrixXd r = basisMatrix(basis);
+					TestBasisMatrix(r);
+					CheckBasis1D(basis, r);
 					CheckBasisXXZ(basis, r);
 				}
 			}

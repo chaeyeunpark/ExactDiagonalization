@@ -5,6 +5,11 @@
 #include <utility>
 #include <algorithm>
 
+#include "exceptions.hpp"
+
+namespace edlib
+{
+
 class NodeMV
 {
 private:
@@ -39,6 +44,16 @@ public:
 		}
 		sparse_status_t m = mkl_sparse_d_create_csr(&A_, SPARSE_INDEX_BASE_ZERO, rows_, dim, 
 				ptrB.data(), ptrB.data()+1, colIdx.data(), values.data());
+
+		if (m == SPARSE_STATUS_ALLOC_FAILED)
+		{
+			throw SparseAllocFailed();
+		}
+		else if (m != SPARSE_STATUS_SUCCESS)
+		{
+			throw SparseCreateFailed();
+		}
+
 		descA_.type = SPARSE_MATRIX_TYPE_GENERAL;
 
 		mkl_sparse_set_mv_hint(A_, SPARSE_OPERATION_NON_TRANSPOSE, descA_, 100000);
@@ -63,6 +78,6 @@ public:
 	{
 		mkl_sparse_destroy(A_);
 	}
-
 };
 
+} // namespace edlib

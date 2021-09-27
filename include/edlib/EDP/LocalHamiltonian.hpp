@@ -1,9 +1,8 @@
-#ifndef EDP_LOCALHAMILTONIAN_HPP
-#define EDP_LOCALHAMILTONIAN_HPP
+#pragma once
 #include <Eigen/Sparse>
+
 namespace edp
 {
-
 namespace internal
 {
 	inline uint32_t ipow(uint32_t base, uint32_t exp)
@@ -149,6 +148,3 @@ std::map<uint32_t, T> edp::LocalHamiltonian<T>::getCol(uint32_t n) const
 	}
 	return m;
 }
-
-
-#endif//EDP_LOCALHAMILTONIAN_HPP

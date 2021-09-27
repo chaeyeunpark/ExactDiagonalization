@@ -1,8 +1,10 @@
-#ifndef ED_TOOTIGINALBASIS_HPP
-#define ED_TOOTIGINALBASIS_HPP
+#pragma once
 #include <vector>
 #include <tbb/tbb.h>
 #include <mkl.h>
+
+namespace edlib
+{
 template<typename UINT, template<typename> class Basis>
 struct SumVector
 {
@@ -46,6 +48,7 @@ std::vector<double> toOriginalVector(const Basis<UINT>& basis, const double* st)
 	tbb::parallel_reduce(tbb::blocked_range<size_t>(0u, basis.getDim()), sv);
 	return sv.my_;
 }
+
 /// version with less momory
 template<typename UINT, template<typename> class Basis>
 std::vector<double> toOriginalVectorLM(const Basis<UINT>& basis, const double* st)
@@ -63,4 +66,5 @@ std::vector<double> toOriginalVectorLM(const Basis<UINT>& basis, const double* s
 	});
 	return res;
 }
-#endif//ED_TOOTIGINALBASIS_HPP
+
+} // namespace edlib

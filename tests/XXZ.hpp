@@ -1,5 +1,4 @@
-#ifndef HAMILTONIANS_XXZ_HPP
-#define HAMILTONIANS_XXZ_HPP
+#pragma once
 #include <Eigen/Eigen>
 
 class XXZ
@@ -10,7 +9,6 @@ private:
 	double Delta_;
 
 public:
-
 	XXZ(int n, double J, double Delta)
 		: n_(n), J_(J), Delta_(Delta)
 	{
@@ -41,7 +39,6 @@ public:
 		return res;
 	}
 
-
 	std::map<uint32_t, double> operator()(uint32_t col) const
 	{
 		std::map<uint32_t, double> m;
@@ -57,4 +54,4 @@ public:
 		return m;
 	}
 };
-#endif//HAMILTONIANS_XXZ_HPP
+

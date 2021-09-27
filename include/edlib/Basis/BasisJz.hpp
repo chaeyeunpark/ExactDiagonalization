@@ -1,6 +1,8 @@
-#ifndef ED_BASIS_BASJSJZ_HPP
-#define ED_BASIS_BASJSJZ_HPP
+#pragma once
 #include <iterator>
+
+namespace edlib
+{
 //! \ingroup Basis
 //! Basis for U(1) symmetric subspace.
 template<typename UINT>
@@ -66,16 +68,19 @@ public:
 		: N_(N), nup_(nup)
 	{
 	}
+
 	BasisJzIterator begin()
 	{
 		return BasisJzIterator{(UINT(1)<<UINT(nup_))-1};
 	}
+
 	BasisJzIterator end()
 	{
 		BasisJzIterator r{((UINT(1)<<UINT(nup_))-1) << (UINT(N_)-UINT(nup_))};
 		r.next();
 		return r;
 	}
+
 	UINT size() const
 	{
 		UINT res = 1ul;
@@ -94,6 +99,4 @@ public:
     	return res;  
 	}
 };
-
-
-#endif//ED_BASIS_BASJSJZ_HPP
+} // namespace edlib

@@ -1,19 +1,20 @@
-#ifndef FULLBASIS_HPP
-#define FULLBASIS_HPP
-#include "Basis.hpp"
+#pragma once
+#include "AbstractBasis.hpp"
 #include "BasisJz.hpp"
 
 #include <tbb/tbb.h>
 
+namespace edlib
+{
 template <typename UINT>
 class FullBasis
-	: Basis<UINT>
+	: AbstractBasis<UINT>
 {
 private:
 
 public:
 	FullBasis(unsigned int N)
-		: Basis<UINT>(N)
+		: AbstractBasis<UINT>(N)
 	{
 	}
 
@@ -37,5 +38,4 @@ public:
 		return std::vector<std::pair<UINT,double>>{std::make_pair(UINT(n), 1.0)};
 	}
 };
-
-#endif//FULLBASIS_HPP
+} //namespace edlib

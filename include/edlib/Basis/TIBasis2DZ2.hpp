@@ -8,14 +8,17 @@
 #include <algorithm>
 #include <cassert>
 
-#include "Basis2D.hpp"
+#include "AbstractBasis2D.hpp"
 #include "BasisJz.hpp"
 
 #include <tbb/tbb.h>
 
+namespace edlib
+{
+
 template<typename UINT>
 class TIBasis2DZ2
-	: public Basis2D<UINT>
+	: public AbstractBasis2D<UINT>
 {
 public:
 	struct RepData
@@ -101,7 +104,7 @@ private:
 
 public:
 	TIBasis2DZ2(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1, int parity = 1)
-		: Basis2D<UINT>(Lx, Ly, kx, ky), parity_(parity)
+		: AbstractBasis2D<UINT>(Lx, Ly, kx, ky), parity_(parity)
 	{
 		assert((parity == 1) || (parity == -1));
 		constructBasis(useU1);
@@ -201,3 +204,4 @@ public:
 		return std::vector<std::pair<UINT, double>>(res.begin(), res.end());
 	}
 };
+} // namespace edlib
