@@ -17,6 +17,85 @@
 #include "utils.hpp"
 
 using namespace edlib;
+using namespace Eigen;
+
+template<typename Basis>
+Eigen::VectorXd translateY(Basis&& basis, const Eigen::VectorXd& r)
+{
+	Eigen::VectorXd res(r.size());
+	for(int i = 0; i < r.size(); i++)
+	{
+		res(basis.rotateY(i,1)) = r(i);
+	}
+	return res;
+}
+
+template<typename Basis>
+Eigen::VectorXd translateX(Basis&& basis, const Eigen::VectorXd& r)
+{
+	Eigen::VectorXd res(r.size());
+	for(int i = 0; i < r.size(); i++)
+	{
+		res(basis.rotateX(i,1)) = r(i);
+	}
+	return res;
+}
+
+void TestBasisMatrix(const Eigen::MatrixXd& r)
+{
+	using Catch::WithinAbs;
+	for(int i = 0; i < r.cols(); i++)
+	{
+		auto c = r.col(i);
+		REQUIRE_THAT( c.norm(), WithinAbs(1.0, 1e-6));
+	}
+
+	for(int i = 0; i < r.cols()-1; i++)
+	{
+		for(int j = i+1; j < r.cols(); j++)
+		{
+			auto c1 = r.col(i);
+			auto c2 = r.col(j);
+			REQUIRE_THAT( double(c1.transpose()*c2), WithinAbs(0.0, 1e-6));
+		}
+	}
+}
+
+template<class Basis>
+void CheckBasis2DParity(Basis&& basis, const MatrixXd& r)
+{
+	const uint32_t kx = basis.getKx();
+	const uint32_t ky = basis.getKy();
+	const uint32_t p = basis.getP();
+
+	const int expkx = (kx == 0)?1:-1;
+	const int expky = (ky == 0)?1:-1;
+
+	for(int i = 0; i < r.cols(); i++)
+	{
+		VectorXd c = r.col(i);
+		REQUIRE( ( c - expkx*translateX(basis, c)).norm() < 1e-10);
+		REQUIRE( ( c - expky*translateY(basis, c)).norm() < 1e-10);
+		REQUIRE( ( c - p*flip(basis, c)).norm() < 1e-10);
+	}
+}
+
+template<class Basis>
+void CheckBasis2D(Basis&& basis, const MatrixXd& r)
+{
+	const uint32_t kx = basis.getKx();
+	const uint32_t ky = basis.getKy();
+
+	const int expkx = (kx == 0)?1:-1;
+	const int expky = (ky == 0)?1:-1;
+
+	for(int i = 0; i < r.cols(); i++)
+	{
+		VectorXd c = r.col(i);
+		REQUIRE( ( c - expkx*translateX(basis, c)).norm() < 1e-10);
+		REQUIRE( ( c - expky*translateY(basis, c)).norm() < 1e-10);
+	}
+}
 
 Eigen::SparseMatrix<double> getSZZ()
 {
@@ -51,7 +130,37 @@ TEST_CASE("Print", "[basis2d]")
 	{
 		std::cout << bmat.col(n).norm() << std::endl;
 	}
+}
 
+TEST_CASE("Check Basis2D 4x4", "[basis2d]")
+{
+	const uint32_t Lx = 4;
+	const uint32_t Ly = 4;
+
+	SECTION("Not use U1")
+	{
+		for(const uint32_t kx: {0u, Lx/2})
+		for(const uint32_t ky: {0u, Ly/2})
+		{
+			Basis2D<uint32_t> basis(Lx, Ly, kx, ky, false);
+			printf("Test kx = %u, ky = %u, dim = %lu\n", kx, ky, basis.getDim());
+			MatrixXd r = basisMatrix(basis);
+			TestBasisMatrix(r);
+			CheckBasis2D(basis, r);
+		}
+	}
+	SECTION("Not use U1")
+	{
+		for(const uint32_t kx: {0u, Lx/2})
+		for(const uint32_t ky: {0u, Ly/2})
+		{
+			Basis2D<uint32_t> basis(Lx, Ly, kx, ky, true);
+			printf("Test kx = %u, ky = %u, dim = %lu\n", kx, ky, basis.getDim());
+			MatrixXd r = basisMatrix(basis);
+			TestBasisMatrix(r);
+			CheckBasis2D(basis, r);
+		}
+	}
 }
 
 TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]") 

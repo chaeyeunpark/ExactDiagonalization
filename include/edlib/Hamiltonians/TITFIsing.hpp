@@ -6,18 +6,18 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 //#include "BitOperations.h"
-#include "Basis/Basis.hpp"
+#include "../Basis/AbstractBasis1D.hpp"
 
 template<typename UINT>
 class TITFIsing
 {
 private:
-	const Basis<UINT>& basis_;
+	const edlib::AbstractBasis1D<UINT>& basis_;
 	double J_;
 	double h_;
 
 public:
-	TITFIsing(const Basis<UINT>& basis, double J, double h)
+	TITFIsing(const edlib::AbstractBasis1D<UINT>& basis, double J, double h)
 		: basis_(basis), J_(J), h_(h)
 	{
 		

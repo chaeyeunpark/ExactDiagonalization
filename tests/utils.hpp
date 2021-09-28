@@ -15,3 +15,15 @@ Eigen::MatrixXd basisMatrix(const Basis<UINT>& basis)
 	}
 	return res;
 }
+template<typename Basis>
+Eigen::VectorXd flip(Basis&& basis, const Eigen::VectorXd& r)
+{
+	Eigen::VectorXd res(r.size());
+	for(int i = 0; i < r.size(); i++)
+	{
+		res(basis.flip(i)) = r(i);
+	}
+	return res;
+}
+
+

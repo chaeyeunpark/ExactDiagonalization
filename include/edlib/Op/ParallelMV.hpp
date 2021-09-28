@@ -1,6 +1,10 @@
+#pragma once
 #include <tbb/tbb.h>
 #include "NodeMV.hpp"
 
+
+namespace edlib
+{
 class ParallelMV
 {
 private:
@@ -44,3 +48,5 @@ public:
 	}
 
 };
+
+} // namespace edlib

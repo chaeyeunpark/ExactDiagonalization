@@ -6,14 +6,14 @@
 #include <fstream>
 #include <ios>
 
-//#include "TIBasis.hpp"
-#include "Basis/TIBasisZ2.hpp"
-#include "Hamiltonians/TITFIsing.hpp"
-#include "NodeMV.hpp"
+#include "edlib/Hamiltonians/TITFIsing.hpp"
+#include <edlib/edlib.hpp>
 
 int main(int argc, char* argv[])
 {
 	constexpr int N = 16;
+
+	using namespace edlib;
 	using UINT = uint32_t;
 
 	std::cout << "#N: " << N << std::endl;
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	{
 		Eigen::VectorXd ev[2];
 		{
-			TIBasisZ2<UINT> basis(N, 0, false, 1);
+			Basis1DZ2<UINT> basis(N, 0, 1, false);
 			TITFIsing<UINT> ham(basis, 1.0, h);
 			const int dim = basis.getDim();
 
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 			ev[0] = eigs.eigenvalues();
 		}
 		{
-			TIBasisZ2<UINT> basis(N, 0, false, -1);
+			Basis1DZ2<UINT> basis(N, 0, -1, false);
 			TITFIsing<UINT> ham(basis, 1.0, h);
 			const int dim = basis.getDim();
 

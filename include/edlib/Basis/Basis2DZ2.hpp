@@ -13,11 +13,11 @@
 
 #include <tbb/tbb.h>
 
+
 namespace edlib
 {
-
 template<typename UINT>
-class TIBasis2DZ2
+class Basis2DZ2
 	: public AbstractBasis2D<UINT>
 {
 public:
@@ -103,15 +103,16 @@ private:
 
 
 public:
-	TIBasis2DZ2(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1, int parity = 1)
+	Basis2DZ2(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, 
+			int parity, bool useU1)
 		: AbstractBasis2D<UINT>(Lx, Ly, kx, ky), parity_(parity)
 	{
 		assert((parity == 1) || (parity == -1));
 		constructBasis(useU1);
 	}
 
-	TIBasis2DZ2<UINT>(const TIBasis2DZ2<UINT>& ) = default;
-	TIBasis2DZ2<UINT>(TIBasis2DZ2<UINT>&& ) = default;
+	Basis2DZ2<UINT>(const Basis2DZ2<UINT>& ) = default;
+	Basis2DZ2<UINT>(Basis2DZ2<UINT>&& ) = default;
 
 	inline int getParity() const { return parity_; }
 

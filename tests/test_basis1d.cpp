@@ -15,6 +15,28 @@
 using namespace Eigen;
 using namespace edlib;
 
+void TestBasisMatrix(const Eigen::MatrixXd& r)
+{
+	using Catch::WithinAbs;
+	for(int i = 0; i < r.cols(); i++)
+	{
+		auto c = r.col(i);
+		REQUIRE_THAT( c.norm(), WithinAbs(1.0, 1e-6));
+	}
+
+	for(int i = 0; i < r.cols()-1; i++)
+	{
+		for(int j = i+1; j < r.cols(); j++)
+		{
+			auto c1 = r.col(i);
+			auto c2 = r.col(j);
+			REQUIRE_THAT( double(c1.transpose()*c2), WithinAbs(0.0, 1e-6));
+		}
+	}
+}
+
+
+
 template<typename Basis>
 VectorXd translate(Basis&& basis, const VectorXd& r)
 {
@@ -22,17 +44,6 @@ VectorXd translate(Basis&& basis, const VectorXd& r)
 	for(int i = 0; i < r.size(); i++)
 	{
 		res(basis.rotl(i,1)) = r(i);
-	}
-	return res;
-}
-
-template<typename Basis>
-VectorXd flip(Basis&& basis, const VectorXd& r)
-{
-	VectorXd res(r.size());
-	for(int i = 0; i < r.size(); i++)
-	{
-		res(basis.flip(i)) = r(i);
 	}
 	return res;
 }
@@ -52,26 +63,6 @@ void CheckBasis1DParity(Basis&& basis, const MatrixXd& r)
 		VectorXd c = r.col(i);
 		REQUIRE( ( c - expk*translate(basis, c)).norm() < 1e-10);
 		REQUIRE( ( c - p*flip(basis, c)).norm() < 1e-10);
-	}
-}
-
-void TestBasisMatrix(const MatrixXd& r)
-{
-	using Catch::WithinAbs;
-	for(int i = 0; i < r.cols(); i++)
-	{
-		auto c = r.col(i);
-		REQUIRE_THAT( c.norm(), WithinAbs(1.0, 1e-6));
-	}
-
-	for(int i = 0; i < r.cols()-1; i++)
-	{
-		for(int j = i+1; j < r.cols(); j++)
-		{
-			auto c1 = r.col(i);
-			auto c2 = r.col(j);
-			REQUIRE_THAT( double(c1.transpose()*c2), WithinAbs(0.0, 1e-6));
-		}
 	}
 }
 
