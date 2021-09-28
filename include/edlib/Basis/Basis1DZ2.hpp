@@ -20,7 +20,6 @@ class Basis1DZ2
 public:
 	struct RepData 
 	{
-		std::size_t rptIdx;
 		int rot;
 		int parity;
 	};
@@ -28,8 +27,8 @@ public:
 private:
 	const int p_;
 
-	tbb::concurrent_vector<UINT> rpts_; 
-	tbb::concurrent_unordered_map<UINT, RepData> parity_;
+	tbb::concurrent_vector<std::pair<UINT, RepData>> rpts_; 
+	//tbb::concurrent_unordered_map<UINT, RepData> parity_;
 
 	int phase(int rot) const
 	{
@@ -92,13 +91,11 @@ private:
 			auto s = this->findMinRots(flip(rep));
 			if(s.first == rep && phase(s.second)*p_ == 1)
 			{
-				rpts_.emplace_back(rep);
-				parity_.emplace(rep, RepData{0, candids[idx].second, 0});
+				rpts_.emplace_back(rep, RepData{candids[idx].second, 0});
 			}
 			else if(s.first > rep)
 			{
-				rpts_.emplace_back(rep);
-				parity_.emplace(rep, RepData{0, candids[idx].second, 1});
+				rpts_.emplace_back(rep, RepData{candids[idx].second, 1});
 			}
 			else //s.first < rep
 			{
@@ -107,15 +104,15 @@ private:
 		});
 
 		//sort to make it consistent over different instances
-		tbb::parallel_sort(rpts_);
-		tbb::parallel_for(static_cast<UINT>(0u), static_cast<UINT>(rpts_.size()), 
-				[&](UINT idx){
-			parity_[rpts_[idx]].rptIdx = idx;
-		});
 
+		auto comp = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2)
+		{
+			return v1.first < v2.first;
+		};
+
+		tbb::parallel_sort(rpts_, comp);
 
 		//parity_ and rpts_ constructed
-
 	}
 
 public:
@@ -130,22 +127,31 @@ public:
 	Basis1DZ2(const Basis1DZ2& ) = default;
 	Basis1DZ2(Basis1DZ2&& ) = default;
 
+	unsigned int stateIdx(UINT rep) const
+	{
+		auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2)
+		{
+			return v1.first < v2;
+		};
+		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
+		if((iter == rpts_.end()) || (iter->first != rep))
+		{
+			return getDim();
+		}
+		else
+		{
+			return distance(rpts_.begin(), iter);
+		}
+	}
+
+
+
 	inline UINT flip(UINT value) const
 	{
 		return ((this->getUps())^value);
 	}
 
 	inline int getP() const { return p_; }
-
-	RepData getData(UINT s) const
-	{
-		return parity_.at(s);
-	}
-
-	const tbb::concurrent_unordered_map<UINT, RepData >& getParityMap() const
-	{
-		return parity_;
-	}
 
 	std::size_t getDim() const override
 	{
@@ -154,7 +160,7 @@ public:
 
 	UINT getNthRep(int n) const override
 	{
-		return rpts_[n];
+		return rpts_[n].first;
 	}
 
 	std::pair<int,double> hamiltonianCoeff(UINT bSigma, int aidx) const override
@@ -162,7 +168,12 @@ public:
 		const auto k = this->getK();
 		double expk = (k == 0)?1.0:-1.0;
 
-		auto pa = parity_.at(rpts_[aidx]);
+		auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2)
+		{
+			return v1.first < v2;
+		};
+		
+		auto pa = rpts_[aidx].second;
 		double Na = 1.0/double(1 + abs(pa.parity))/pa.rot;
 
 		double c = 1.0;
@@ -170,21 +181,21 @@ public:
 		UINT bRep;
 		int bRot;
 		std::tie(bRep, bRot) = this->findMinRots(bSigma);
-		auto iter = parity_.find(bRep);
-		if(iter == parity_.end())
+		auto bidx = stateIdx(bRep);
+
+		if(bidx == getDim())
 		{
 			c *= p_;
 			std::tie(bRep, bRot) = this->findMinRots(this->flip(bSigma));
-			iter = parity_.find(bRep);
+			bidx = stateIdx(bRep);
 
-			if(iter == parity_.end())
+			if(bidx == getDim())
 				return std::make_pair(-1, 0.0);
 		}
-		auto pb = iter->second;
+		auto pb = rpts_[bidx].second;
 		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
 
-		return std::make_pair(pb.rptIdx,
-				sqrt(Nb/Na)*pow(expk, bRot)*c);
+		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}
 	
 
@@ -196,7 +207,7 @@ public:
 		std::vector<std::pair<UINT,double>> res;
 
 		auto rep = getNthRep(n);
-		auto p = parity_.at(rep);
+		auto p = rpts_[n].second;
 		double norm;
 		if(p.parity == 0)
 		{

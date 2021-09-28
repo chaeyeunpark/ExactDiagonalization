@@ -71,6 +71,12 @@ if (BUILD_TESTS)
 		COMMAND test_local_ham
 	)
 
+	add_executable(test_perf_basis2d "tests/test_perf_basis2d.cpp")
+	target_link_libraries(test_perf_basis2d PRIVATE edlib Eigen3::Eigen)
+
+	add_executable(test_perf_basis1dz2 "tests/test_perf_basis1dz2.cpp")
+	target_link_libraries(test_perf_basis1dz2 PRIVATE edlib Eigen3::Eigen)
+
 
 	add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}    
 		DEPENDS test_xxz_gs test_basis1d test_local_ham)
