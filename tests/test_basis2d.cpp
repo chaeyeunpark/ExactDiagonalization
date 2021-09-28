@@ -2,12 +2,13 @@
 #include <catch.hpp>
 
 #include <iostream>
+#include <unordered_set>
 
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
 
 #include "edlib/Basis/Basis2D.hpp"
-#include "edlib/Basis/FullBasis.hpp"
+#include "edlib/Basis/Basis2DZ2.hpp"
 #include "edlib/Hamiltonians/TITFI2D.hpp"
 #include "edlib/Op/NodeMV.hpp"
 
@@ -44,21 +45,9 @@ Eigen::VectorXd translateX(Basis&& basis, const Eigen::VectorXd& r)
 void TestBasisMatrix(const Eigen::MatrixXd& r)
 {
 	using Catch::WithinAbs;
-	for(int i = 0; i < r.cols(); i++)
-	{
-		auto c = r.col(i);
-		REQUIRE_THAT( c.norm(), WithinAbs(1.0, 1e-6));
-	}
-
-	for(int i = 0; i < r.cols()-1; i++)
-	{
-		for(int j = i+1; j < r.cols(); j++)
-		{
-			auto c1 = r.col(i);
-			auto c2 = r.col(j);
-			REQUIRE_THAT( double(c1.transpose()*c2), WithinAbs(0.0, 1e-6));
-		}
-	}
+	Eigen::MatrixXd id = Eigen::MatrixXd::Identity(r.cols(), r.cols());
+	REQUIRE_THAT((r.transpose()*r - id).cwiseAbs().maxCoeff(),
+			WithinAbs(0.0, 1e-8));
 }
 
 template<class Basis>
@@ -117,51 +106,219 @@ Eigen::SparseMatrix<double> getSX()
 	return res;
 }
 
-TEST_CASE("Print", "[basis2d]")
+template<class Basis>
+uint64_t countDim2D(Basis&& basis, bool useU1)
 {
-	const int Lx = 3;
-	const int Ly = 2;
-	const int N = Lx*Ly;
-	Basis2D<uint32_t> basis(Lx, Ly, 0, 0, false);
-	
-	Eigen::MatrixXd bmat = basisMatrix(basis);
+	const uint32_t Lx = basis.getLx();
+	const uint32_t Ly = basis.getLy();
+	const uint32_t kx = basis.getKx();
+	const uint32_t ky = basis.getKy();
+	const uint32_t N = Lx*Ly;
 
-	for(uint32_t n = 0; n < basis.getDim(); ++n)
+	const int expkx = (kx == 0)?1:-1;
+	const int expky = (ky == 0)?1:-1;
+
+	std::unordered_set<VectorXi, hash_vector> basisVecs;
+
+	for(uint32_t n = 0; n < (1u << N); ++ n)
 	{
-		std::cout << bmat.col(n).norm() << std::endl;
+		if(useU1 && (__builtin_popcountll(n) != N/2))
+			continue;
+		Eigen::VectorXi v = Eigen::VectorXi::Zero(1ul << N);
+		for(uint32_t rx = 0; rx < Lx; rx++)
+		{
+		for(uint32_t ry = 0; ry < Ly; ry++)
+		{
+			auto s = basis.rotateX(n, rx);
+			s = basis.rotateY(s, ry);
+			v(s) += powi(expkx, rx)*powi(expky, ry);
+		}
+		}
+		if (v.cwiseAbs().sum() != 0)
+		{
+			make_first_positive(v);
+			basisVecs.emplace(std::move(v));
+		}
+	}
+
+	return basisVecs.size();
+}
+
+template<class Basis>
+uint64_t countDim2DZ2(Basis&& basis, bool useU1)
+{
+	const uint32_t Lx = basis.getLx();
+	const uint32_t Ly = basis.getLy();
+	const uint32_t kx = basis.getKx();
+	const uint32_t ky = basis.getKy();
+
+	const int p = basis.getParity();
+
+	const uint32_t N = Lx*Ly;
+
+	const int expkx = (kx == 0)?1:-1;
+	const int expky = (ky == 0)?1:-1;
+
+	std::unordered_set<VectorXi, hash_vector> basisVecs;
+
+	for(uint32_t n = 0; n < (1u << N); ++ n)
+	{
+		if(useU1 && (__builtin_popcountll(n) != N/2))
+			continue;
+		Eigen::VectorXi v = Eigen::VectorXi::Zero(1ul << N);
+		for(uint32_t rx = 0; rx < Lx; rx++)
+		{
+		for(uint32_t ry = 0; ry < Ly; ry++)
+		{
+			auto s = basis.rotateX(n, rx);
+			s = basis.rotateY(s, ry);
+			v(s) += powi(expkx, rx)*powi(expky, ry);
+
+			s = basis.rotateX(basis.flip(n), rx);
+			s = basis.rotateY(s, ry);
+			v(s) += p*powi(expkx, rx)*powi(expky, ry);
+		}
+		}
+		if (v.cwiseAbs().sum() != 0)
+		{
+			make_first_positive(v);
+			basisVecs.emplace(std::move(v));
+		}
+	}
+
+	return basisVecs.size();
+}
+
+void testBasis2D(uint32_t Lx, uint32_t Ly, bool useU1)
+{
+	std::vector<uint32_t> kxs;
+	std::vector<uint32_t> kys;
+
+	kxs.push_back(0);
+	kys.push_back(0);
+
+	if(Lx % 2 == 0) {
+		kxs.push_back(Lx/2);
+	}
+	if(Ly % 2 == 0) {
+		kys.push_back(Ly/2);
+	}
+
+	for(const uint32_t kx: kxs)
+	for(const uint32_t ky: kys)
+	{
+		Basis2D<uint32_t> basis(Lx, Ly, kx, ky, useU1);
+		printf("Test Lx = %u, Ly = %u, kx = %u, ky = %u, dim = %lu\n", 
+				Lx, Ly, kx, ky, basis.getDim());
+
+		REQUIRE(basis.getDim() == countDim2D(basis, useU1));
+
+		MatrixXd r = basisMatrix(basis);
+		TestBasisMatrix(r);
+		CheckBasis2D(basis, r);
 	}
 }
 
-TEST_CASE("Check Basis2D 4x4", "[basis2d]")
+void testBasis2DZ2(uint32_t Lx, uint32_t Ly, bool useU1)
 {
-	const uint32_t Lx = 4;
-	const uint32_t Ly = 4;
+	std::vector<uint32_t> kxs;
+	std::vector<uint32_t> kys;
 
-	SECTION("Not use U1")
-	{
-		for(const uint32_t kx: {0u, Lx/2})
-		for(const uint32_t ky: {0u, Ly/2})
-		{
-			Basis2D<uint32_t> basis(Lx, Ly, kx, ky, false);
-			printf("Test kx = %u, ky = %u, dim = %lu\n", kx, ky, basis.getDim());
-			MatrixXd r = basisMatrix(basis);
-			TestBasisMatrix(r);
-			CheckBasis2D(basis, r);
-		}
+	kxs.push_back(0);
+	kys.push_back(0);
+
+	if(Lx % 2 == 0) {
+		kxs.push_back(Lx/2);
 	}
-	SECTION("Not use U1")
+	if(Ly % 2 == 0) {
+		kys.push_back(Ly/2);
+	}
+
+	for(const uint32_t kx: kxs)
+	for(const uint32_t ky: kys)
 	{
-		for(const uint32_t kx: {0u, Lx/2})
-		for(const uint32_t ky: {0u, Ly/2})
+		Basis2DZ2<uint32_t> basis(Lx, Ly, kx, ky, 1, useU1);
+		printf("Test Lx = %u, Ly = %u, kx = %u, ky = %u, parity = %d, dim = %lu\n", 
+				Lx, Ly, kx, ky, basis.getParity(), basis.getDim());
+
+		if(basis.getDim() == 0)
 		{
-			Basis2D<uint32_t> basis(Lx, Ly, kx, ky, true);
-			printf("Test kx = %u, ky = %u, dim = %lu\n", kx, ky, basis.getDim());
-			MatrixXd r = basisMatrix(basis);
-			TestBasisMatrix(r);
-			CheckBasis2D(basis, r);
+			continue;
 		}
+
+		REQUIRE(basis.getDim() == countDim2DZ2(basis, useU1));
+
+		MatrixXd r = basisMatrix(basis);
+		TestBasisMatrix(r);
+		CheckBasis2D(basis, r);
+	}
+	for(const uint32_t kx: kxs)
+	for(const uint32_t ky: kys)
+	{
+		Basis2DZ2<uint32_t> basis(Lx, Ly, kx, ky, -1, useU1);
+		printf("Test Lx = %u, Ly = %u, kx = %u, ky = %u, parity = %d, dim = %lu\n", 
+				Lx, Ly, kx, ky, basis.getParity(), basis.getDim());
+
+		if(basis.getDim() == 0)
+		{
+			continue;
+		}
+
+		REQUIRE(basis.getDim() == countDim2DZ2(basis, useU1));
+
+		MatrixXd r = basisMatrix(basis);
+		TestBasisMatrix(r);
+		CheckBasis2D(basis, r);
 	}
 }
+
+TEST_CASE("Check Basis2D", "[basis2d]")
+{
+	SECTION("Not use U1")
+	{
+		testBasis2D(2, 2, false);
+		testBasis2D(3, 2, false);
+		testBasis2D(3, 3, false);
+		testBasis2D(4, 3, false);
+		//testBasis2D(4, 4, false);
+		//testBasis2D(5, 4, false);
+	}
+
+	SECTION("Use U1")
+	{
+		testBasis2D(2, 2, true);
+		testBasis2D(3, 2, true);
+		testBasis2D(3, 3, true);
+		testBasis2D(4, 3, true);
+		//testBasis2D(4, 4, true);
+		//testBasis2D(5, 4, true);
+	}
+}
+
+TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
+{
+	SECTION("Not use U1")
+	{
+		testBasis2DZ2(2, 2, false);
+		testBasis2DZ2(3, 2, false);
+		testBasis2DZ2(3, 3, false);
+		testBasis2DZ2(4, 3, false);
+		//testBasis2DZ2(4, 4, false);
+		//testBasis2DZ2(5, 4, false);
+	}
+
+	SECTION("Use U1")
+	{
+		testBasis2DZ2(2, 2, true);
+		testBasis2DZ2(3, 2, true);
+		// U(1) symmetry cannot be imposed to 3x3 lattice
+		testBasis2DZ2(4, 3, true);
+		//testBasis2DZ2(4, 4, true);
+		//testBasis2DZ2(5, 4, true);
+	}
+}
+
+
 
 TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]") 
 {

@@ -63,6 +63,7 @@ public:
 	Basis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky, bool useU1)
 		: AbstractBasis2D<UINT>(Lx, Ly, kx, ky)
 	{
+		assert( (!useU1) || (this->getN() % 2 == 0));
 		constructBasis(useU1);
 	}
 

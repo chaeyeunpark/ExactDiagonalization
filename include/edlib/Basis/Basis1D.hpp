@@ -94,6 +94,7 @@ public:
 	Basis1D(unsigned int N, unsigned int k, bool useU1)
 		: AbstractBasis1D<UINT>(N, k)
 	{
+		assert( (!useU1) || (N % 2 == 0));
 		if(useU1)
 		{
 			constructBasisJz();
