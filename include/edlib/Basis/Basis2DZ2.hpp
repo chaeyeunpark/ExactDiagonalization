@@ -23,27 +23,27 @@ class Basis2DZ2
 public:
 	struct RepData
 	{
-		std::size_t idx;
 		uint32_t numRep;
-		int p;//Z2 parity
+		int parity; //Z2 parity
 	};
 
 private:
 	const int parity_; //Z2_parity
 
-	tbb::concurrent_vector<UINT> rpts_; //Representatives
-	tbb::concurrent_unordered_map<UINT, RepData> repDatas_;
+	tbb::concurrent_vector<std::pair<UINT, RepData>> rpts_; //Representatives
 
 	void constructBasis(bool useU1)
 	{
-		tbb::concurrent_vector<std::tuple<UINT,uint32_t> > candids;
+		tbb::concurrent_vector<std::tuple<UINT, uint32_t>> candids;
+		const unsigned int N = this->getN();
+		candids.reserve((1<<(N-3))/N);
 
 		if(useU1)
 		{
 			const unsigned int n = this->getN();
 			const unsigned int nup = n/2;
 
-			BasisJz<UINT> basis(n,nup);
+			BasisJz<UINT> basis(n, nup);
 
 			tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s)
 			{
@@ -82,23 +82,25 @@ private:
 
 			if(flipedRep == rep && this->phase(rotX, rotY)*parity_ == 1)
 			{
-				rpts_.emplace_back(rep);
-				repDatas_[rep] = RepData{0, numRep, 0};
+				rpts_.emplace_back(rep, RepData{numRep, 0});
 			}
 			else if(flipedRep > rep)
 			{
-				rpts_.emplace_back(rep);
-				repDatas_[rep] = RepData{0, numRep, 1};
+				rpts_.emplace_back(rep, RepData{numRep, 1});
 			}
 			else {
 				;
 			}
 		});
-		tbb::parallel_sort(rpts_.begin(), rpts_.end());
-		tbb::parallel_for(static_cast<UINT>(0u), static_cast<UINT>(rpts_.size()), 
-				[&](UINT idx){
-			repDatas_[rpts_[idx]].idx = idx;
-		});
+
+		//sort to make it consistent over different instances
+
+		auto comp = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2)
+		{
+			return v1.first < v2.first;
+		};
+
+		tbb::parallel_sort(rpts_, comp);
 	}
 
 
@@ -114,6 +116,23 @@ public:
 	Basis2DZ2<UINT>(const Basis2DZ2<UINT>& ) = default;
 	Basis2DZ2<UINT>(Basis2DZ2<UINT>&& ) = default;
 
+	unsigned int stateIdx(UINT rep) const
+	{
+		auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2)
+		{
+			return v1.first < v2;
+		};
+		auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
+		if((iter == rpts_.end()) || (iter->first != rep))
+		{
+			return getDim();
+		}
+		else
+		{
+			return distance(rpts_.begin(), iter);
+		}
+	}
+
 	inline int getParity() const { return parity_; }
 
 	std::size_t getDim() const override
@@ -123,12 +142,7 @@ public:
 
 	UINT getNthRep(int n) const override
 	{
-		return rpts_[n];
-	}
-
-	RepData getRepData(int n) const
-	{
-		return repDatas_[rpts_[n]];
+		return rpts_[n].first;
 	}
 
 	inline UINT flip(UINT value) const
@@ -143,27 +157,27 @@ public:
 		using std::pow;
 
 		double c = 1.0;
-		auto aRepData = repDatas_.at(rpts_[aidx]);
-		double Na = aRepData.numRep/double(1+aRepData.p);
+		auto pa = rpts_[aidx].second;
+		double Na = pa.numRep/double(1 + pa.parity);
 
 		UINT bRep;
 		uint32_t bRotX, bRotY;
 		std::tie(bRep, bRotX, bRotY) = this->getMinRots(bSigma);
-		auto iter = repDatas_.find(bRep);
-		if(iter == repDatas_.end())
+		auto bidx = stateIdx(bRep);
+		if(bidx == getDim())
 		{
 			c *= parity_;
 			std::tie(bRep, bRotX, bRotY) = this->getMinRots(flip(bSigma));
-			iter = repDatas_.find(bRep);
-			if(iter == repDatas_.end())
+			auto bidx = stateIdx(bRep);
+
+			if(bidx == getDim())
 				return std::make_pair(-1, 0.0);
 		}
 
-		auto bRepData = iter->second;
-		double Nb = bRepData.numRep/double(1+bRepData.p);
+		auto pb = rpts_[bidx].second;
+		double Nb = pb.numRep/double(1 + pb.parity);
 
-		return std::make_pair(bRepData.idx, 
-				c*sqrt(Nb/Na)*this->phase(bRotX,bRotY));
+		return std::make_pair(bidx, c*sqrt(Nb/Na)*this->phase(bRotX,bRotY));
 	}
 
 	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const override
@@ -172,9 +186,9 @@ public:
 
 		std::map<UINT, double> res;
 		UINT rep = getNthRep(n);
-		auto repData = repDatas_.at(rep);
+		auto repData = rpts_[n].second;
 	
-		double norm = 1.0/sqrt(repData.numRep*(1 + repData.p)*this->getN());
+		double norm = 1.0/sqrt(repData.numRep*(1 + repData.parity)*this->getN());
 
 		const auto Lx = this->Lx_;
 		const auto Ly = this->Ly_;
@@ -188,7 +202,7 @@ public:
 				res[sr] += this->phase(nx, ny)*norm;
 			}
 		}
-		if(repData.p != 0)
+		if(repData.parity != 0)
 		{
 			UINT fliped = flip(rep);
 			for(uint32_t nx = 0; nx < Lx; nx++)

@@ -42,7 +42,7 @@ private:
 
 	void constructBasis(bool useU1)
 	{
-		tbb::concurrent_vector<std::pair<UINT, int> > candids;
+		tbb::concurrent_vector<std::pair<UINT, int>> candids;
 		const unsigned int N = this->getN();
 		candids.reserve((1<<(N-3))/N);
 
@@ -111,8 +111,6 @@ private:
 		};
 
 		tbb::parallel_sort(rpts_, comp);
-
-		//parity_ and rpts_ constructed
 	}
 
 public:
@@ -144,8 +142,6 @@ public:
 		}
 	}
 
-
-
 	inline UINT flip(UINT value) const
 	{
 		return ((this->getUps())^value);
@@ -174,7 +170,7 @@ public:
 		};
 		
 		auto pa = rpts_[aidx].second;
-		double Na = 1.0/double(1 + abs(pa.parity))/pa.rot;
+		double Na = 1.0/double(1 + pa.parity)/pa.rot;
 
 		double c = 1.0;
 
@@ -193,7 +189,7 @@ public:
 				return std::make_pair(-1, 0.0);
 		}
 		auto pb = rpts_[bidx].second;
-		double Nb = 1.0/double(1 + abs(pb.parity))/pb.rot;
+		double Nb = 1.0/double(1 + pb.parity)/pb.rot;
 
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot)*c);
 	}

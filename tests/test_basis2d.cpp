@@ -280,7 +280,7 @@ TEST_CASE("Check Basis2D", "[basis2d]")
 		testBasis2D(3, 2, false);
 		testBasis2D(3, 3, false);
 		testBasis2D(4, 3, false);
-		//testBasis2D(4, 4, false);
+		testBasis2D(4, 4, false);
 		//testBasis2D(5, 4, false);
 	}
 
@@ -290,7 +290,7 @@ TEST_CASE("Check Basis2D", "[basis2d]")
 		testBasis2D(3, 2, true);
 		testBasis2D(3, 3, true);
 		testBasis2D(4, 3, true);
-		//testBasis2D(4, 4, true);
+		testBasis2D(4, 4, true);
 		//testBasis2D(5, 4, true);
 	}
 }
@@ -303,7 +303,7 @@ TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
 		testBasis2DZ2(3, 2, false);
 		testBasis2DZ2(3, 3, false);
 		testBasis2DZ2(4, 3, false);
-		//testBasis2DZ2(4, 4, false);
+		testBasis2DZ2(4, 4, false);
 		//testBasis2DZ2(5, 4, false);
 	}
 
@@ -313,7 +313,7 @@ TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
 		testBasis2DZ2(3, 2, true);
 		// U(1) symmetry cannot be imposed to 3x3 lattice
 		testBasis2DZ2(4, 3, true);
-		//testBasis2DZ2(4, 4, true);
+		testBasis2DZ2(4, 4, true);
 		//testBasis2DZ2(5, 4, true);
 	}
 }
