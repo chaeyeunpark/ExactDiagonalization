@@ -15,64 +15,71 @@ if (NOT EXISTS "${CATCH_DOWNLOAD_PATH}")
 	file(DOWNLOAD "${CATCH_URL}" "${CATCH_DOWNLOAD_PATH}")
 endif()
 
+option(BUILD_TESTS "Build Tests" ON)
 
-set (CMAKE_CXX_STANDARD 14)
-enable_testing() 
+set (CMAKE_CXX_STANDARD 17)
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -DEIGEN_USE_MKL_ALL")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	include_directories("$ENV{MKLROOT}/include")
-	link_libraries(mkl_intel_lp64 mkl_tbb_thread mkl_core)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	include_directories("$ENV{MKLROOT}/include")
-	link_libraries(mkl_intel_lp64 mkl_tbb_thread mkl_core)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+add_library(edlib INTERFACE)
+target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include")
+
+# MKL is required
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
-	link_libraries(pthread m dl)
+else()
+	include_directories("$ENV{MKLROOT}/include")
+	target_link_libraries(edlib INTERFACE mkl_intel_lp64 mkl_tbb_thread mkl_core)
 endif()
 
-link_libraries(tbb pthread m dl)
+target_link_libraries(edlib INTERFACE tbb pthread m dl)
 
-add_executable(EDTFI "Examples/EDTFI.cpp")
-target_link_libraries(EDTFI Eigen3::Eigen)
+if (BUILD_EXAMPLES)
+	add_executable(tfi "examples/tfi.cpp")
+	target_link_libraries(tfi PRIVATE edlib Eigen3::Eigen)
+endif()
+
+if (BUILD_TESTS)
+	enable_testing() 
+
+	add_executable(test_xxz_gs "tests/test_xxz_gs.cpp")
+	target_link_libraries(test_xxz_gs PRIVATE edlib Eigen3::Eigen)
+	add_test(    
+		NAME test_xxz_gs
+		COMMAND test_xxz_gs
+	)
+
+	add_executable(test_basis1d "tests/test_basis1d.cpp")
+	target_link_libraries(test_basis1d PRIVATE edlib Eigen3::Eigen)
+	add_test(    
+		NAME test_basis1d
+		COMMAND test_basis1d
+	)
+
+	add_executable(test_basis2d "tests/test_basis2d.cpp")
+	target_link_libraries(test_basis2d PRIVATE edlib Eigen3::Eigen)
+	add_test(    
+		NAME test_basis2d
+		COMMAND test_basis2d
+	)
+
+	add_executable(test_local_ham "tests/test_local_ham.cpp")
+	target_link_libraries(test_local_ham PRIVATE edlib Eigen3::Eigen)
+	add_test(    
+		NAME test_local_ham
+		COMMAND test_local_ham
+	)
+
+	add_executable(test_perf_basis2d "tests/test_perf_basis2d.cpp")
+	target_link_libraries(test_perf_basis2d PRIVATE edlib Eigen3::Eigen)
+
+	add_executable(test_perf_basis1dz2 "tests/test_perf_basis1dz2.cpp")
+	target_link_libraries(test_perf_basis1dz2 PRIVATE edlib Eigen3::Eigen)
 
 
-add_executable(TestBasis "Tests/TestBasis.cpp")
-target_link_libraries(TestBasis Eigen3::Eigen)
-add_test(    
-    NAME TestBasis
-    COMMAND TestBasis
-)
+	add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}    
+		DEPENDS test_xxz_gs test_basis1d test_local_ham)
 
-add_executable(TestBasis2D "Tests/TestBasis2D.cpp")
-target_link_libraries(TestBasis2D Eigen3::Eigen)
-add_test(    
-    NAME TestBasis2D
-    COMMAND TestBasis2D
-)
-
-
-add_executable(TestBasisGS "Tests/TestBasisGS.cpp")
-target_link_libraries(TestBasisGS Eigen3::Eigen)
-add_test(    
-    NAME TestBasisGS
-    COMMAND TestBasisGS
-)
-
-add_executable(TestLocalHam "Tests/TestLocalHam.cpp")
-target_link_libraries(TestLocalHam Eigen3::Eigen)
-add_test(    
-    NAME TestLocalHam
-    COMMAND TestLocalHam
-)
-
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}    
-    DEPENDS TestBasis TestBasis2D TestBasisGS TestLocalHam)
-
-add_executable(TestTIBasisZ2 "Tests/TestTIBasisZ2.cpp")
-
+	# add_executable(TestTIBasisZ2 "tests/TestTIBasisZ2.cpp")
+endif()
