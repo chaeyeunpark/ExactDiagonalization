@@ -50,6 +50,14 @@ if (BUILD_TESTS)
 		COMMAND test_xxz_gs
 	)
 
+	add_executable(test_basisfull "tests/test_basisfull.cpp")
+	target_link_libraries(test_basisfull PRIVATE edlib Eigen3::Eigen)
+	add_test(    
+		NAME test_basisfull
+		COMMAND test_basisfull
+	)
+
+
 	add_executable(test_basis1d "tests/test_basis1d.cpp")
 	target_link_libraries(test_basis1d PRIVATE edlib Eigen3::Eigen)
 	add_test(    

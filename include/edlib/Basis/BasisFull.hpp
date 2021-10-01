@@ -1,19 +1,18 @@
 #pragma once
 #include "AbstractBasis.hpp"
-#include "BasisJz.hpp"
 
 #include <tbb/tbb.h>
 
 namespace edlib
 {
 template <typename UINT>
-class FullBasis
-	: AbstractBasis<UINT>
+class BasisFull
+	: public AbstractBasis<UINT>
 {
 private:
 
 public:
-	FullBasis(unsigned int N)
+	BasisFull(unsigned int N)
 		: AbstractBasis<UINT>(N)
 	{
 	}
@@ -35,7 +34,7 @@ public:
 
 	std::vector<std::pair<UINT,double> > basisVec(unsigned int n) const override
 	{
-		return std::vector<std::pair<UINT,double>>{std::make_pair(UINT(n), 1.0)};
+		return std::vector<std::pair<UINT, double>>{std::make_pair(UINT(n), 1.0)};
 	}
 };
 } //namespace edlib
