@@ -168,7 +168,7 @@ public:
 		{
 			c *= parity_;
 			std::tie(bRep, bRotX, bRotY) = this->getMinRots(flip(bSigma));
-			auto bidx = stateIdx(bRep);
+			bidx = stateIdx(bRep);
 
 			if(bidx == getDim())
 				return std::make_pair(-1, 0.0);
