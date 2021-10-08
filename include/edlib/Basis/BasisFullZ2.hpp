@@ -1,8 +1,7 @@
 #pragma once
 #include <cassert>
+#include <cmath>
 #include "AbstractBasis.hpp"
-
-#include <tbb/tbb.h>
 
 namespace edlib
 {
