@@ -4,14 +4,14 @@
 #include <Eigen/Sparse>
 namespace edp
 {
-
 	template<typename T, class ColFunc>
-	Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> constructMat(std::size_t dim, ColFunc&& colFunc)
+	auto constructMat(uint64_t dim, ColFunc&& colFunc)
+	-> Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> 
 	{
 		Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(dim, dim);
 		res.setZero();
 
-		for(std::size_t i = 0; i < dim; i++)
+		for(uint64_t i = 0; i < dim; i++)
 		{
 			auto m = colFunc(i);
 			for(auto& elt: m)
@@ -21,8 +21,10 @@ namespace edp
 		}
 		return res;
 	}
+
 	template<typename T, class ColFunc>
-	Eigen::SparseMatrix<T> constructSparseMat(uint64_t dim, ColFunc&& colFunc)
+	auto constructSparseMat(uint64_t dim, ColFunc&& colFunc)
+	-> Eigen::SparseMatrix<T> 
 	{
 		using TripletT = Eigen::Triplet<T>;
 		std::vector<TripletT> tripletList;
@@ -43,7 +45,8 @@ namespace edp
 
 	//basis must be sorted
 	template<typename T, typename ColFunc>
-	Eigen::SparseMatrix<T> constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis)
+	auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) 
+	-> Eigen::SparseMatrix<T> 
 	{
 		const int n = basis.size();
 
