@@ -4,3 +4,4 @@ debug*
 docs/vendor
 docs/.bundle
 externals/catch.hpp
+build/

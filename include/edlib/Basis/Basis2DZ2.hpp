@@ -13,11 +13,10 @@
 
 #include <tbb/tbb.h>
 
-
 namespace edlib
 {
 template<typename UINT>
-class Basis2DZ2
+class Basis2DZ2 final
 	: public AbstractBasis2D<UINT>
 {
 public:
@@ -35,13 +34,13 @@ private:
 	void constructBasis(bool useU1)
 	{
 		tbb::concurrent_vector<std::tuple<UINT, uint32_t>> candids;
-		const unsigned int N = this->getN();
+		const uint32_t N = this->getN();
 		candids.reserve((1<<(N-3))/N);
 
 		if(useU1)
 		{
-			const unsigned int n = this->getN();
-			const unsigned int nup = n/2;
+			const uint32_t n = this->getN();
+			const uint32_t nup = n/2;
 
 			BasisJz<UINT> basis(n, nup);
 
@@ -59,7 +58,7 @@ private:
 			//if the MSB is 1, the fliped one is smaller.
 			const auto Lx = this->Lx_;
 			const auto Ly = this->Ly_;
-			tbb::parallel_for(UINT(0u), (UINT(1u) << UINT(Lx*Ly - 1)),
+			tbb::parallel_for(UINT(0U), (UINT(1U) << UINT(Lx*Ly - 1)),
 			[&](UINT s) {
 				uint32_t numRep = this->checkState(s);
 				if(numRep > 0)
@@ -69,7 +68,7 @@ private:
 			});
 		}
 
-		tbb::parallel_for(UINT(0u), UINT(candids.size()), 
+		tbb::parallel_for(UINT(0U), UINT(candids.size()), 
 				[&] (UINT idx) {
 			UINT rep;
 			uint32_t numRep;
@@ -116,7 +115,12 @@ public:
 	Basis2DZ2<UINT>(const Basis2DZ2<UINT>& ) = default;
 	Basis2DZ2<UINT>(Basis2DZ2<UINT>&& ) = default;
 
-	unsigned int stateIdx(UINT rep) const
+	Basis2DZ2<UINT>& operator=(const Basis2DZ2<UINT>& ) = default;
+	Basis2DZ2<UINT>& operator=(Basis2DZ2<UINT>&& ) = default;
+
+	~Basis2DZ2() = default;
+
+	uint32_t stateIdx(UINT rep) const
 	{
 		auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2)
 		{
@@ -140,7 +144,7 @@ public:
 		return rpts_.size();
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(uint32_t n) const override
 	{
 		return rpts_[n].first;
 	}
@@ -180,7 +184,7 @@ public:
 		return std::make_pair(bidx, c*sqrt(Nb/Na)*this->phase(bRotX,bRotY));
 	}
 
-	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const override
+	std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
 	{
 		using std::pow;
 

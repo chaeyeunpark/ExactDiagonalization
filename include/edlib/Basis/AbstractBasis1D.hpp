@@ -8,7 +8,7 @@ class AbstractBasis1D
 	: public AbstractBasis<UINT>
 {
 protected:
-	const unsigned int k_;
+	const uint32_t k_;
 
 	int checkState(UINT s) const
 	{
@@ -32,24 +32,24 @@ protected:
 	}
 
 public:
-	AbstractBasis1D(unsigned int N, unsigned int k)
+	AbstractBasis1D(uint32_t N, uint32_t k)
 		: AbstractBasis<UINT>(N), k_{k}
 	{
 	}
 
-	UINT rotl(UINT value, unsigned int count) const
+	UINT rotl(UINT value, uint32_t count) const
 	{
 		const auto N = this->getN();
 		count %= N;
 		return ((value << count) & this->getUps()) | (value >> (N - count));
 	}
 
-	std::pair<UINT, unsigned int> findMinRots(UINT sigma) const
+	std::pair<UINT, uint32_t> findMinRots(UINT sigma) const
 	{
-		const auto N = this->getN();
+		const uint32_t N = this->getN();
 		UINT rep = sigma;
-		unsigned int rot = 0u;
-		for(unsigned int r = 1; r < N; r++)
+		uint32_t rot = 0u;
+		for(uint32_t r = 1; r < N; r++)
 		{
 			UINT sr = rotl(sigma, r);
 			if(sr < rep)
@@ -61,6 +61,6 @@ public:
 		return std::make_pair(rep, rot);
 	}
 
-	inline unsigned int getK() const { return k_; }
+	inline uint32_t getK() const { return k_; }
 };
 } // namespace edlib
