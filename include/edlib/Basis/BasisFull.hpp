@@ -6,13 +6,13 @@
 namespace edlib
 {
 template <typename UINT>
-class BasisFull
+class BasisFull final
 	: public AbstractBasis<UINT>
 {
 private:
 
 public:
-	BasisFull(unsigned int N)
+	BasisFull(uint32_t N)
 		: AbstractBasis<UINT>(N)
 	{
 	}
@@ -22,7 +22,7 @@ public:
 		return (1u << this->getN());
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(uint32_t n) const override
 	{
 		return UINT(n);
 	}
@@ -32,7 +32,7 @@ public:
 		return std::make_pair(int(bsigma), 1.0);
 	}
 
-	std::vector<std::pair<UINT,double> > basisVec(unsigned int n) const override
+	std::vector<std::pair<UINT,double> > basisVec(uint32_t n) const override
 	{
 		return std::vector<std::pair<UINT, double>>{std::make_pair(UINT(n), 1.0)};
 	}

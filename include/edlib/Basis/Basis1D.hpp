@@ -14,11 +14,11 @@
 namespace edlib
 {
 template<typename UINT>
-class Basis1D
+class Basis1D final
 	: public AbstractBasis1D<UINT>
 {
 private:
-	tbb::concurrent_vector<std::pair<UINT, unsigned int>> rpts_; //Representatives
+	tbb::concurrent_vector<std::pair<UINT, uint32_t>> rpts_; //Representatives
 
 	int checkState(UINT s) 
 	{
@@ -60,7 +60,7 @@ private:
 		}
 
 		// iterate over all odd numbers
-		const unsigned int N = this->getN();
+		const uint32_t N = this->getN();
 		tbb::parallel_for(UINT(1), (UINT(1)<<UINT(N)), UINT(2), [&](UINT s)
 		{
 			int r = checkState(s);
@@ -74,8 +74,8 @@ private:
 
 	void constructBasisJz()
 	{
-		const unsigned int n = this->getN();
-		const unsigned int nup = n/2;
+		const uint32_t n = this->getN();
+		const uint32_t nup = n/2;
 
 		BasisJz<UINT> basis(n,nup);
 
@@ -91,7 +91,7 @@ private:
 	}
 
 public:
-	Basis1D(unsigned int N, unsigned int k, bool useU1)
+	Basis1D(uint32_t N, uint32_t k, bool useU1)
 		: AbstractBasis1D<UINT>(N, k)
 	{
 		assert( (!useU1) || (N % 2 == 0));
@@ -108,12 +108,14 @@ public:
 	Basis1D(const Basis1D& ) = default;
 	Basis1D(Basis1D&& ) = default;
 
-	//Basis1D& operator=(const Basis1D& ) = default;
-	//Basis1D& operator=(Basis1D&& ) = default;
+	Basis1D& operator=(const Basis1D& ) = default;
+	Basis1D& operator=(Basis1D&& ) = default;
 
-	unsigned int stateIdx(UINT rep) const
+	~Basis1D() = default;
+
+	uint32_t stateIdx(UINT rep) const
 	{
-		auto comp = [](const std::pair<UINT, unsigned int>& v1, UINT v2)
+		auto comp = [](const std::pair<UINT, uint32_t>& v1, UINT v2)
 		{
 			return v1.first < v2;
 		};
@@ -128,7 +130,7 @@ public:
 		}
 	}
 
-	tbb::concurrent_vector<std::pair<UINT,unsigned int> > getRepresentatives() const
+	tbb::concurrent_vector<std::pair<UINT,uint32_t>> getRepresentatives() const
 	{
 		return rpts_;
 	}
@@ -138,12 +140,12 @@ public:
 		return rpts_.size();
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(uint32_t n) const override
 	{
 		return rpts_[n].first;
 	}
 
-	inline unsigned int rotRpt(int n) const
+	inline uint32_t rotRpt(uint32_t n) const
 	{
 		return rpts_[n].second;
 	}
@@ -173,7 +175,7 @@ public:
 		return std::make_pair(bidx, sqrt(Nb/Na)*pow(expk, bRot));
 	}
 
-	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const
+	std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
 	{
 		const auto k = this->getK();
 		const double expk = (k == 0)?1.0:-1.0;
@@ -181,7 +183,7 @@ public:
 
 		auto rep = rpts_[n].first;
 		double norm = 1.0/sqrt(rpts_[n].second);
-		for(unsigned int r = 0; r < rpts_[n].second; r++)
+		for(uint32_t r = 0; r < rpts_[n].second; r++)
 		{
 			res.emplace_back( this->rotl(rep, r), pow(expk, r)*norm);
 		}

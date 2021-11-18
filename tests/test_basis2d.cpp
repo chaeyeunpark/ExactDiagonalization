@@ -280,7 +280,7 @@ TEST_CASE("Check Basis2D", "[basis2d]")
 		testBasis2D(3, 2, false);
 		testBasis2D(3, 3, false);
 		testBasis2D(4, 3, false);
-		testBasis2D(4, 4, false);
+		//testBasis2D(4, 4, false);
 		//testBasis2D(5, 4, false);
 	}
 
@@ -290,7 +290,7 @@ TEST_CASE("Check Basis2D", "[basis2d]")
 		testBasis2D(3, 2, true);
 		testBasis2D(3, 3, true);
 		testBasis2D(4, 3, true);
-		testBasis2D(4, 4, true);
+		//testBasis2D(4, 4, true);
 		//testBasis2D(5, 4, true);
 	}
 }

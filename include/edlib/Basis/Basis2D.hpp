@@ -16,18 +16,19 @@
 namespace edlib
 {
 template<typename UINT>
-class Basis2D
+class Basis2D final
 	: public AbstractBasis2D<UINT>
 {
 private:
-	tbb::concurrent_vector< std::pair<UINT, uint32_t> > rpts_; //Representatives and number of repretations
+	//Representatives and number of repretations
+	tbb::concurrent_vector< std::pair<UINT, uint32_t> > rpts_;
 
 	void constructBasis(bool useU1)
 	{
 		if(useU1)
 		{
-			const unsigned int n = this->getN();
-			const unsigned int nup = n/2;
+			const uint32_t n = this->getN();
+			const uint32_t nup = n / 2;
 
 			BasisJz<UINT> basis(n,nup);
 
@@ -45,7 +46,7 @@ private:
 			//if the MSB is 1, the fliped one is smaller.
 			auto Lx = this->Lx_;
 			auto Ly = this->Ly_;
-			tbb::parallel_for(UINT(0u), (UINT(1u) << UINT(Lx*Ly)),
+			tbb::parallel_for(UINT(0U), (UINT(1U) << UINT(Lx*Ly)),
 			[&](UINT s) {
 				uint32_t numRep = this->checkState(s);
 				if(numRep > 0)
@@ -67,19 +68,24 @@ public:
 		constructBasis(useU1);
 	}
 
-	Basis2D<UINT>(const Basis2D<UINT>& ) = default;
+	Basis2D(const Basis2D& ) = default;
+	Basis2D(Basis2D&& ) = default;
+	Basis2D& operator=(const Basis2D& ) = default;
+	Basis2D& operator=(Basis2D&& ) = default;
 
-	Basis2D<UINT>& operator=(const Basis2D<UINT>& ) = default;
+	~Basis2D() = default;
+
 	std::size_t getDim() const override
 	{
 		return rpts_.size();
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(uint32_t n) const override
 	{
 		return rpts_[n].first;
 	}
-	uint32_t repetitions(int n) const
+
+	uint32_t repetitions(uint32_t n) const
 	{
 		return rpts_[n].second;
 	}
@@ -88,7 +94,6 @@ public:
 	{
 		return ((this->getUps())^value);
 	}
-
 
 	std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
@@ -115,7 +120,7 @@ public:
 		return std::make_pair(idx, sqrt(Nb/Na)*this->phase(bRotX,bRotY));
 	}
 
-	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const override
+	std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
 	{
 		using std::pow;
 

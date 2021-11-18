@@ -14,7 +14,7 @@ namespace edlib
 {
 
 template<typename UINT>
-class Basis1DZ2
+class Basis1DZ2 final
 	: public AbstractBasis1D<UINT>
 {
 public:
@@ -43,12 +43,12 @@ private:
 	void constructBasis(bool useU1)
 	{
 		tbb::concurrent_vector<std::pair<UINT, int>> candids;
-		const unsigned int N = this->getN();
+		const uint32_t N = this->getN();
 		candids.reserve((1<<(N-3))/N);
 
 		if(useU1)
 		{
-			const unsigned int nup = N/2;
+			const uint32_t nup = N/2;
 
 			BasisJz<UINT> basis(N, nup);
 
@@ -114,7 +114,7 @@ private:
 	}
 
 public:
-	Basis1DZ2(unsigned int N, unsigned int k, int p, bool useU1)
+	Basis1DZ2(uint32_t N, uint32_t k, int p, bool useU1)
 		: AbstractBasis1D<UINT>{N, k}, p_(p)
 	{
 		assert(k == 0 || ((k == N/2) && (N%2 == 0)));
@@ -125,7 +125,7 @@ public:
 	Basis1DZ2(const Basis1DZ2& ) = default;
 	Basis1DZ2(Basis1DZ2&& ) = default;
 
-	unsigned int stateIdx(UINT rep) const
+	uint32_t stateIdx(UINT rep) const
 	{
 		auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2)
 		{
@@ -154,12 +154,12 @@ public:
 		return rpts_.size();
 	}
 
-	UINT getNthRep(int n) const override
+	UINT getNthRep(uint32_t n) const override
 	{
 		return rpts_[n].first;
 	}
 
-	std::pair<int,double> hamiltonianCoeff(UINT bSigma, int aidx) const override
+	std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
 	{
 		const auto k = this->getK();
 		double expk = (k == 0)?1.0:-1.0;
@@ -196,7 +196,7 @@ public:
 	
 
 	/// return a vector of index/value pairs
-	std::vector<std::pair<UINT, double>> basisVec(unsigned int n) const override
+	std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
 	{
 		const auto k = this->getK();
 		const double expk = (k == 0)?1.0:-1.0;

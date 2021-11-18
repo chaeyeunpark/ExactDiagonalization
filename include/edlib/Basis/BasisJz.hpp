@@ -9,8 +9,8 @@ template<typename UINT>
 class BasisJz
 {
 private:
-	unsigned int N_;
-	unsigned int nup_;
+	uint32_t N_;
+	uint32_t nup_;
 	
 public:
 	struct BasisJzIterator : public std::iterator<std::forward_iterator_tag, UINT>
@@ -64,7 +64,7 @@ public:
 	//! Construct a basis for the subspace. The dimension is \f$N \choose nup\f$.
 	//! \param N number of total spins
 	//! \param nup number of spin ups(\f$|\uparrow \rangle\f$)
-	explicit BasisJz(unsigned int N, unsigned int nup)
+	explicit BasisJz(uint32_t N, uint32_t nup)
 		: N_(N), nup_(nup)
 	{
 	}
