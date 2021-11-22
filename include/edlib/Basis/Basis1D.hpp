@@ -26,7 +26,7 @@ private:
 		const auto N = this->getN();
 		const auto k = this->getK();
 
-		for(int r = 1; r <= N; r++)
+		for(uint32_t r = 1; r <= N; r++)
 		{
 			sr = this->rotl(s, r);
 			if(sr < s)
