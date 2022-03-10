@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(ED)
-include_directories("${PROJECT_SOURCE_DIR}/Include")
 include_directories("${PROJECT_SOURCE_DIR}/externals/spectra/include")
 include_directories("${PROJECT_SOURCE_DIR}/externals")
 
@@ -20,8 +19,6 @@ option(BUILD_TESTS "Build Tests" ON)
 set (CMAKE_CXX_STANDARD 17)
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-
-
 add_library(edlib INTERFACE)
 target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include")
 
@@ -41,54 +38,5 @@ if (BUILD_EXAMPLES)
 endif()
 
 if (BUILD_TESTS)
-	enable_testing() 
-
-	add_executable(test_xxz_gs "tests/test_xxz_gs.cpp")
-	target_link_libraries(test_xxz_gs PRIVATE edlib Eigen3::Eigen)
-	add_test(    
-		NAME test_xxz_gs
-		COMMAND test_xxz_gs
-	)
-
-	add_executable(test_basisfull "tests/test_basisfull.cpp")
-	target_link_libraries(test_basisfull PRIVATE edlib Eigen3::Eigen)
-	add_test(    
-		NAME test_basisfull
-		COMMAND test_basisfull
-	)
-
-	add_executable(test_basis1d "tests/test_basis1d.cpp")
-	target_link_libraries(test_basis1d PRIVATE edlib Eigen3::Eigen)
-	add_test(    
-		NAME test_basis1d
-		COMMAND test_basis1d
-	)
-
-	add_executable(test_basis2d "tests/test_basis2d.cpp")
-	target_link_libraries(test_basis2d PRIVATE edlib Eigen3::Eigen)
-	add_test(    
-		NAME test_basis2d
-		COMMAND test_basis2d
-	)
-
-	add_executable(test_local_ham "tests/test_local_ham.cpp")
-	target_link_libraries(test_local_ham PRIVATE edlib Eigen3::Eigen)
-	add_test(    
-		NAME test_local_ham
-		COMMAND test_local_ham
-	)
-
-	add_executable(test_perf_basis2d "tests/test_perf_basis2d.cpp")
-	target_link_libraries(test_perf_basis2d PRIVATE edlib Eigen3::Eigen)
-
-	add_executable(test_perf_basis1dz2 "tests/test_perf_basis1dz2.cpp")
-	target_link_libraries(test_perf_basis1dz2 PRIVATE edlib Eigen3::Eigen)
-
-	add_executable(test_perf_basis2dz2 "tests/test_perf_basis2dz2.cpp")
-	target_link_libraries(test_perf_basis2dz2 PRIVATE edlib Eigen3::Eigen)
-
-	add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
-		DEPENDS test_xxz_gs test_basisfull test_basis1d test_basis2d test_local_ham)
-
-	# add_executable(TestTIBasisZ2 "tests/TestTIBasisZ2.cpp")
+	add_subdirectory(tests)
 endif()
