@@ -139,7 +139,7 @@ public:
 
         const VectorXd subspaceGs = eigs.eigenvectors().col(0);
         const VectorXd gsVec1 = [&]() -> VectorXd {
-            auto v = toOriginalVector(basis_, subspaceGs.data());
+            auto v = toOriginalVectorLM(basis_, subspaceGs.data());
             return Map<VectorXd>(v.data(), 1U << N);
         }();
 

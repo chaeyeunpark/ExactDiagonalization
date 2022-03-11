@@ -1,4 +1,7 @@
-.PHONY: format
+.PHONY: format test
+
+help:
+	@echo "Choose targets."
 
 format:
 	@./bin/format_cpp.sh

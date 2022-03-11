@@ -21,9 +21,13 @@ public:
         : basis_(basis), J1_(J1), J2_(J2)
     {
         if(signRule)
+        {
             sign_ = -1;
+        }
         else
+        {
             sign_ = 1;
+        }
     }
 
     std::map<int, double> getCol(UINT n) const
@@ -42,75 +46,71 @@ public:
                 auto i = basis_.toIdx(nx, ny);
                 // Nearest neighbor x
                 {
-                    auto j = basis_.toIdx((nx + 1) % Lx, ny);
-                    int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
+                    const auto j = basis_.toIdx((nx + 1) % Lx, ny);
+                    const int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
 
                     m[n] += J1_ * zz;
 
                     UINT s = a;
                     s ^= basis_.mask({i, j});
 
-                    int bidx;
-                    double coeff;
-
-                    std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
+                    const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
 
                     if(bidx >= 0)
+                    {
                         m[bidx] += J1_ * (1 - zz) * coeff * sign_;
+                    }
                 }
                 // Nearest neighbor y
                 {
-                    auto j = basis_.toIdx(nx, (ny + 1) % Ly);
-                    int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
+                    const auto j = basis_.toIdx(nx, (ny + 1) % Ly);
+                    const int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
 
                     m[n] += J1_ * zz;
 
                     UINT s = a;
                     s ^= basis_.mask({i, j});
 
-                    int bidx;
-                    double coeff;
-
-                    std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
+                    const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
 
                     if(bidx >= 0)
+                    {
                         m[bidx] += J1_ * (1 - zz) * coeff * sign_;
+                    }
                 }
                 // Next-nearest neighbor right up
                 {
-                    auto j = basis_.toIdx((nx + 1) % Lx, (ny + 1) % Ly);
-                    int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
+                    const auto j = basis_.toIdx((nx + 1) % Lx, (ny + 1) % Ly);
+                    const int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
 
                     m[n] += J2_ * zz;
 
                     UINT s = a;
                     s ^= basis_.mask({i, j});
 
-                    int bidx;
-                    double coeff;
-
-                    std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
+                    const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
 
                     if(bidx >= 0)
+                    {
                         m[bidx] += J2_ * (1 - zz) * coeff;
+                    }
                 }
                 // Next-nearest neighbor right down
                 {
-                    auto j = basis_.toIdx((nx + 1) % Lx, (ny - 1 + Ly) % Ly);
-                    int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
+                    const auto j = basis_.toIdx((nx + 1) % Lx, (ny - 1 + Ly) % Ly);
+                    const int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
 
                     m[n] += J2_ * zz;
 
                     UINT s = a;
                     s ^= basis_.mask({i, j});
 
-                    int bidx;
-                    double coeff;
-
-                    std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
+                    const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
 
                     if(bidx >= 0)
+                    {
                         m[bidx] += J2_ * (1 - zz) * coeff;
+                    }
                 }
             }
         }
