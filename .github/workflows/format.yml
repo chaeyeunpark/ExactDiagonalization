@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  cpptests:
-    name: C++ tests
+  format:
+    name: Check format
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -23,3 +23,9 @@ jobs:
           sudo sh -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" >> /etc/apt/sources.list'
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ clang-tidy-13 clang-format-13
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run formatter
+        run: ./bin/format_cpp.sh --check
