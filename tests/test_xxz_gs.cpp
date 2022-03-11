@@ -28,7 +28,7 @@ using namespace edlib;
 
 template<typename T>
 Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
-twoQubitOp(uint32_t N, uint32_t pos1, uint32_t pos2, //NOLINT
+twoQubitOp(uint32_t N, uint32_t pos1, uint32_t pos2, // NOLINT
            const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& v1,
            const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& v2)
 {
@@ -60,7 +60,7 @@ twoQubitOp(uint32_t N, uint32_t pos1, uint32_t pos2, //NOLINT
 
 template<typename T>
 Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
-singleQubitOp(int N, int pos, const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& v) //NOLINT
+singleQubitOp(int N, int pos, const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& v) // NOLINT
 {
     using namespace Eigen;
     // const uint32_t dim = (1u << N);

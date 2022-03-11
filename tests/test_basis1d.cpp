@@ -119,7 +119,8 @@ template<class Basis> void CheckBasisXXZ(Basis&& basis, const MatrixXd& r)
 {
     TIXXZ<uint32_t> tiXXZ(basis, 1.0, 0.9);
     const size_t dim = basis.getDim();
-    auto hamTI = edp::constructSparseMat<double>(dim, [&tiXXZ](uint32_t col) { return tiXXZ.getCol(col); });
+    auto hamTI = edp::constructSparseMat<double>(
+        dim, [&tiXXZ](uint32_t col) { return tiXXZ.getCol(col); });
 
     const auto N = basis.getN();
 

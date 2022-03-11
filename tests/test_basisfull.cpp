@@ -91,7 +91,8 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
             Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
             eigs.init();
             eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-            if(eigs.info() != Spectra::SUCCESSFUL) {
+            if(eigs.info() != Spectra::SUCCESSFUL)
+            {
                 REQUIRE(false);
             }
             evFull = eigs.eigenvalues();
@@ -105,7 +106,8 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
             Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
             eigs.init();
             eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-            if(eigs.info() != Spectra::SUCCESSFUL) {
+            if(eigs.info() != Spectra::SUCCESSFUL)
+            {
                 REQUIRE(false);
             }
             evFullP = eigs.eigenvalues();
@@ -119,7 +121,8 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
             Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
             eigs.init();
             eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-            if(eigs.info() != Spectra::SUCCESSFUL) {
+            if(eigs.info() != Spectra::SUCCESSFUL)
+            {
                 REQUIRE(false);
             }
             evFullM = eigs.eigenvalues();

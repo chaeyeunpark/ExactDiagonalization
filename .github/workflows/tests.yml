@@ -1,0 +1,24 @@
+name: Testing
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  cpptests:
+    name: C++ tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.4.1
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Install dependencies
+        run: |
+          sudo echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" >> /etc/apt/sources.list
+          sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ clang-tidy-13 clang-format-13

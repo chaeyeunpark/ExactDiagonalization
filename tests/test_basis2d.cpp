@@ -87,7 +87,8 @@ template<class Basis> uint64_t countDim2D(Basis&& basis, bool useU1)
 
     for(uint32_t n = 0; n < (1U << N); ++n)
     {
-        if(useU1 && (__builtin_popcountll(n) != N / 2)) {
+        if(useU1 && (__builtin_popcountll(n) != N / 2))
+        {
             continue;
         }
         Eigen::VectorXi v = Eigen::VectorXi::Zero(1UL << N);
@@ -128,7 +129,8 @@ template<class Basis> uint64_t countDim2DZ2(Basis&& basis, bool useU1)
 
     for(uint32_t n = 0; n < (1U << N); ++n)
     {
-        if(useU1 && (__builtin_popcountll(n) != N / 2)) {
+        if(useU1 && (__builtin_popcountll(n) != N / 2))
+        {
             continue;
         }
         Eigen::VectorXi v = Eigen::VectorXi::Zero(1UL << N);
@@ -172,7 +174,8 @@ void testBasis2D(uint32_t Lx, uint32_t Ly, bool useU1)
         kys.push_back(Ly / 2);
     }
 
-    for(const uint32_t kx : kxs) {
+    for(const uint32_t kx : kxs)
+    {
         for(const uint32_t ky : kys)
         {
             Basis2D<uint32_t> basis(Lx, Ly, kx, ky, useU1);
@@ -230,7 +233,8 @@ void testBasis2DZ2(uint32_t Lx, uint32_t Ly, bool useU1)
             }
         }
     }
-    for(const uint32_t kx : kxs) {
+    for(const uint32_t kx : kxs)
+    {
         for(const uint32_t ky : kys)
         {
             Basis2DZ2<uint32_t> basis(Lx, Ly, kx, ky, -1, useU1);

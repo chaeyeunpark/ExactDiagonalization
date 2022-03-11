@@ -102,8 +102,7 @@ public:
         return edges;
     }
 
-    template<typename RandomEngine>
-    std::vector<int> createRandomVertexSet(RandomEngine& re, int n)
+    template<typename RandomEngine> std::vector<int> createRandomVertexSet(RandomEngine& re, int n)
     {
         std::vector<int> v = allVertices_;
         std::shuffle(v.begin(), v.end(), re);

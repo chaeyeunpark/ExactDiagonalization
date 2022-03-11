@@ -7,8 +7,7 @@
 namespace edp
 {
 template<typename T, class ColFunc>
-auto constructMat(size_t dim, ColFunc&& colFunc)
-    -> Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
+auto constructMat(size_t dim, ColFunc&& colFunc) -> Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
 {
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(dim, dim);
     res.setZero();
