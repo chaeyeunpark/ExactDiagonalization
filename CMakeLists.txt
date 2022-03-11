@@ -43,8 +43,9 @@ if(NOT Eigen3_FOUND)
 endif()
 
 
-find_package(TBB)
+find_package(TBB QUIET)
 if(NOT TBB_FOUND)
+    message(STATUE "TBB is not found. Downloading.")
     FetchContent_Declare(
         TBB
         GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
@@ -52,6 +53,8 @@ if(NOT TBB_FOUND)
     )
     set(TBB_TEST OFF)
     FetchContent_MakeAvailable(TBB)
+else()
+    message(STATUE "TBB found.")
 endif()
 
 find_package(BLAS REQUIRED)
