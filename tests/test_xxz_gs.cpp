@@ -44,7 +44,6 @@ twoQubitOp(uint32_t N, uint32_t pos1, uint32_t pos2, // NOLINT
     {
         res = Eigen::kroneckerProduct(MatrixXd::Identity(2, 2), res).eval();
     }
-
     res = Eigen::kroneckerProduct(v1, res).eval();
     for(uint32_t i = pos1 + 1; i < pos2; i++)
     {
@@ -117,34 +116,34 @@ public:
     void Test()
     {
         using namespace Eigen;
-        constexpr size_t max_iter = 10000;
-        constexpr double eps = 1e-12;
+        using Spectra::SortRule;
+        using Spectra::CompInfo;
+        constexpr size_t max_iter = 1000;
+        constexpr double tol = 1e-10;
 
         TIXXZ<uint32_t> ham(basis_, 1.0, delta_);
         const int dim = basis_.getDim();
 
         NodeMV mv(dim, 0, dim, ham);
 
-        // NOLINTNEXTLINE(readability-magic-numbers)
-        Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+        Spectra::SymEigsSolver<NodeMV> eigs(mv, 2, 6);
         eigs.init();
-        eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-        if(eigs.info() != Spectra::SUCCESSFUL)
+        eigs.compute(SortRule::SmallestAlge, max_iter, tol, SortRule::SmallestAlge);
+        if(eigs.info() != CompInfo::Successful)
         {
             REQUIRE(false);
         }
-        double gsEnergy1 = eigs.eigenvalues()[0];
+        const double gsEnergy1 = eigs.eigenvalues()[0];
 
         REQUIRE(gsEnergy_ == Approx(gsEnergy1).margin(1e-4));
 
-        VectorXd subspaceGs = eigs.eigenvectors().col(0);
-        VectorXd gsVec1;
-        {
+        const VectorXd subspaceGs = eigs.eigenvectors().col(0);
+        const VectorXd gsVec1 = [&]() -> VectorXd {
             auto v = toOriginalVector(basis_, subspaceGs.data());
-            gsVec1 = Map<VectorXd>(v.data(), 1U << N);
-        }
+            return Map<VectorXd>(v.data(), 1U << N);
+        }();
 
-        double gsEnergy2
+        const double gsEnergy2
             = double(gsVec1.transpose() * hamFull_ * gsVec1) / double(gsVec1.transpose() * gsVec1);
 
         REQUIRE(gsEnergy1 == Approx(gsEnergy2).margin(1e-6));

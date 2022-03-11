@@ -65,8 +65,10 @@ public:
 
 TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model", "[basisfull]")
 {
-    constexpr uint32_t max_iter = 10000;
-    constexpr double eps = 1e-12;
+    using Spectra::SortRule;
+    using Spectra::CompInfo;
+    constexpr uint32_t max_iter = 1000;
+    constexpr double tol = 1e-10;
 
     constexpr double h = 0.5;
     for(uint32_t N = 4; N <= MAX_N; N += 2)
@@ -88,10 +90,10 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
 
             NodeMV mv(dim, 0, dim, hamFull);
 
-            Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+            Spectra::SymEigsSolver<NodeMV> eigs(mv, 2, 6);
             eigs.init();
-            eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-            if(eigs.info() != Spectra::SUCCESSFUL)
+            eigs.compute(SortRule::SmallestAlge, max_iter, tol, SortRule::SmallestAlge);
+            if(eigs.info() != CompInfo::Successful)
             {
                 REQUIRE(false);
             }
@@ -103,10 +105,10 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
 
             NodeMV mv(dim, 0, dim, hamFullP);
 
-            Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+            Spectra::SymEigsSolver<NodeMV> eigs(mv, 2, 6);
             eigs.init();
-            eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-            if(eigs.info() != Spectra::SUCCESSFUL)
+            eigs.compute(SortRule::SmallestAlge, max_iter, tol, SortRule::SmallestAlge);
+            if(eigs.info() != CompInfo::Successful)
             {
                 REQUIRE(false);
             }
@@ -118,10 +120,10 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
 
             NodeMV mv(dim, 0, dim, hamFullM);
 
-            Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+            Spectra::SymEigsSolver<NodeMV> eigs(mv, 2, 6);
             eigs.init();
-            eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
-            if(eigs.info() != Spectra::SUCCESSFUL)
+            eigs.compute(SortRule::SmallestAlge, max_iter, tol, SortRule::SmallestAlge);
+            if(eigs.info() != CompInfo::Successful)
             {
                 REQUIRE(false);
             }

@@ -3,5 +3,6 @@ debug*
 .ycm_extra_conf.py
 docs/vendor
 docs/.bundle
-externals/catch.hpp
 build/
+Build/
+BuildTests/

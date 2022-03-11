@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(ED)
-include_directories("${PROJECT_SOURCE_DIR}/externals/spectra/include")
-include_directories("${PROJECT_SOURCE_DIR}/externals")
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
-
 
 option(BUILD_TESTS "Build Tests" ON)
 
@@ -26,28 +23,52 @@ if(ENABLE_CLANG_TIDY)
     )
 endif()
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+################################################################################
+# Set dependencies
+################################################################################
+
+include(FetchContent)
+
+find_package(Eigen3 3.3 NO_MODULE)
+if(NOT Eigen3_FOUND)
+    FetchContent_Declare(
+        Eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.3.9
+    )
+    set(EIGEN_BUILD_DOC OFF)
+    set(BUILD_TESTING OFF)
+    set(EIGEN_BUILD_PKGCONFIG OFF)
+    FetchContent_MakeAvailable(Eigen)
+endif()
+
+
+find_package(TBB)
+if(NOT TBB_FOUND)
+    FetchContent_Declare(
+        TBB
+        GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
+        GIT_TAG        v2021.5.0
+    )
+    set(TBB_TEST OFF)
+    FetchContent_MakeAvailable(TBB)
+endif()
+
+find_package(BLAS REQUIRED)
 
 add_library(edlib_dependency INTERFACE)
 target_compile_features(edlib_dependency INTERFACE cxx_std_17)
 target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Werror>)
 
 add_library(edlib INTERFACE)
-target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include")
+target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include" ${TBB_SOURCE_DIR})
+target_link_libraries(edlib INTERFACE "${BLAS_LIBRARIES}" Eigen3::Eigen TBB::tbb)
+target_link_options(edlib INTERFACE "${BLAS_LINKER_FLAGS}")
 
-# MKL is required
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
-else()
-    target_include_directories(edlib SYSTEM INTERFACE "$ENV{MKLROOT}/include")
-	target_link_libraries(edlib INTERFACE mkl_intel_lp64 mkl_tbb_thread mkl_core)
-endif()
-
-target_link_libraries(edlib INTERFACE tbb pthread m dl)
 
 if (BUILD_EXAMPLES)
 	add_executable(tfi "examples/tfi.cpp")
-	target_link_libraries(tfi PRIVATE edlib Eigen3::Eigen)
+	target_link_libraries(tfi PRIVATE edlib)
 endif()
 
 if (BUILD_TESTS)

@@ -305,8 +305,11 @@ TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
 
 TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]")
 {
-    constexpr uint32_t max_iter = 10000;
-    constexpr double eps = 1e-12;
+    using Spectra::SortRule;
+    using Spectra::CompInfo;
+    constexpr uint32_t max_iter = 1000;
+    constexpr double eps = 1e-10;
+
     const uint32_t Lx = 3;
     const uint32_t Ly = 2;
     const uint32_t N = Lx * Ly;
@@ -331,9 +334,9 @@ TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]")
         Eigen::SparseMatrix<double> m = edp::constructSparseMat<double>(1U << N, lh);
 
         Spectra::SparseSymMatProd<double> op(m);
-        Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, decltype(op)> eigs(&op, 2, 6);
+        Spectra::SymEigsSolver<decltype(op)> eigs(op, 2, 6);
         eigs.init();
-        eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
+        eigs.compute(SortRule::SmallestAlge, max_iter, eps, SortRule::SmallestAlge);
         INFO(eigs.eigenvalues());
         gsEnergy1 = eigs.eigenvalues()[0];
     }
@@ -343,9 +346,9 @@ TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]")
         TITFI2D<uint32_t> ham(basis2D, 1.0, h);
         const auto dim = basis2D.getDim();
         NodeMV mv(dim, 0, dim, ham);
-        Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 4);
+        Spectra::SymEigsSolver<NodeMV> eigs(mv, 2, 4);
         eigs.init();
-        eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
+        eigs.compute(SortRule::SmallestAlge, max_iter, eps, SortRule::SmallestAlge);
         INFO(eigs.eigenvalues());
         gsEnergy2 = eigs.eigenvalues()[0];
     }

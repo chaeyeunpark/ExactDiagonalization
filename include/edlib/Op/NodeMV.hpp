@@ -24,6 +24,7 @@ private:
     matrix_descr descA_;
 
 public:
+    using Scalar = double;
     template<class ColFunc>
     explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end,
                     ColFunc&& col)

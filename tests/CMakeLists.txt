@@ -3,14 +3,22 @@ project(ExactDiagonalizaion-Tests)
 Include(FetchContent)
 
 FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v2.13.1)
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v2.13.1)
 
 FetchContent_MakeAvailable(Catch2)
 
+FetchContent_Declare(
+    Spectra
+    GIT_REPOSITORY https://github.com/yixuan/spectra.git
+    GIT_TAG v1.0.0
+)
+set(BUILD_TESTS OFF CACHE INTERNAL "Turn off tests for spectra")
+FetchContent_MakeAvailable(Spectra)
+
 add_library(ed_tests_dependency INTERFACE)
-target_link_libraries(ed_tests_dependency INTERFACE Catch2::Catch2 edlib_dependency)
+target_link_libraries(ed_tests_dependency INTERFACE Catch2::Catch2 Spectra edlib_dependency)
 
 # Required for catch_discover_tests().
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
