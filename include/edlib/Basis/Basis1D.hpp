@@ -59,15 +59,13 @@ private:
 
         // iterate over all odd numbers
         const uint32_t N = this->getN();
-        tbb::parallel_for(UINT(1), (UINT(1) << UINT(N)), UINT(2),
-                          [&](UINT s)
-                          {
-                              int r = checkState(s);
-                              if(r > 0)
-                              {
-                                  rpts_.emplace_back(s, r);
-                              }
-                          });
+        tbb::parallel_for(UINT(1), (UINT(1) << UINT(N)), UINT(2), [&](UINT s) {
+            int r = checkState(s);
+            if(r > 0)
+            {
+                rpts_.emplace_back(s, r);
+            }
+        });
         tbb::parallel_sort(rpts_.begin(), rpts_.end());
     }
 
@@ -78,15 +76,13 @@ private:
 
         BasisJz<UINT> basis(n, nup);
 
-        tbb::parallel_for_each(basis.begin(), basis.end(),
-                               [&](UINT s)
-                               {
-                                   int r = checkState(s);
-                                   if(r > 0)
-                                   {
-                                       rpts_.emplace_back(s, r);
-                                   }
-                               });
+        tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s) {
+            int r = checkState(s);
+            if(r > 0)
+            {
+                rpts_.emplace_back(s, r);
+            }
+        });
         tbb::parallel_sort(rpts_.begin(), rpts_.end());
     }
 
@@ -114,8 +110,7 @@ public:
 
     uint32_t stateIdx(UINT rep) const
     {
-        auto comp = [](const std::pair<UINT, uint32_t>& v1, UINT v2)
-        {
+        auto comp = [](const std::pair<UINT, uint32_t>& v1, UINT v2) {
             return v1.first < v2;
         };
         auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);

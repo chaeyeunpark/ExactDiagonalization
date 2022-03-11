@@ -8,11 +8,12 @@ template<typename UINT> class AbstractBasis1D : public AbstractBasis<UINT>
 protected:
     const uint32_t k_;
 
+    // TODO: may change to std::optional
     int checkState(UINT s) const
     {
         UINT sr = s;
         const auto N = this->getN();
-        for(int r = 1; r <= N; r++)
+        for(uint32_t r = 1; r <= N; r++)
         {
             sr = this->rotl(s, r);
             if(sr < s)
@@ -22,8 +23,10 @@ protected:
             else if(sr == s)
             {
                 if((k_ % (N / r)) != 0)
+                {
                     return -1; // this representative is not allowed for this k
-                return r;
+                }
+                return static_cast<int>(r);
             }
         }
         return -1;
@@ -43,7 +46,7 @@ public:
     {
         const uint32_t N = this->getN();
         UINT rep = sigma;
-        uint32_t rot = 0u;
+        uint32_t rot = 0U;
         for(uint32_t r = 1; r < N; r++)
         {
             UINT sr = rotl(sigma, r);
@@ -56,6 +59,6 @@ public:
         return std::make_pair(rep, rot);
     }
 
-    inline uint32_t getK() const { return k_; }
+    [[nodiscard]] inline uint32_t getK() const { return k_; }
 };
 } // namespace edlib

@@ -1,52 +1,41 @@
 project(ExactDiagonalizaion-Tests)
 
-enable_testing() 
+Include(FetchContent)
 
-add_executable(test_xxz_gs "test_xxz_gs.cpp")
-target_link_libraries(test_xxz_gs PRIVATE edlib Eigen3::Eigen)
-add_test(    
-	NAME test_xxz_gs
-	COMMAND test_xxz_gs
-)
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v2.13.1)
 
-add_executable(test_basisfull "test_basisfull.cpp")
-target_link_libraries(test_basisfull PRIVATE edlib Eigen3::Eigen)
-add_test(    
-	NAME test_basisfull
-	COMMAND test_basisfull
-)
+FetchContent_MakeAvailable(Catch2)
 
-add_executable(test_basis1d "test_basis1d.cpp")
-target_link_libraries(test_basis1d PRIVATE edlib Eigen3::Eigen)
-add_test(    
-	NAME test_basis1d
-	COMMAND test_basis1d
-)
+add_library(ed_tests_dependency INTERFACE)
+target_link_libraries(ed_tests_dependency INTERFACE Catch2::Catch2 edlib_dependency)
 
-add_executable(test_basis2d "test_basis2d.cpp")
-target_link_libraries(test_basis2d PRIVATE edlib Eigen3::Eigen)
-add_test(    
-	NAME test_basis2d
-	COMMAND test_basis2d
-)
+# Required for catch_discover_tests().
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
 
-add_executable(test_local_ham "test_local_ham.cpp")
-target_link_libraries(test_local_ham PRIVATE edlib Eigen3::Eigen)
-add_test(    
-	NAME test_local_ham
-	COMMAND test_local_ham
-)
+# Modify `ctest` to only run the supported subset of tests.
+include(CTest)
+include(Catch)
 
-add_executable(test_perf_basis2d "test_perf_basis2d.cpp")
-target_link_libraries(test_perf_basis2d PRIVATE edlib Eigen3::Eigen)
+add_executable(runner catch_main.cpp
+                      test_xxz_gs.cpp
+                      test_basisfull.cpp
+                      test_basis1d.cpp
+                      test_basis2d.cpp
+                      test_local_ham.cpp
+                      XXZ.cpp
+                      utils.cpp)
+target_link_libraries(runner PRIVATE edlib Eigen3::Eigen ed_tests_dependency)
 
-add_executable(test_perf_basis1dz2 "test_perf_basis1dz2.cpp")
-target_link_libraries(test_perf_basis1dz2 PRIVATE edlib Eigen3::Eigen)
+catch_discover_tests(runner)
 
-add_executable(test_perf_basis2dz2 "test_perf_basis2dz2.cpp")
-target_link_libraries(test_perf_basis2dz2 PRIVATE edlib Eigen3::Eigen)
-
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
-	DEPENDS test_xxz_gs test_basisfull test_basis1d test_basis2d test_local_ham)
-
-
+# add_executable(test_perf_basis2d "test_perf_basis2d.cpp")
+# target_link_libraries(test_perf_basis2d PRIVATE edlib Eigen3::Eigen)
+# 
+# add_executable(test_perf_basis1dz2 "test_perf_basis1dz2.cpp")
+# target_link_libraries(test_perf_basis1dz2 PRIVATE edlib Eigen3::Eigen)
+# 
+# add_executable(test_perf_basis2dz2 "test_perf_basis2dz2.cpp")
+# target_link_libraries(test_perf_basis2dz2 PRIVATE edlib Eigen3::Eigen)

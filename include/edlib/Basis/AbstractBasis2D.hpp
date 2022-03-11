@@ -90,8 +90,7 @@ protected:
 public:
     AbstractBasis2D(uint32_t Lx, uint32_t Ly, uint32_t kx, uint32_t ky)
         : AbstractBasis<UINT>(Lx * Ly), Lx_{Lx}, Ly_{Ly}, kx_{kx}, ky_{ky}
-    {
-    }
+    { }
 
     UINT rotateY(UINT sigma, uint32_t r) const
     {

@@ -15,8 +15,7 @@ private:
 
 public:
     TITFI2D(edlib::AbstractBasis2D<UINT>& basis, double J, double h) : basis_(basis), J_(J), h_(h)
-    {
-    }
+    { }
 
     std::map<std::size_t, double> getCol(UINT n) const
     {
@@ -27,9 +26,9 @@ public:
         const boost::dynamic_bitset<> bs(Lx * Ly, a);
 
         std::map<std::size_t, double> m;
-        for(int nx = 0; nx < Lx; nx++)
+        for(uint32_t nx = 0; nx < Lx; ++nx)
         {
-            for(int ny = 0; ny < Ly; ny++)
+            for(uint32_t ny = 0; ny < Ly; ++ny)
             {
                 // Next-nearest
                 auto idx = basis_.toIdx(nx, ny);
@@ -39,16 +38,15 @@ public:
                 m[n] += -J_ * (sgn1 + sgn2); // ZZ
 
                 UINT s = a;
-                UINT t = (UINT(1u) << UINT(idx));
+                UINT t = (UINT(1U) << UINT(idx));
                 s ^= t;
 
-                int bidx;
-                double coeff;
-
-                std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
+                const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
 
                 if(bidx >= 0)
+                {
                     m[bidx] += -h_ * coeff;
+                }
             }
         }
         return m;

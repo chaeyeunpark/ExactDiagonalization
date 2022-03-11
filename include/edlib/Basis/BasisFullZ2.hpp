@@ -20,7 +20,7 @@ public:
 
     UINT getNthRep(uint32_t n) const override { return n; }
 
-    std::pair<int, double> hamiltonianCoeff(UINT bsigma, int aidx) const override
+    std::pair<int, double> hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const override
     {
         if(bsigma < flip(bsigma))
             return std::make_pair(int(bsigma), 1.0);

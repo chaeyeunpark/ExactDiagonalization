@@ -8,10 +8,12 @@ namespace internal
     inline uint32_t ipow(uint32_t base, uint32_t exp)
     {
         uint32_t result = 1U;
-        while(exp)
+        while(exp != 0)
         {
-            if(exp & 1U)
+            if((exp & 1U) != 0)
+            {
                 result *= base;
+            }
             exp >>= 1U;
             base *= base;
         }
@@ -25,13 +27,11 @@ template<typename T> struct TwoSiteTerm
     std::pair<uint32_t, uint32_t> sites;
     Eigen::SparseMatrix<T> m;
 
-    TwoSiteTerm(const std::pair<uint32_t, uint32_t>& p1, const Eigen::SparseMatrix<T>& p2)
-        : sites(p1), m(p2)
-    {
-    }
+    TwoSiteTerm(std::pair<uint32_t, uint32_t> p1, const Eigen::SparseMatrix<T>& p2)
+        : sites(std::move(p1)), m(p2)
+    { }
     TwoSiteTerm(std::pair<uint32_t, uint32_t>&& p1, Eigen::SparseMatrix<T>&& p2) : sites(p1), m(p2)
-    {
-    }
+    { }
 };
 
 template<typename T> struct OneSiteTerm
@@ -53,7 +53,7 @@ private:
     std::vector<TwoSiteTerm<T>> twoSiteTerms_;
     std::vector<OneSiteTerm<T>> oneSiteTerms_;
 
-    uint32_t swapBaseD(uint32_t idx, uint32_t pos, uint32_t val) const
+    [[nodiscard]] uint32_t swapBaseD(uint32_t idx, uint32_t pos, uint32_t val) const
     {
         uint32_t b = internal::ipow(d_, pos);
         uint32_t upper = (idx / (b * d_)) * d_ + val;
@@ -62,21 +62,16 @@ private:
 
 public:
     LocalHamiltonian(uint32_t numSites, uint32_t d) : numSites_{numSites}, d_{d} { }
-    LocalHamiltonian(const LocalHamiltonian&) = default;
-    LocalHamiltonian(LocalHamiltonian&&) = default;
-
-    LocalHamiltonian& operator=(const LocalHamiltonian&) = default;
-    LocalHamiltonian& operator=(LocalHamiltonian&&) = default;
 
     void clearTerms()
     {
         std::vector<TwoSiteTerm<T>>().swap(twoSiteTerms_);
         std::vector<OneSiteTerm<T>>().swap(oneSiteTerms_);
     }
-    uint32_t getNumSites() const { return numSites_; }
+    [[nodiscard]] uint32_t getNumSites() const { return numSites_; }
 
-    std::map<uint32_t, T> getCol(uint32_t n) const;
-    inline std::map<uint32_t, T> operator()(uint32_t n) const { return getCol(n); }
+    [[nodiscard]] std::map<uint32_t, T> getCol(uint32_t n) const;
+    [[nodiscard]] inline std::map<uint32_t, T> operator()(uint32_t n) const { return getCol(n); }
 
     void addTwoSiteTerm(const std::pair<int, int>& site, Eigen::SparseMatrix<T> m)
     {
@@ -89,8 +84,7 @@ public:
         oneSiteTerms_.emplace_back(site, std::move(m));
     }
 };
-
-}
+} // namespace edp
 
 template<typename T> std::map<uint32_t, T> edp::LocalHamiltonian<T>::getCol(uint32_t n) const
 {

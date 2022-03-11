@@ -18,8 +18,7 @@ private:
 public:
     TITFIsing(const edlib::AbstractBasis1D<UINT>& basis, double J, double h)
         : basis_(basis), J_(J), h_(h)
-    {
-    }
+    { }
 
     std::map<std::size_t, double> getCol(UINT n) const
     {

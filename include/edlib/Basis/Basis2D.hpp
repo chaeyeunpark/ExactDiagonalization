@@ -30,30 +30,26 @@ private:
 
             BasisJz<UINT> basis(n, nup);
 
-            tbb::parallel_for_each(basis.begin(), basis.end(),
-                                   [&](UINT s)
-                                   {
-                                       uint32_t numRep = this->checkState(s);
-                                       if(numRep > 0)
-                                       {
-                                           rpts_.emplace_back(s, numRep);
-                                       }
-                                   });
+            tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s) {
+                uint32_t numRep = this->checkState(s);
+                if(numRep > 0)
+                {
+                    rpts_.emplace_back(s, numRep);
+                }
+            });
         }
         else
         {
             // if the MSB is 1, the fliped one is smaller.
             auto Lx = this->Lx_;
             auto Ly = this->Ly_;
-            tbb::parallel_for(UINT(0U), (UINT(1U) << UINT(Lx * Ly)),
-                              [&](UINT s)
-                              {
-                                  uint32_t numRep = this->checkState(s);
-                                  if(numRep > 0)
-                                  {
-                                      rpts_.emplace_back(s, numRep);
-                                  }
-                              });
+            tbb::parallel_for(UINT(0U), (UINT(1U) << UINT(Lx * Ly)), [&](UINT s) {
+                uint32_t numRep = this->checkState(s);
+                if(numRep > 0)
+                {
+                    rpts_.emplace_back(s, numRep);
+                }
+            });
         }
 
         tbb::parallel_sort(rpts_.begin(), rpts_.end());

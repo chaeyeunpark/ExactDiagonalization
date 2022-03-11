@@ -11,126 +11,121 @@
 #include "edlib/EDP/ConstructSparseMat.hpp"
 #include "edlib/Op/NodeMV.hpp"
 
-#include "utils.hpp"
 #include "XXZ.hpp"
+#include "utils.hpp"
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 using namespace Eigen;
 using namespace edlib;
 
-constexpr uint32_t MAX_N = 14;
+constexpr uint32_t MAX_N = 12;
 
-template<typename UINT>
-class OpenTFI
+template<typename UINT> class OpenTFI
 {
 private:
-	const edlib::AbstractBasis<UINT>& basis_;
-	double J_;
-	double h_;
-	
+    const edlib::AbstractBasis<UINT>& basis_;
+    double J_;
+    double h_;
+
 public:
-	OpenTFI(const edlib::AbstractBasis<UINT>& basis, double J, double h)
-		: basis_{basis}, J_{J}, h_{h}
-	{
-	}
+    OpenTFI(const edlib::AbstractBasis<UINT>& basis, double J, double h)
+        : basis_{basis}, J_{J}, h_{h}
+    { }
 
-	std::map<int, double> getCol(UINT n) const
-	{
-		std::map<int, double> m;
-		const uint32_t N = basis_.getN();
+    [[nodiscard]] std::map<int, double> getCol(UINT n) const
+    {
+        std::map<int, double> m;
+        const uint32_t N = basis_.getN();
 
-		UINT a = basis_.getNthRep(n);
-		const boost::dynamic_bitset<> bs(N, a);
+        UINT a = basis_.getNthRep(n);
+        const boost::dynamic_bitset<> bs(N, a);
 
-		for(uint32_t i = 0; i < N-1; ++i)
-		{
-			int zz = (1-2*bs[i])*(1-2*bs[i+1]);
+        for(uint32_t i = 0; i < N - 1; ++i)
+        {
+            int zz = (1 - 2 * static_cast<int>(bs[i])) * (1 - 2 * static_cast<int>(bs[i + 1]));
 
-			m[n] += -J_*zz;
-			
-			UINT s = a;
-			s ^= basis_.mask({i});
+            m[n] += -J_ * zz;
 
-			int bidx;
-			double coeff;
+            UINT s = a;
+            s ^= basis_.mask({i});
 
-			std::tie(bidx, coeff) = basis_.hamiltonianCoeff(s, n);
-			
-			if(bidx >= 0)
-			{
-				m[bidx] += -h_*coeff;
-			}
-		}
-		return m;
-	}
+            const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
 
-	std::map<int, double> operator()(UINT n) const 
-	{
-		return getCol(n);
-	}
+            if(bidx >= 0)
+            {
+                m[bidx] += -h_ * coeff;
+            }
+        }
+        return m;
+    }
+
+    [[nodiscard]] std::map<int, double> operator()(UINT n) const { return getCol(n); }
 };
-
 
 TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model", "[basisfull]")
 {
-	double h = 0.5;
-	for(int N = 4; N <= MAX_N; N += 2)
-	{
-		BasisFull<uint32_t> basisFull(N);
-		BasisFullZ2<uint32_t> basisFullP(N, 1);
-		BasisFullZ2<uint32_t> basisFullM(N, -1);
+    constexpr uint32_t max_iter = 10000;
+    constexpr double eps = 1e-12;
 
-		auto hamFull = OpenTFI(basisFull, 1.0, h);
-		auto hamFullP = OpenTFI(basisFullP, 1.0, h);
-		auto hamFullM = OpenTFI(basisFullM, 1.0, h);
+    constexpr double h = 0.5;
+    for(uint32_t N = 4; N <= MAX_N; N += 2)
+    {
+        BasisFull<uint32_t> basisFull(N);
+        BasisFullZ2<uint32_t> basisFullP(N, 1);
+        BasisFullZ2<uint32_t> basisFullM(N, -1);
 
-		
-		VectorXd evFull;
-		VectorXd evFullP;
-		VectorXd evFullM;
+        auto hamFull = OpenTFI(basisFull, 1.0, h);
+        auto hamFullP = OpenTFI(basisFullP, 1.0, h);
+        auto hamFullM = OpenTFI(basisFullM, 1.0, h);
 
-		{
-			const auto dim = basisFull.getDim();
+        VectorXd evFull;
+        VectorXd evFullP;
+        VectorXd evFullM;
 
-			NodeMV mv(dim, 0, dim, hamFull);
+        {
+            const auto dim = basisFull.getDim();
 
-			Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
-			eigs.init();
-			eigs.compute(10000, 1e-12, Spectra::SMALLEST_ALGE);
-			if(eigs.info() != Spectra::SUCCESSFUL)
-				REQUIRE(false);
-			evFull = eigs.eigenvalues();
-		}
+            NodeMV mv(dim, 0, dim, hamFull);
 
-		{
-			const auto dim = basisFullP.getDim();
+            Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+            eigs.init();
+            eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
+            if(eigs.info() != Spectra::SUCCESSFUL) {
+                REQUIRE(false);
+            }
+            evFull = eigs.eigenvalues();
+        }
 
-			NodeMV mv(dim, 0, dim, hamFullP);
+        {
+            const auto dim = basisFullP.getDim();
 
-			Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
-			eigs.init();
-			eigs.compute(10000, 1e-12, Spectra::SMALLEST_ALGE);
-			if(eigs.info() != Spectra::SUCCESSFUL)
-				REQUIRE(false);
-			evFullP = eigs.eigenvalues();
-		}
+            NodeMV mv(dim, 0, dim, hamFullP);
 
-		{
-			const auto dim = basisFullM.getDim();
+            Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+            eigs.init();
+            eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
+            if(eigs.info() != Spectra::SUCCESSFUL) {
+                REQUIRE(false);
+            }
+            evFullP = eigs.eigenvalues();
+        }
 
-			NodeMV mv(dim, 0, dim, hamFullM);
+        {
+            const auto dim = basisFullM.getDim();
 
-			Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
-			eigs.init();
-			eigs.compute(10000, 1e-12, Spectra::SMALLEST_ALGE);
-			if(eigs.info() != Spectra::SUCCESSFUL)
-				REQUIRE(false);
-			evFullM = eigs.eigenvalues();
-		}
-		using Catch::WithinAbs;
-		REQUIRE_THAT(evFull(0), WithinAbs(evFullP(0), 1e-8));
-		REQUIRE_THAT(evFull(1), WithinAbs(evFullM(0), 1e-8));
-	}
+            NodeMV mv(dim, 0, dim, hamFullM);
+
+            Spectra::SymEigsSolver<double, Spectra::SMALLEST_ALGE, NodeMV> eigs(&mv, 2, 6);
+            eigs.init();
+            eigs.compute(max_iter, eps, Spectra::SMALLEST_ALGE);
+            if(eigs.info() != Spectra::SUCCESSFUL) {
+                REQUIRE(false);
+            }
+            evFullM = eigs.eigenvalues();
+        }
+        using Catch::WithinAbs;
+        REQUIRE_THAT(evFull(0), WithinAbs(evFullP(0), 1e-8));
+        REQUIRE_THAT(evFull(1), WithinAbs(evFullM(0), 1e-8));
+    }
 }

@@ -17,8 +17,7 @@ private:
 public:
     TIXXZ(const edlib::AbstractBasis1D<UINT>& basis, double J, double delta)
         : basis_(basis), J_(J), delta_(delta)
-    {
-    }
+    { }
 
     std::map<int, double> getCol(UINT n) const
     {

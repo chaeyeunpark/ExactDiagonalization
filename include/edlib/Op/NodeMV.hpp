@@ -31,12 +31,10 @@ public:
     {
         rows_ = row_end - row_start;
 
-        auto get_first = [](const std::pair<const std::size_t, double>& p)
-        {
+        auto get_first = [](const std::pair<const std::size_t, double>& p) {
             return p.first;
         };
-        auto get_second = [](const std::pair<const std::size_t, double>& p)
-        {
+        auto get_second = [](const std::pair<const std::size_t, double>& p) {
             return p.second;
         };
 

@@ -42,62 +42,55 @@ private:
 
             BasisJz<UINT> basis(n, nup);
 
-            tbb::parallel_for_each(basis.begin(), basis.end(),
-                                   [&](UINT s)
-                                   {
-                                       uint32_t numRep = this->checkState(s);
-                                       if(numRep > 0)
-                                       {
-                                           candids.emplace_back(s, numRep);
-                                       }
-                                   });
+            tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s) {
+                uint32_t numRep = this->checkState(s);
+                if(numRep > 0)
+                {
+                    candids.emplace_back(s, numRep);
+                }
+            });
         }
         else
         {
             // if the MSB is 1, the fliped one is smaller.
             const auto Lx = this->Lx_;
             const auto Ly = this->Ly_;
-            tbb::parallel_for(UINT(0U), (UINT(1U) << UINT(Lx * Ly - 1)),
-                              [&](UINT s)
-                              {
-                                  uint32_t numRep = this->checkState(s);
-                                  if(numRep > 0)
-                                  {
-                                      candids.emplace_back(s, numRep);
-                                  }
-                              });
+            tbb::parallel_for(UINT(0U), (UINT(1U) << UINT(Lx * Ly - 1)), [&](UINT s) {
+                uint32_t numRep = this->checkState(s);
+                if(numRep > 0)
+                {
+                    candids.emplace_back(s, numRep);
+                }
+            });
         }
 
-        tbb::parallel_for(UINT(0U), UINT(candids.size()),
-                          [&](UINT idx)
-                          {
-                              UINT rep;
-                              uint32_t numRep;
-                              std::tie(rep, numRep) = candids[idx];
-                              UINT fliped = flip(rep);
+        tbb::parallel_for(UINT(0U), UINT(candids.size()), [&](UINT idx) {
+            UINT rep;
+            uint32_t numRep;
+            std::tie(rep, numRep) = candids[idx];
+            UINT fliped = flip(rep);
 
-                              UINT flipedRep;
-                              uint32_t rotX, rotY;
-                              std::tie(flipedRep, rotX, rotY) = this->getMinRots(fliped);
+            UINT flipedRep;
+            uint32_t rotX, rotY;
+            std::tie(flipedRep, rotX, rotY) = this->getMinRots(fliped);
 
-                              if(flipedRep == rep && this->phase(rotX, rotY) * parity_ == 1)
-                              {
-                                  rpts_.emplace_back(rep, RepData{numRep, 0});
-                              }
-                              else if(flipedRep > rep)
-                              {
-                                  rpts_.emplace_back(rep, RepData{numRep, 1});
-                              }
-                              else
-                              {
-                                  ;
-                              }
-                          });
+            if(flipedRep == rep && this->phase(rotX, rotY) * parity_ == 1)
+            {
+                rpts_.emplace_back(rep, RepData{numRep, 0});
+            }
+            else if(flipedRep > rep)
+            {
+                rpts_.emplace_back(rep, RepData{numRep, 1});
+            }
+            else
+            {
+                ;
+            }
+        });
 
         // sort to make it consistent over different instances
 
-        auto comp = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2)
-        {
+        auto comp = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2) {
             return v1.first < v2.first;
         };
 
@@ -122,8 +115,7 @@ public:
 
     uint32_t stateIdx(UINT rep) const
     {
-        auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2)
-        {
+        auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2) {
             return v1.first < v2;
         };
         auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);

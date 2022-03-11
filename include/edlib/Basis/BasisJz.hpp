@@ -24,7 +24,7 @@ public:
 
         UINT n_;
 
-        BasisJzIterator(UINT val) : n_(val) { }
+        explicit BasisJzIterator(UINT val) : n_(val) { }
 
         BasisJzIterator& operator++() // prefix
         {
@@ -41,6 +41,7 @@ public:
         next() // https://stackoverflow.com/questions/8281951/bit-hack-to-generate-all-integers-with-a-given-number-of-1s
         {
             UINT t = n_ | (n_ - 1);
+            // NOLINTNEXTLINE(hicpp-signed-bitwise)
             UINT w = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(n_) + 1));
             n_ = w;
         }
@@ -63,17 +64,19 @@ public:
         return r;
     }
 
-    UINT size() const
+    [[nodiscard]] UINT size() const
     {
-        UINT res = 1ul;
+        auto res = static_cast<UINT>(1U);
         UINT k = nup_;
         // Since C(n, k) = C(n, n-k)
         if(k > N_ - k)
+        {
             k = N_ - k;
+        }
 
         // Calculate value of
         // [n * (n-1) *---* (n-k+1)] / [k * (k-1) *----* 1]
-        for(UINT i = 0u; i < k; ++i)
+        for(UINT i = 0U; i < k; ++i)
         {
             res *= (N_ - i);
             res /= (i + 1);

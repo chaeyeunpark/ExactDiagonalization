@@ -1,17 +1,19 @@
-#ifndef EDP_CONSTRUCTSPARSEMAT_HPP
-#define EDP_CONSTRUCTSPARSEMAT_HPP
+#pragma once
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+
+#include <cstdlib>
+
 namespace edp
 {
 template<typename T, class ColFunc>
-auto constructMat(uint64_t dim, ColFunc&& colFunc)
+auto constructMat(size_t dim, ColFunc&& colFunc)
     -> Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
 {
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(dim, dim);
     res.setZero();
 
-    for(uint64_t i = 0; i < dim; i++)
+    for(size_t i = 0; i < dim; i++)
     {
         auto m = colFunc(i);
         for(auto& elt : m)
@@ -23,12 +25,12 @@ auto constructMat(uint64_t dim, ColFunc&& colFunc)
 }
 
 template<typename T, class ColFunc>
-auto constructSparseMat(uint64_t dim, ColFunc&& colFunc) -> Eigen::SparseMatrix<T>
+auto constructSparseMat(size_t dim, ColFunc&& colFunc) -> Eigen::SparseMatrix<T>
 {
     using TripletT = Eigen::Triplet<T>;
     std::vector<TripletT> tripletList;
     tripletList.reserve(3 * dim);
-    for(uint64_t col = 0; col < dim; ++col)
+    for(size_t col = 0; col < dim; ++col)
     {
         auto m = colFunc(col);
         for(const auto& v : m)
@@ -46,11 +48,11 @@ auto constructSparseMat(uint64_t dim, ColFunc&& colFunc) -> Eigen::SparseMatrix<
 template<typename T, typename ColFunc>
 auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Eigen::SparseMatrix<T>
 {
-    const int n = basis.size();
+    const size_t n = basis.size();
 
     using TripletT = Eigen::Triplet<T>;
     std::vector<TripletT> tripletList;
-    for(int i = 0; i < n; i++)
+    for(size_t i = 0; i < n; i++)
     {
         std::map<uint32_t, T> m = t(basis[i]);
         auto iter = basis.begin();
@@ -58,7 +60,9 @@ auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Ei
         {
             iter = std::lower_bound(iter, basis.end(), kv.first);
             if(iter == basis.end())
+            {
                 break;
+            }
             auto j = std::distance(basis.begin(), iter);
             {
                 tripletList.emplace_back(i, j, kv.second);
@@ -70,7 +74,4 @@ auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Ei
     res.setFromTriplets(tripletList.begin(), tripletList.end());
     return res;
 }
-
 }
-
-#endif // EDP_CONSTRUCTSPARSEMAT_HPP
