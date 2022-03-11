@@ -27,24 +27,10 @@ endif()
 # Set dependencies
 ################################################################################
 
-include(FetchContent)
-
-find_package(Eigen3 3.3 NO_MODULE)
-if(NOT Eigen3_FOUND)
-    FetchContent_Declare(
-        Eigen
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-        GIT_TAG 3.3.9
-    )
-    set(EIGEN_BUILD_DOC OFF)
-    set(BUILD_TESTING OFF)
-    set(EIGEN_BUILD_PKGCONFIG OFF)
-    FetchContent_MakeAvailable(Eigen)
-endif()
-
 
 find_package(TBB QUIET)
 if(NOT TBB_FOUND)
+    include(FetchContent)
     message(STATUE "TBB is not found. Downloading.")
     FetchContent_Declare(
         TBB
@@ -57,6 +43,7 @@ else()
     message(STATUE "TBB found.")
 endif()
 
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(BLAS REQUIRED)
 
 add_library(edlib_dependency INTERFACE)

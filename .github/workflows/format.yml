@@ -1,4 +1,4 @@
-name: Testing
+name: Format 
 on:
   push:
     branches:
@@ -46,7 +46,7 @@ jobs:
         run: |
           sudo sh -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" >> /etc/apt/sources.list'
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ clang-tidy-13 clang-format-13 libopenblas-dev
+          sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ clang-tidy-13 clang-format-13 libopenblas-dev libeigen3-dev
         env:
           DEBIAN_FRONTEND: noninteractive
 
