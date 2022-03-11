@@ -305,8 +305,8 @@ TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
 
 TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]")
 {
-    using Spectra::SortRule;
     using Spectra::CompInfo;
+    using Spectra::SortRule;
     constexpr uint32_t max_iter = 1000;
     constexpr double eps = 1e-10;
 

@@ -116,8 +116,8 @@ public:
     void Test()
     {
         using namespace Eigen;
-        using Spectra::SortRule;
         using Spectra::CompInfo;
+        using Spectra::SortRule;
         constexpr size_t max_iter = 1000;
         constexpr double tol = 1e-10;
 

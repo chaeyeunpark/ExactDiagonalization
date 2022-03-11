@@ -65,8 +65,8 @@ public:
 
 TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model", "[basisfull]")
 {
-    using Spectra::SortRule;
     using Spectra::CompInfo;
+    using Spectra::SortRule;
     constexpr uint32_t max_iter = 1000;
     constexpr double tol = 1e-10;
 
