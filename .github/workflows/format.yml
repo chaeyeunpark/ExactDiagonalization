@@ -23,9 +23,37 @@ jobs:
           sudo sh -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" >> /etc/apt/sources.list'
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ clang-tidy-13 clang-format-13
+        env:
+          DEBIAN_FRONTEND: noninteractive
 
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Run formatter
         run: ./bin/format_cpp.sh --check
+
+  tidy-cpp:
+    name: Tidy (C++)
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.4.1
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Install dependencies
+        run: |
+          sudo sh -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main" >> /etc/apt/sources.list'
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ clang-tidy-13 clang-format-13
+        env:
+          DEBIAN_FRONTEND: noninteractive
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run clang-tidy compilation
+        run: |
+          cmake -BBuild -DENABLE_CLANG_TIDY=ON -DCLANG_TIDY_BINARY=clang-tidy-13 -DBUILD_TESTS=ON .
+          cmake --build ./Build
