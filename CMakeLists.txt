@@ -28,20 +28,6 @@ endif()
 ################################################################################
 
 find_package(TBB REQUIRED)
-if(NOT TBB_FOUND)
-    include(FetchContent)
-    message(STATUE "TBB is not found. Downloading.")
-    FetchContent_Declare(
-        TBB
-        GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
-        GIT_TAG        v2021.5.0
-    )
-    set(TBB_BUILD_TESTS OFF)
-    FetchContent_MakeAvailable(TBB)
-else()
-    message(STATUE "TBB found.")
-endif()
-
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(BLAS REQUIRED)
 
