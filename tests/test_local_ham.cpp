@@ -24,7 +24,7 @@ twoQubitOp(int N, int pos1, int pos2, const Eigen::Matrix<T, Eigen::Dynamic, Eig
 {
     using namespace Eigen;
 
-    assert(pos1 < pos2);
+    assert(pos1 < pos2); // NOLINT
 
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> res(1, 1);
     res(0, 0) = 1.0;
