@@ -14,7 +14,7 @@ if(ENABLE_CLANG_TIDY)
     endif()
     message(STATUS "Using CLANG_TIDY_BINARY=${CLANG_TIDY_BINARY}")
     execute_process(
-        COMMAND            ${PROJECT_SOURCE_DIR}/bin/cpp_files.py --include-examples --include-tests
+        COMMAND            ./bin/cpp_files.py --include-examples --include-tests
         WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}
         OUTPUT_VARIABLE    ED_SOURCE_FILES)
     set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_BINARY};

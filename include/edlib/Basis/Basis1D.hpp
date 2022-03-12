@@ -1,5 +1,5 @@
 #pragma once
-#include <boost/serialization/vector.hpp>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 
@@ -38,7 +38,9 @@ private:
                  * s is the smallest among rotl(s, 1), ..., rotl(s, N-1).
                  */
                 if((k % (N / r)) != 0)
+                {
                     return -1; // this representative is not allowed for k
+                }
                 return r;
             }
         }
@@ -100,14 +102,6 @@ public:
         }
     }
 
-    Basis1D(const Basis1D&) = default;
-    Basis1D(Basis1D&&) = default;
-
-    Basis1D& operator=(const Basis1D&) = default;
-    Basis1D& operator=(Basis1D&&) = default;
-
-    ~Basis1D() = default;
-
     uint32_t stateIdx(UINT rep) const
     {
         auto comp = [](const std::pair<UINT, uint32_t>& v1, UINT v2) {
@@ -126,11 +120,11 @@ public:
 
     tbb::concurrent_vector<std::pair<UINT, uint32_t>> getRepresentatives() const { return rpts_; }
 
-    std::size_t getDim() const override { return rpts_.size(); }
+    [[nodiscard]] std::size_t getDim() const override { return rpts_.size(); }
 
     UINT getNthRep(uint32_t n) const override { return rpts_[n].first; }
 
-    inline uint32_t rotRpt(uint32_t n) const { return rpts_[n].second; }
+    [[nodiscard]] inline uint32_t rotRpt(uint32_t n) const { return rpts_[n].second; }
 
     std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
     {
@@ -140,9 +134,7 @@ public:
         const auto k = this->getK();
         double expk = (k == 0) ? 1.0 : -1.0;
 
-        UINT bRep;
-        int bRot;
-        std::tie(bRep, bRot) = this->findMinRots(bSigma);
+        const auto [bRep, bRot] = this->findMinRots(bSigma);
 
         auto bidx = stateIdx(bRep);
 
