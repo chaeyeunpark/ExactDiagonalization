@@ -20,7 +20,7 @@ using namespace Eigen;
 
 template<typename Basis> Eigen::VectorXd translateY(Basis&& basis, const Eigen::VectorXd& r)
 {
-    Eigen::VectorXd res(r.size());
+    Eigen::VectorXd res{r.size()};
     for(int i = 0; i < r.size(); i++)
     {
         res(basis.rotateY(i, 1)) = r(i);
@@ -30,7 +30,7 @@ template<typename Basis> Eigen::VectorXd translateY(Basis&& basis, const Eigen::
 
 template<typename Basis> Eigen::VectorXd translateX(Basis&& basis, const Eigen::VectorXd& r)
 {
-    Eigen::VectorXd res(r.size());
+    Eigen::VectorXd res{r.size()};
     for(int i = 0; i < r.size(); i++)
     {
         res(basis.rotateX(i, 1)) = r(i);
@@ -257,9 +257,9 @@ void testBasis2DZ2(uint32_t Lx, uint32_t Ly, bool useU1)
     }
 }
 
-TEST_CASE("Check Basis2D", "[basis2d]")
+TEST_CASE("Test Basis2D", "[basis2d]")
 {
-    SECTION("Not use U1")
+    SECTION("Without U1")
     {
         testBasis2D(2, 2, false);
         testBasis2D(3, 2, false);
@@ -269,7 +269,7 @@ TEST_CASE("Check Basis2D", "[basis2d]")
         // testBasis2D(5, 4, false);
     }
 
-    SECTION("Use U1")
+    SECTION("With U1")
     {
         testBasis2D(2, 2, true);
         testBasis2D(3, 2, true);
@@ -280,9 +280,9 @@ TEST_CASE("Check Basis2D", "[basis2d]")
     }
 }
 
-TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
+TEST_CASE("Test Basis2DZ2", "[basis2dz2]")
 {
-    SECTION("Not use U1")
+    SECTION("Without U1")
     {
         testBasis2DZ2(2, 2, false);
         testBasis2DZ2(3, 2, false);
@@ -292,7 +292,7 @@ TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
         //  testBasis2DZ2(5, 4, false);
     }
 
-    SECTION("Use U1")
+    SECTION("With U1")
     {
         testBasis2DZ2(2, 2, true);
         testBasis2DZ2(3, 2, true);
@@ -303,7 +303,7 @@ TEST_CASE("Check Basis2DZ2Z2", "[basis2dz2]")
     }
 }
 
-TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]")
+TEST_CASE("Test correctness using the 2D TFI model", "[basis2d][tfi-2d]")
 {
     using Spectra::CompInfo;
     using Spectra::SortRule;
@@ -352,6 +352,5 @@ TEST_CASE("Compare enegies from the 2D TFI model", "[tfi-2d]")
         INFO(eigs.eigenvalues());
         gsEnergy2 = eigs.eigenvalues()[0];
     }
-
     REQUIRE_THAT(gsEnergy1, Catch::Matchers::WithinAbs(gsEnergy2, 1e-8));
 }

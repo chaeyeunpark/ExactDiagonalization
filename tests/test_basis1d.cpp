@@ -131,25 +131,24 @@ template<class Basis> void CheckBasisXXZ(Basis&& basis, const MatrixXd& r)
     REQUIRE((Eigen::MatrixXd(hamTI) - mat).norm() < 1e-10);
 }
 
-TEST_CASE("Basis1D works?", "[ti-basis]")
+TEST_CASE("Test Basis1D", "[basis1d]")
 {
-    uint32_t K = 0;
-    for(uint32_t N = 20; N <= 28; N += 4)
+    SECTION("Representatives are correct")
     {
-        Basis1D<uint32_t> basis(N, K, true);
-
-        for(uint32_t i = 0; i < basis.getDim(); ++i)
+        uint32_t K = 0;
+        for(uint32_t N = 20; N <= 28; N += 4)
         {
-            uint32_t rep = basis.getNthRep(i);
-            const auto [rep2, rot] = basis.findMinRots(rep);
-            REQUIRE(rep2 == rep);
+            Basis1D<uint32_t> basis(N, K, true);
+
+            for(uint32_t i = 0; i < basis.getDim(); ++i)
+            {
+                uint32_t rep = basis.getNthRep(i);
+                const auto [rep2, rot] = basis.findMinRots(rep);
+                REQUIRE(rep2 == rep);
+            }
         }
     }
-}
-
-TEST_CASE("Basis1D test", "[basis1d]")
-{
-    SECTION("Not use U1")
+    SECTION("Without U1")
     {
         for(uint32_t N = 4; N <= MAX_N; N += 2)
         {
@@ -169,7 +168,7 @@ TEST_CASE("Basis1D test", "[basis1d]")
             }
         }
     }
-    SECTION("Use U1")
+    SECTION("With U1")
     {
         for(uint32_t N = 4; N <= MAX_N; N += 2)
         {
@@ -191,11 +190,11 @@ TEST_CASE("Basis1D test", "[basis1d]")
     }
 }
 
-TEST_CASE("Basis1DZ2 test", "[basis1dz2]")
+TEST_CASE("Test Basis1DZ2", "[basis1dz2]")
 {
     const std::array<int, 2> ps{-1, 1};
 
-    SECTION("Not use U1")
+    SECTION("Without U1")
     {
         for(uint32_t N = 4; N <= MAX_N; N += 2)
         {
@@ -218,7 +217,7 @@ TEST_CASE("Basis1DZ2 test", "[basis1dz2]")
             }
         }
     }
-    SECTION("Use U1")
+    SECTION("With U1")
     {
         for(uint32_t N = 6; N <= MAX_N; N += 2)
         {
