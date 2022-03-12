@@ -5,17 +5,17 @@
 
 namespace edlib
 {
-template<typename UINT> class BasisFull final : public AbstractBasis<UINT>
+template<typename UINT> class BasisFullU1 final : public AbstractBasis<UINT>
 {
 private:
 public:
-    BasisFull(uint32_t N) : AbstractBasis<UINT>(N) { }
+    BasisFullU1(uint32_t N) : AbstractBasis<UINT>(N) { }
 
     std::size_t getDim() const override { return (1u << this->getN()); }
 
     UINT getNthRep(uint32_t n) const override { return UINT(n); }
 
-    std::pair<int, double> hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const override
+    std::pair<int, double> hamiltonianCoeff(UINT bsigma, int aidx) const override
     {
         return std::make_pair(int(bsigma), 1.0);
     }

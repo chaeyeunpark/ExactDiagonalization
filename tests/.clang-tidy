@@ -1,0 +1,28 @@
+---
+Checks: "*,
+        -abseil-*,
+        -altera-*,
+        -android-*,
+        -fuchsia-*,
+        -google-*,
+        -llvm*,
+        -modernize-use-trailing-return-type,
+        -zircon-*,
+        -readability-else-after-return,
+        -readability-static-accessed-through-instance,
+        -readability-avoid-const-params-in-decls,
+        -misc-non-private-member-variables-in-classes,
+		-cppcoreguidelines-avoid-magic-numbers,
+		-cppcoreguidelines-pro-bounds-pointer-arithmetic,
+        -cppcoreguidelines-non-private-member-variables-in-classes,
+        -cert-dcl21-cpp,
+        -bugprone-easily-swappable-parameters,
+        -readability-magic-numbers,
+        -clang-analyzer-*,
+"
+WarningsAsErrors: '*'
+HeaderFilterRegex: '*'
+FormatStyle:     none
+CheckOptions:
+  - key:     readability-function-cognitive-complexity.Threshold
+    value:   75

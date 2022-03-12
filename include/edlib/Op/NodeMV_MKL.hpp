@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <mkl.h>
 #include <utility>
 #include <vector>
 
@@ -8,7 +9,6 @@
 
 namespace edlib
 {
-
 class NodeMV
 {
 private:
@@ -19,13 +19,18 @@ private:
     std::vector<int> colIdx;
     std::vector<int> ptrB;
 
+    sparse_matrix_t A_;
+    matrix_descr descA_;
+
 public:
     using Scalar = double;
     template<class ColFunc>
     explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end,
                     ColFunc&& col)
-        : dim_{dim}, rows_{row_end - row_start}
+        : dim_(dim)
     {
+        rows_ = row_end - row_start;
+
         auto get_first = [](const std::pair<const std::size_t, double>& p) {
             return p.first;
         };
@@ -42,23 +47,34 @@ public:
             std::transform(rr.begin(), rr.end(), back_inserter(colIdx), get_first);
             std::transform(rr.begin(), rr.end(), back_inserter(values), get_second);
         }
+        sparse_status_t m
+            = mkl_sparse_d_create_csr(&A_, SPARSE_INDEX_BASE_ZERO, rows_, dim, ptrB.data(),
+                                      ptrB.data() + 1, colIdx.data(), values.data());
+
+        if(m == SPARSE_STATUS_ALLOC_FAILED)
+        {
+            throw SparseAllocFailed();
+        }
+        else if(m != SPARSE_STATUS_SUCCESS)
+        {
+            throw SparseCreateFailed();
+        }
+
+        descA_.type = SPARSE_MATRIX_TYPE_GENERAL;
+
+        mkl_sparse_set_mv_hint(A_, SPARSE_OPERATION_NON_TRANSPOSE, descA_, 100000);
     }
 
-    [[nodiscard]] std::size_t rows() const { return rows_; }
+    std::size_t rows() const { return rows_; }
 
-    [[nodiscard]] std::size_t cols() const { return dim_; }
+    std::size_t cols() const { return dim_; }
 
     void perform_op(const double* x_in, double* y_out) const
     {
-        std::fill_n(y_out, rows_, 0.0);
-        for(size_t j = 0; j < rows_; ++j)
-        {
-            for(int p = ptrB[j]; p < ptrB[j + 1]; ++p)
-            {
-                y_out[j] += values[p] * x_in[colIdx[p]];
-            }
-        }
+        mkl_sparse_d_mv(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, A_, descA_, x_in, 0.0, y_out);
     }
+
+    ~NodeMV() { mkl_sparse_destroy(A_); }
 };
 
 } // namespace edlib

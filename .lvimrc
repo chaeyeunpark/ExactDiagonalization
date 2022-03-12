@@ -1,0 +1,9 @@
+if &filetype == "cpp"
+	setlocal expandtab
+	set cino=g2,h2
+	set colorcolumn=100
+endif
+
+if &filetype == "cmake"
+	setlocal expandtab
+endif
