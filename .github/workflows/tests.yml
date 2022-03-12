@@ -22,6 +22,14 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
 
+      - name: Install ARPACK-NG
+        run: |
+          git clone https://github.com/opencollab/arpack-ng.git
+          cd arpack-ng
+          cmake -Bbuild .
+          cmake --build ./build
+          cmake --build ./build --target install
+
       - name: Checkout code
         uses: actions/checkout@v2
 

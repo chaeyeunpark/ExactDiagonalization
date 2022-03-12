@@ -29,7 +29,6 @@ endif()
 
 find_package(TBB REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(BLAS REQUIRED)
 
 find_package(arpack-ng REQUIRED)
 
@@ -39,10 +38,7 @@ target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wal
 
 add_library(edlib INTERFACE)
 target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include" ${TBB_SOURCE_DIR})
-target_link_libraries(edlib INTERFACE "${BLAS_LIBRARIES}" Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
-target_link_directories(edlib INTERFACE "~/.local/lib")
-target_link_options(edlib INTERFACE "${BLAS_LINKER_FLAGS}")
-
+target_link_libraries(edlib INTERFACE Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
 
 if (BUILD_EXAMPLES)
 	add_executable(tfi_arpack "examples/tfi_arpack.cpp")
