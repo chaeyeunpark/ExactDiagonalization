@@ -37,7 +37,7 @@ if(NOT TBB_FOUND)
         GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
         GIT_TAG        v2021.5.0
     )
-    set(TBB_TEST OFF)
+    set(TBB_BUILD_TESTS OFF)
     FetchContent_MakeAvailable(TBB)
 else()
     message(STATUE "TBB found.")
