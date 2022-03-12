@@ -27,8 +27,7 @@ endif()
 # Set dependencies
 ################################################################################
 
-
-find_package(TBB QUIET)
+find_package(TBB REQUIRED)
 if(NOT TBB_FOUND)
     include(FetchContent)
     message(STATUE "TBB is not found. Downloading.")
