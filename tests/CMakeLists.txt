@@ -1,4 +1,4 @@
-project(ExactDiagonalizaion-Tests)
+project(ExactDiagonalization-Tests)
 
 Include(FetchContent)
 

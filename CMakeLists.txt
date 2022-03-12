@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-
-project(ED)
+project(ExactDiagonalization)
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -40,6 +39,9 @@ add_library(edlib INTERFACE)
 target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include" ${TBB_SOURCE_DIR})
 target_link_libraries(edlib INTERFACE Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
 
+export(EXPORT edlib
+       NAMESPACE edlib::)
+
 if (BUILD_EXAMPLES)
 	add_executable(tfi_arpack "examples/tfi_arpack.cpp")
 	target_link_libraries(tfi_arpack PRIVATE edlib edlib_dependency)
@@ -49,3 +51,5 @@ if (BUILD_TESTS)
     enable_testing()
 	add_subdirectory(tests)
 endif()
+
+
