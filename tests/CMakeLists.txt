@@ -1,4 +1,4 @@
-project(ExactDiagonalizaion-Tests)
+project(ExactDiagonalization-Tests)
 
 Include(FetchContent)
 
@@ -28,6 +28,7 @@ include(CTest)
 include(Catch)
 
 add_executable(runner catch_main.cpp
+                      test_arpack_solver.cpp
                       test_xxz_gs.cpp
                       test_basisfull.cpp
                       test_basis1d.cpp

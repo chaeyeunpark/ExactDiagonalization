@@ -11,4 +11,4 @@ class SparseCreateFailed : public std::exception
 {
     const char* what() const noexcept { return "Failed to create a sparse matrix"; }
 };
-}
+} // namespace edlib

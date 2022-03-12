@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
+project(ExactDiagonalization)
 
-project(ED)
+################################################################################
+# Set options
+################################################################################
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -29,7 +32,12 @@ endif()
 
 find_package(TBB REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(BLAS REQUIRED)
+
+find_package(arpack-ng REQUIRED)
+
+################################################################################
+# Set targets
+################################################################################
 
 add_library(edlib_dependency INTERFACE)
 target_compile_features(edlib_dependency INTERFACE cxx_std_17)
@@ -37,16 +45,22 @@ target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wal
 
 add_library(edlib INTERFACE)
 target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include" ${TBB_SOURCE_DIR})
-target_link_libraries(edlib INTERFACE "${BLAS_LIBRARIES}" Eigen3::Eigen TBB::tbb)
-target_link_options(edlib INTERFACE "${BLAS_LINKER_FLAGS}")
+target_link_libraries(edlib INTERFACE Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
 
+set_target_properties (edlib PROPERTIES EXPORT_NAME edlib)
+
+export(TARGETS edlib
+       NAMESPACE EDLIB::
+       FILE edlibTargets.cmake)
 
 if (BUILD_EXAMPLES)
-	add_executable(tfi "examples/tfi.cpp")
-	target_link_libraries(tfi PRIVATE edlib)
+	add_executable(tfi_arpack "examples/tfi_arpack.cpp")
+	target_link_libraries(tfi_arpack PRIVATE edlib edlib_dependency)
 endif()
 
 if (BUILD_TESTS)
     enable_testing()
 	add_subdirectory(tests)
 endif()
+
+
