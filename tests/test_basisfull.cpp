@@ -3,12 +3,12 @@
 
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
-#include <boost/dynamic_bitset.hpp>
 
 #include "edlib/Basis/BasisFull.hpp"
 #include "edlib/Basis/BasisFullZ2.hpp"
 #include "edlib/Basis/ToOriginalBasis.hpp"
 #include "edlib/EDP/ConstructSparseMat.hpp"
+#include "edlib/Hamiltonians/dynamic_bitset.hpp"
 #include "edlib/Op/NodeMV.hpp"
 
 #include "XXZ.hpp"
@@ -39,7 +39,7 @@ public:
         const uint32_t N = basis_.getN();
 
         UINT a = basis_.getNthRep(n);
-        const boost::dynamic_bitset<> bs(N, a);
+        const edlib::dynamic_bitset bs(N, a);
 
         for(uint32_t i = 0; i < N - 1; ++i)
         {

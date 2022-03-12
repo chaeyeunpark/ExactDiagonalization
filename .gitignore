@@ -3,6 +3,8 @@ debug*
 .ycm_extra_conf.py
 docs/vendor
 docs/.bundle
+
 build/
 Build/
 BuildTests/
+BuildTidy/

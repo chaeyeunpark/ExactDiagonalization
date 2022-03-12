@@ -13,7 +13,6 @@ class NodeMV
 {
 private:
     std::size_t dim_;
-    std::size_t row_start_;
     std::size_t rows_;
 
     std::vector<double> values;
@@ -25,7 +24,7 @@ public:
     template<class ColFunc>
     explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end,
                     ColFunc&& col)
-        : dim_{dim}, row_start_{row_start}, rows_{row_end - row_start}
+        : dim_{dim}, rows_{row_end - row_start}
     {
         auto get_first = [](const std::pair<const std::size_t, double>& p) {
             return p.first;
