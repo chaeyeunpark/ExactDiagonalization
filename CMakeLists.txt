@@ -44,11 +44,9 @@ add_library(edlib_dependency INTERFACE)
 target_compile_features(edlib_dependency INTERFACE cxx_std_17)
 target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Werror>)
 
+# This will include edlib
 add_subdirectory(include)
-
-export(TARGETS edlib
-       NAMESPACE EDLIB::
-       FILE edlibTargets.cmake)
+add_library(EDLIB::edlib ALIAS edlib)
 
 if (BUILD_EXAMPLES)
 	add_executable(tfi_arpack "examples/tfi_arpack.cpp")
