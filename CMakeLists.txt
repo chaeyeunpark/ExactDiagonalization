@@ -11,21 +11,6 @@ endif()
 
 option(BUILD_TESTS "Build Tests" ON)
 
-if(ENABLE_CLANG_TIDY)
-    if(NOT DEFINED CLANG_TIDY_BINARY)
-        set(CLANG_TIDY_BINARY clang-tidy-13)
-    endif()
-    message(STATUS "Using CLANG_TIDY_BINARY=${CLANG_TIDY_BINARY}")
-    execute_process(
-        COMMAND            ./bin/cpp_files.py --include-examples --include-tests
-        WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}
-        OUTPUT_VARIABLE    ED_SOURCE_FILES)
-    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_BINARY};
-                             -extra-arg=-std=c++17;
-                             --line-filter=${ED_SOURCE_FILES};
-    )
-endif()
-
 ################################################################################
 # Set dependencies
 ################################################################################
@@ -43,9 +28,7 @@ if (NOT TBB_FOUND)
     FetchContent_GetProperties(TBB)
 
     set(TBB_TEST OFF CACHE BOOL " " FORCE)
-    get_target_property(TBB_IID INTERFACE_INCLUDE_DIRECTORIES)
-    set_target_properties(TBB PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${TBB_IID}")
-    add_subdirectory(${tbb_SOURCE_DIR} ${tbb_BINARY_DIR})
+    add_subdirectory(${tbb_SOURCE_DIR} ${tbb_BINARY_DIR} EXCLUDE_FROM_ALL)
 else()
     message(STATUS "TBB found. Use system TBB.")
 endif()
@@ -61,11 +44,7 @@ add_library(edlib_dependency INTERFACE)
 target_compile_features(edlib_dependency INTERFACE cxx_std_17)
 target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Werror>)
 
-add_library(edlib INTERFACE)
-target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(edlib INTERFACE Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
-
-set_target_properties (edlib PROPERTIES EXPORT_NAME edlib)
+add_subdirectory(include)
 
 #export(TARGETS edlib
 #       NAMESPACE EDLIB::
