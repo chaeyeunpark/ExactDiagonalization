@@ -43,6 +43,8 @@ if (NOT TBB_FOUND)
     FetchContent_GetProperties(TBB)
 
     set(TBB_TEST OFF CACHE BOOL " " FORCE)
+    get_target_property(TBB_IID INTERFACE_INCLUDE_DIRECTORIES)
+    set_target_properties(TBB PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${TBB_IID}")
     add_subdirectory(${tbb_SOURCE_DIR} ${tbb_BINARY_DIR})
 else()
     message(STATUS "TBB found. Use system TBB.")
