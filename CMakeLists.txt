@@ -39,9 +39,7 @@ if (NOT TBB_FOUND)
         GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
         GIT_TAG        v2021.5.0
     )
-    #FetchContent_Populate(TBB)
-    set(TBB_TEST OFF)
-    FetchContent_MakeAvailable(TBB)
+    FetchContent_Populate(TBB)
 endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
