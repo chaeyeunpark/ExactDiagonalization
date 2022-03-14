@@ -46,9 +46,9 @@ target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wal
 
 add_subdirectory(include)
 
-#export(TARGETS edlib
-#       NAMESPACE EDLIB::
-#       FILE edlibTargets.cmake)
+export(TARGETS edlib
+       NAMESPACE EDLIB::
+       FILE edlibTargets.cmake)
 
 if (BUILD_EXAMPLES)
 	add_executable(tfi_arpack "examples/tfi_arpack.cpp")

@@ -16,7 +16,7 @@
 using namespace Eigen;
 using namespace edlib;
 
-constexpr uint32_t MAX_N = 14;
+constexpr uint32_t max_n = 12;
 
 template<typename Basis> VectorXd translate(Basis&& basis, const VectorXd& r)
 {
@@ -136,7 +136,7 @@ TEST_CASE("Test Basis1D", "[basis1d]")
     SECTION("Representatives are correct")
     {
         uint32_t K = 0;
-        for(uint32_t N = 20; N <= 28; N += 4)
+        for(uint32_t N = 4; N <= 20; N += 4)
         {
             Basis1D<uint32_t> basis(N, K, true);
 
@@ -150,7 +150,7 @@ TEST_CASE("Test Basis1D", "[basis1d]")
     }
     SECTION("Without U1")
     {
-        for(uint32_t N = 4; N <= MAX_N; N += 2)
+        for(uint32_t N = 4; N <= max_n; N += 2)
         {
             for(uint32_t K : {0U, N / 2})
             {
@@ -170,7 +170,7 @@ TEST_CASE("Test Basis1D", "[basis1d]")
     }
     SECTION("With U1")
     {
-        for(uint32_t N = 4; N <= MAX_N; N += 2)
+        for(uint32_t N = 4; N <= max_n; N += 2)
         {
             for(uint32_t K : {0U, N / 2})
             {
@@ -196,7 +196,7 @@ TEST_CASE("Test Basis1DZ2", "[basis1dz2]")
 
     SECTION("Without U1")
     {
-        for(uint32_t N = 4; N <= MAX_N; N += 2)
+        for(uint32_t N = 4; N <= max_n; N += 2)
         {
             for(uint32_t K : {0U, N / 2})
             {
@@ -219,7 +219,7 @@ TEST_CASE("Test Basis1DZ2", "[basis1dz2]")
     }
     SECTION("With U1")
     {
-        for(uint32_t N = 6; N <= MAX_N; N += 2)
+        for(uint32_t N = 6; N <= max_n; N += 2)
         {
             for(uint32_t K : {0U, N / 2})
             {
