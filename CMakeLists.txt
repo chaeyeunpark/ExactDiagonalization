@@ -32,6 +32,7 @@ endif()
 
 find_package(TBB)
 if (NOT TBB_FOUND)
+    message(STATUS "TBB is not found. Downloading.")
     include(FetchContent)
     FetchContent_Declare(
         TBB
