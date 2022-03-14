@@ -38,3 +38,5 @@ jobs:
           cmake -BBuildTests -DBUILD_TESTS=ON .
           cmake --build ./BuildTests --target runner
           cmake --build ./BuildTests --target test
+        env: |
+          LD_LIBRARY_PATH: "/usr/local/lib:$LD_LIBRARY_PATH"
