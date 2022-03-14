@@ -18,7 +18,7 @@ public:
         : basis_(basis), J_(J), delta_(delta)
     { }
 
-    std::map<int, double> getCol(UINT n) const
+    [[nodiscard]] std::map<int, double> getCol(UINT n) const
     {
         unsigned int N = basis_.getN();
 

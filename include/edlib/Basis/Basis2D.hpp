@@ -63,22 +63,16 @@ public:
         constructBasis(useU1);
     }
 
-    Basis2D(const Basis2D&) = default;
-    Basis2D(Basis2D&&) = default;
-    Basis2D& operator=(const Basis2D&) = default;
-    Basis2D& operator=(Basis2D&&) = default;
+    [[nodiscard]] std::size_t getDim() const override { return rpts_.size(); }
 
-    ~Basis2D() = default;
+    [[nodiscard]] auto getNthRep(uint32_t n) const -> UINT override { return rpts_[n].first; }
 
-    std::size_t getDim() const override { return rpts_.size(); }
+    [[nodiscard]] auto repetitions(uint32_t n) const -> uint32_t { return rpts_[n].second; }
 
-    UINT getNthRep(uint32_t n) const override { return rpts_[n].first; }
+    [[nodiscard]] inline auto flip(UINT value) const -> UINT { return ((this->getUps()) ^ value); }
 
-    uint32_t repetitions(uint32_t n) const { return rpts_[n].second; }
-
-    inline UINT flip(UINT value) const { return ((this->getUps()) ^ value); }
-
-    std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
+    [[nodiscard ]] auto hamiltonianCoeff(UINT bSigma, int aidx) const
+        -> std::pair<int, double> override
     {
         using std::abs;
         using std::pow;
@@ -87,10 +81,8 @@ public:
         uint32_t aNumRep = rpts_[aidx].second;
         double Na = aNumRep;
 
-        UINT bRep;
-        uint32_t bRotX, bRotY;
-        std::tie(bRep, bRotX, bRotY) = this->getMinRots(bSigma);
-        auto iter = std::lower_bound(rpts_.begin(), rpts_.end(), std::make_pair(bRep, 0u));
+        const auto [bRep, bRotX, bRotY] = this->getMinRots(bSigma);
+        const auto iter = std::lower_bound(rpts_.begin(), rpts_.end(), std::make_pair(bRep, 0U));
         if(iter == rpts_.end() || iter->first != bRep)
         {
             return std::make_pair(-1, 0.0);
@@ -103,7 +95,8 @@ public:
         return std::make_pair(idx, sqrt(Nb / Na) * this->phase(bRotX, bRotY));
     }
 
-    std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
+    [[nodiscard]] auto basisVec(uint32_t n) const
+        -> std::vector<std::pair<UINT, double>> override
     {
         using std::pow;
 
@@ -126,7 +119,7 @@ public:
             }
         }
 
-        return std::vector<std::pair<UINT, double>>(res.begin(), res.end());
+        return {res.begin(), res.end()};
     }
 };
 } // namespace edlib

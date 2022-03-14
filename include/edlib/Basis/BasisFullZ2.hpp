@@ -16,27 +16,34 @@ public:
         assert(parity == -1 || parity == 1);
     }
 
-    std::size_t getDim() const override { return std::size_t(1) << (this->getN() - 1); }
+    [[nodiscard]] auto getDim() const -> std::size_t override { return std::size_t(1) << (this->getN() - 1); }
 
-    UINT getNthRep(uint32_t n) const override { return n; }
+    [[nodiscard]] auto getNthRep(uint32_t n) const -> UINT override { return n; }
 
-    std::pair<int, double> hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const override
+    [[nodiscard]]
+    auto hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const
+        -> std::pair<int, double> override
     {
         if(bsigma < flip(bsigma))
+        {
             return std::make_pair(int(bsigma), 1.0);
+        }
         else
+        {
             return std::make_pair(int(flip(bsigma)), parity_);
+        }
     }
 
-    std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
+    [[nodiscard]] auto basisVec(uint32_t n) const
+        -> std::vector<std::pair<UINT, double>> override
     {
         using std::sqrt;
-        return std::vector<std::pair<UINT, double>>{
+        return {
             std::make_pair(UINT(n), 1.0 / sqrt(2.0)),
             std::make_pair(UINT(flip(n)), parity_ * 1.0 / sqrt(2.0)),
         };
     }
 
-    inline UINT flip(UINT value) const { return ((this->getUps()) ^ value); }
+    [[nodiscard]] inline auto flip(UINT value) const -> UINT { return ((this->getUps()) ^ value); }
 };
 } // namespace edlib

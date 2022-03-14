@@ -18,41 +18,12 @@ template<typename UINT> class Basis1D final : public AbstractBasis1D<UINT>
 private:
     tbb::concurrent_vector<std::pair<UINT, uint32_t>> rpts_; // Representatives
 
-    int checkState(UINT s)
-    {
-        UINT sr = s;
-        const auto N = this->getN();
-        const auto k = this->getK();
-
-        for(uint32_t r = 1; r <= N; r++)
-        {
-            sr = this->rotl(s, r);
-            if(sr < s)
-            {
-                return -1; // s is not a representative
-            }
-            else if(sr == s)
-            {
-                /* s is smller than rotl(s,1), rot(s, 2), ..., rot(s, r-1)
-                 * when we fall in this else if clause. As rot(s,r) == s,
-                 * s is the smallest among rotl(s, 1), ..., rotl(s, N-1).
-                 */
-                if((k % (N / r)) != 0)
-                {
-                    return -1; // this representative is not allowed for k
-                }
-                return r;
-            }
-        }
-        return -1;
-    }
-
     void constructBasisFull()
     {
         // insert 0
         {
             UINT s = 0;
-            int r = checkState(s);
+            int r = this->checkState(s);
             if(r > 0)
             {
                 rpts_.emplace_back(s, r);
@@ -62,7 +33,7 @@ private:
         // iterate over all odd numbers
         const uint32_t N = this->getN();
         tbb::parallel_for(UINT(1), (UINT(1) << UINT(N)), UINT(2), [&](UINT s) {
-            int r = checkState(s);
+            int r = this->checkState(s);
             if(r > 0)
             {
                 rpts_.emplace_back(s, r);
@@ -79,7 +50,7 @@ private:
         BasisJz<UINT> basis(n, nup);
 
         tbb::parallel_for_each(basis.begin(), basis.end(), [&](UINT s) {
-            int r = checkState(s);
+            int r = this->checkState(s);
             if(r > 0)
             {
                 rpts_.emplace_back(s, r);
@@ -102,7 +73,7 @@ public:
         }
     }
 
-    uint32_t stateIdx(UINT rep) const
+    [[nodiscard]] auto stateIdx(UINT rep) const -> uint32_t
     {
         auto comp = [](const std::pair<UINT, uint32_t>& v1, UINT v2) {
             return v1.first < v2;
@@ -118,15 +89,22 @@ public:
         }
     }
 
-    tbb::concurrent_vector<std::pair<UINT, uint32_t>> getRepresentatives() const { return rpts_; }
+    [[nodiscard]] auto getRepresentatives() const&
+        -> const tbb::concurrent_vector<std::pair<UINT, uint32_t>>&
+    {
+        return rpts_;
+    }
+    [[nodiscard]] auto getRepresentatives() && ->
+        tbb::concurrent_vector<std::pair<UINT, uint32_t>> { return rpts_; }
 
-    [[nodiscard]] std::size_t getDim() const override { return rpts_.size(); }
+    [[nodiscard]] auto getDim() const -> std::size_t override { return rpts_.size(); }
 
-    UINT getNthRep(uint32_t n) const override { return rpts_[n].first; }
+    [[nodiscard]] auto getNthRep(uint32_t n) const -> UINT override { return rpts_[n].first; }
 
-    [[nodiscard]] inline uint32_t rotRpt(uint32_t n) const { return rpts_[n].second; }
+    [[nodiscard]] inline auto rotRpt(uint32_t n) const -> uint32_t { return rpts_[n].second; }
 
-    std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
+    [[nodiscard]] auto hamiltonianCoeff(UINT bSigma, int aidx) const
+        -> std::pair<int, double> override
     {
         using std::pow;
         using std::sqrt;
@@ -149,7 +127,8 @@ public:
         return std::make_pair(bidx, sqrt(Nb / Na) * pow(expk, bRot));
     }
 
-    std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
+    [[nodiscard]] auto basisVec(uint32_t n) const
+        -> std::vector<std::pair<UINT, double>> override
     {
         const auto k = this->getK();
         const double expk = (k == 0) ? 1.0 : -1.0;
