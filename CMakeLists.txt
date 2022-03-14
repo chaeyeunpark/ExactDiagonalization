@@ -30,7 +30,7 @@ endif()
 # Set dependencies
 ################################################################################
 
-find_package(TBB)
+find_package(TBB QUIET)
 if (NOT TBB_FOUND)
     message(STATUS "TBB is not found. Downloading.")
     include(FetchContent)
@@ -40,6 +40,12 @@ if (NOT TBB_FOUND)
         GIT_TAG        v2021.5.0
     )
     FetchContent_Populate(TBB)
+    FetchContent_GetProperties(TBB)
+
+    set(TBB_TEST OFF CACHE BOOL " " FORCE)
+    add_subdirectory(${tbb_SOURCE_DIR} ${tbb_BINARY_DIR})
+else()
+    message(STATUS "TBB found. Use system TBB.")
 endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
@@ -54,7 +60,7 @@ target_compile_features(edlib_dependency INTERFACE cxx_std_17)
 target_compile_options(edlib_dependency INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Werror>)
 
 add_library(edlib INTERFACE)
-target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include" ${TBB_SOURCE_DIR})
+target_include_directories(edlib INTERFACE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(edlib INTERFACE Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
 
 set_target_properties (edlib PROPERTIES EXPORT_NAME edlib)
