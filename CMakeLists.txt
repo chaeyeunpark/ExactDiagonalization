@@ -30,7 +30,18 @@ endif()
 # Set dependencies
 ################################################################################
 
-find_package(TBB REQUIRED)
+find_package(TBB)
+if (NOT TBB_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        TBB
+        GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
+        GIT_TAG        v2021.5.0
+    )
+    #FetchContent_Populate(TBB)
+    set(TBB_TEST OFF)
+    FetchContent_MakeAvailable(TBB)
+endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 find_package(arpack-ng REQUIRED)
