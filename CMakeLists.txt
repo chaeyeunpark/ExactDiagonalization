@@ -61,9 +61,9 @@ target_link_libraries(edlib INTERFACE Eigen3::Eigen TBB::tbb ARPACK::ARPACK)
 
 set_target_properties (edlib PROPERTIES EXPORT_NAME edlib)
 
-export(TARGETS edlib
-       NAMESPACE EDLIB::
-       FILE edlibTargets.cmake)
+#export(TARGETS edlib
+#       NAMESPACE EDLIB::
+#       FILE edlibTargets.cmake)
 
 if (BUILD_EXAMPLES)
 	add_executable(tfi_arpack "examples/tfi_arpack.cpp")
