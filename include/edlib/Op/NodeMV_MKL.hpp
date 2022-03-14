@@ -2,19 +2,21 @@
 
 #include "exceptions.hpp"
 
+#include <mkl.h>
+
 #include <algorithm>
+#include <cstdlib>
 #include <utility>
 #include <vector>
-
-#include <mkl.h>
 
 namespace edlib
 {
 class NodeMV
 {
 private:
-    std::size_t dim_;
-    std::size_t rows_;
+    size_t dim_;
+    size_t row_start_;
+    size_t rows_;
 
     std::vector<double> values;
     std::vector<int> colIdx;
@@ -27,11 +29,9 @@ public:
     using Scalar = double;
 
     template<class ColFunc>
-    explicit NodeMV(const std::size_t dim, std::size_t row_start, std::size_t row_end,
-                    ColFunc&& col)
-        : dim_(dim)
+    NodeMV(size_t dim, size_t row_start, size_t row_end, ColFunc&& col)
+        : dim_{dim}, row_start_{row_start}, rows_{row_end - row_start}
     {
-        rows_ = row_end - row_start;
 
         auto get_first = [](const std::pair<const std::size_t, double>& p) {
             return p.first;
@@ -67,8 +67,8 @@ public:
         mkl_sparse_set_mv_hint(A_, SPARSE_OPERATION_NON_TRANSPOSE, descA_, 1024 * 1024);
     }
 
+    [[nodiscard]] size_t row_start() const { return row_start_; }
     [[nodiscard]] std::size_t rows() const { return rows_; }
-
     [[nodiscard]] std::size_t cols() const { return dim_; }
 
     void perform_op(const double* x_in, double* y_out) const

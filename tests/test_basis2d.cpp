@@ -273,7 +273,7 @@ TEST_CASE("Test Basis2D", "[basis2d]")
     {
         testBasis2D(2, 2, true);
         testBasis2D(3, 2, true);
-        testBasis2D(3, 3, true);
+        // U(1) symmetry cannot be imposed to 3x3 lattice
         testBasis2D(4, 3, true);
         // testBasis2D(4, 4, true);
         // testBasis2D(5, 4, true);

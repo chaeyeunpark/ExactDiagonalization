@@ -29,13 +29,14 @@ include(Catch)
 
 add_executable(runner catch_main.cpp
                       test_arpack_solver.cpp
-                      test_xxz_gs.cpp
                       test_basisfull.cpp
                       test_basis1d.cpp
                       test_basis2d.cpp
                       test_local_ham.cpp
-                      XXZ.cpp
-                      utils.cpp)
+                      test_op.cpp
+                      test_xxz_gs.cpp
+                      utils.cpp
+                      XXZ.cpp)
 target_link_libraries(runner PRIVATE edlib Eigen3::Eigen ed_tests_dependency)
 
 catch_discover_tests(runner)
