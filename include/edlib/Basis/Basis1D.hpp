@@ -89,13 +89,15 @@ public:
         }
     }
 
-    [[nodiscard]] auto getRepresentatives() const&
-        -> const tbb::concurrent_vector<std::pair<UINT, uint32_t>>&
+    [[nodiscard]] auto
+    getRepresentatives() const& -> const tbb::concurrent_vector<std::pair<UINT, uint32_t>>&
     {
         return rpts_;
     }
-    [[nodiscard]] auto getRepresentatives() && ->
-        tbb::concurrent_vector<std::pair<UINT, uint32_t>> { return rpts_; }
+    [[nodiscard]] auto getRepresentatives() && -> tbb::concurrent_vector<std::pair<UINT, uint32_t>>
+    {
+        return rpts_;
+    }
 
     [[nodiscard]] auto getDim() const -> std::size_t override { return rpts_.size(); }
 
@@ -127,8 +129,7 @@ public:
         return std::make_pair(bidx, sqrt(Nb / Na) * pow(expk, bRot));
     }
 
-    [[nodiscard]] auto basisVec(uint32_t n) const
-        -> std::vector<std::pair<UINT, double>> override
+    [[nodiscard]] auto basisVec(uint32_t n) const -> std::vector<std::pair<UINT, double>> override
     {
         const auto k = this->getK();
         const double expk = (k == 0) ? 1.0 : -1.0;

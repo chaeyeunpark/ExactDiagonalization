@@ -16,12 +16,14 @@ public:
         assert(parity == -1 || parity == 1);
     }
 
-    [[nodiscard]] auto getDim() const -> std::size_t override { return std::size_t(1) << (this->getN() - 1); }
+    [[nodiscard]] auto getDim() const -> std::size_t override
+    {
+        return std::size_t(1) << (this->getN() - 1);
+    }
 
     [[nodiscard]] auto getNthRep(uint32_t n) const -> UINT override { return n; }
 
-    [[nodiscard]]
-    auto hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const
+    [[nodiscard]] auto hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const
         -> std::pair<int, double> override
     {
         if(bsigma < flip(bsigma))
@@ -34,8 +36,7 @@ public:
         }
     }
 
-    [[nodiscard]] auto basisVec(uint32_t n) const
-        -> std::vector<std::pair<UINT, double>> override
+    [[nodiscard]] auto basisVec(uint32_t n) const -> std::vector<std::pair<UINT, double>> override
     {
         using std::sqrt;
         return {

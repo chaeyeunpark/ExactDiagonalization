@@ -18,7 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ libopenblas-dev libeigen3-dev #libtbb-dev
+          sudo apt-get update && sudo apt-get -y -q install cmake gcc g++ libopenblas-dev libeigen3-dev
         env:
           DEBIAN_FRONTEND: noninteractive
 

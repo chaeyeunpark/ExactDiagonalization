@@ -85,7 +85,8 @@ private:
         });
 
         // sort to make it consistent over different instances
-        const auto comp = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2) {
+        const auto comp
+            = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2) {
             return v1.first < v2.first;
         };
 
@@ -155,8 +156,7 @@ public:
         return std::make_pair(bidx, c * sqrt(Nb / Na) * this->phase(bRotX, bRotY));
     }
 
-    [[nodiscard]] auto basisVec(uint32_t n) const
-        -> std::vector<std::pair<UINT, double>> override
+    [[nodiscard]] auto basisVec(uint32_t n) const -> std::vector<std::pair<UINT, double>> override
     {
         using std::pow;
 

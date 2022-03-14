@@ -7,13 +7,13 @@
 
 extern "C"
 {
-    void dsaupd_(a_int*, const char*, a_int*, const char*, a_int*, double*, double*, a_int*, double*, a_int*,
-                 a_int*, a_int*, double*, double*, a_int*, a_int*);
+    void dsaupd_(a_int*, const char*, a_int*, const char*, a_int*, double*, double*, a_int*,
+                 double*, a_int*, a_int*, a_int*, double*, double*, a_int*, a_int*);
 
     void dseupd_(a_int* rvec, const char* howmny, a_int* select, double* d, double* z, a_int* ldz,
-                 double* sigma, const char* bmat, a_int* n, const char* which, a_int* nev, double* tol,
-                 double* resid, a_int* ncv, double* v, a_int* ldv, a_int* iparam, a_int* inptr,
-                 double* workd, double* workl, a_int* lworkl, a_int* info);
+                 double* sigma, const char* bmat, a_int* n, const char* which, a_int* nev,
+                 double* tol, double* resid, a_int* ncv, double* v, a_int* ldv, a_int* iparam,
+                 a_int* inptr, double* workd, double* workl, a_int* lworkl, a_int* info);
 }
 
 namespace edlib
@@ -81,15 +81,15 @@ public:
         a_int info = 0;
 
         // first call
-        dsaupd_(&ido, bmat, &n, which, &nev, &tol, resid.data(), &ncv, v.data(), &ldv, iparam.data(),
-                ipntr.data(), workd.data(), workl.data(), &lworkl, &info);
+        dsaupd_(&ido, bmat, &n, which, &nev, &tol, resid.data(), &ncv, v.data(), &ldv,
+                iparam.data(), ipntr.data(), workd.data(), workl.data(), &lworkl, &info);
 
         while(ido == -1 || ido == 1)
         {
             op_.perform_op(workd.data() + ipntr[0] - 1, workd.data() + ipntr[1] - 1);
 
-            dsaupd_(&ido, bmat, &n, which, &nev, &tol, resid.data(), &ncv, v.data(), &ldv, iparam.data(),
-                    ipntr.data(), workd.data(), workl.data(), &lworkl, &info);
+            dsaupd_(&ido, bmat, &n, which, &nev, &tol, resid.data(), &ncv, v.data(), &ldv,
+                    iparam.data(), ipntr.data(), workd.data(), workl.data(), &lworkl, &info);
         }
 
         if(info == 1 || iparam[4] != nev)
@@ -113,8 +113,8 @@ public:
 
         const char* howmny = "All";
         dseupd_(&rvec, howmny, select.data(), d_.data(), z_.data(), &ldz, &sigma, bmat, &n, which,
-                &nev, &tol, resid.data(), &ncv, v.data(), &ldv, iparam.data(), ipntr.data(), workd.data(),
-                workl.data(), &lworkl, &info);
+                &nev, &tol, resid.data(), &ncv, v.data(), &ldv, iparam.data(), ipntr.data(),
+                workd.data(), workl.data(), &lworkl, &info);
 
         return ErrorType::NormalExit;
     }
@@ -124,8 +124,8 @@ public:
         return {d_.data(), static_cast<Eigen::Index>(d_.size() - 1)};
     }
 
-    [[nodiscard]] auto eigenvectors() const ->
-        Eigen::Map<const Eigen::MatrixXd, 0, Eigen::OuterStride<Eigen::Dynamic>>
+    [[nodiscard]] auto eigenvectors() const
+        -> Eigen::Map<const Eigen::MatrixXd, 0, Eigen::OuterStride<Eigen::Dynamic>>
     {
         return {z_.data(), dim_, static_cast<Eigen::Index>(d_.size() - 1), {dim_ + 1}};
     }

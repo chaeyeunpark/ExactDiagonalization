@@ -13,7 +13,7 @@ public:
 
     [[nodiscard]] auto getDim() const -> std::size_t override { return (1U << this->getN()); }
 
-    [[nodiscard]] auto getNthRep(uint32_t n) const-> UINT override { return UINT(n); }
+    [[nodiscard]] auto getNthRep(uint32_t n) const -> UINT override { return UINT(n); }
 
     [[nodiscard]] auto hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const
         -> std::pair<int, double> override

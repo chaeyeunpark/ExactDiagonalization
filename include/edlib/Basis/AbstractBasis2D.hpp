@@ -19,7 +19,7 @@ protected:
      * @brief Get minimum values among all possible x and y rotations.
      *
      * @param sigma The basis state
-     * @return Tuple of the minimum rotation, the number of x rotations, 
+     * @return Tuple of the minimum rotation, the number of x rotations,
      * and the number of y rotations.
      * */
     [[nodiscard]] auto getMinRots(UINT sigma) const -> std::tuple<UINT, uint32_t, uint32_t>

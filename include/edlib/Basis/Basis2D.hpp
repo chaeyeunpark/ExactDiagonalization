@@ -71,7 +71,7 @@ public:
 
     [[nodiscard]] inline auto flip(UINT value) const -> UINT { return ((this->getUps()) ^ value); }
 
-    [[nodiscard ]] auto hamiltonianCoeff(UINT bSigma, int aidx) const
+    [[nodiscard]] auto hamiltonianCoeff(UINT bSigma, int aidx) const
         -> std::pair<int, double> override
     {
         using std::abs;
@@ -95,8 +95,7 @@ public:
         return std::make_pair(idx, sqrt(Nb / Na) * this->phase(bRotX, bRotY));
     }
 
-    [[nodiscard]] auto basisVec(uint32_t n) const
-        -> std::vector<std::pair<UINT, double>> override
+    [[nodiscard]] auto basisVec(uint32_t n) const -> std::vector<std::pair<UINT, double>> override
     {
         using std::pow;
 
