@@ -33,7 +33,7 @@ private:
     {
         tbb::concurrent_vector<std::tuple<UINT, uint32_t>> candids;
         const uint32_t N = this->getN();
-        candids.reserve((1 << (N - 3)) / N);
+        candids.reserve((1U << (N - 3)) / N);
 
         if(useU1)
         {
@@ -65,14 +65,10 @@ private:
         }
 
         tbb::parallel_for(UINT(0U), UINT(candids.size()), [&](UINT idx) {
-            UINT rep;
-            uint32_t numRep;
-            std::tie(rep, numRep) = candids[idx];
+            const auto [rep, numRep] = candids[idx];
             UINT fliped = flip(rep);
 
-            UINT flipedRep;
-            uint32_t rotX, rotY;
-            std::tie(flipedRep, rotX, rotY) = this->getMinRots(fliped);
+            const auto [flipedRep, rotX, rotY] = this->getMinRots(fliped);
 
             if(flipedRep == rep && this->phase(rotX, rotY) * parity_ == 1)
             {
@@ -89,8 +85,8 @@ private:
         });
 
         // sort to make it consistent over different instances
-
-        auto comp = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2) {
+        const auto comp
+            = [](const std::pair<UINT, RepData>& v1, const std::pair<UINT, RepData>& v2) {
             return v1.first < v2.first;
         };
 
@@ -105,20 +101,12 @@ public:
         constructBasis(useU1);
     }
 
-    Basis2DZ2<UINT>(const Basis2DZ2<UINT>&) = default;
-    Basis2DZ2<UINT>(Basis2DZ2<UINT>&&) = default;
-
-    Basis2DZ2<UINT>& operator=(const Basis2DZ2<UINT>&) = default;
-    Basis2DZ2<UINT>& operator=(Basis2DZ2<UINT>&&) = default;
-
-    ~Basis2DZ2() = default;
-
-    uint32_t stateIdx(UINT rep) const
+    [[nodiscard]] auto stateIdx(UINT rep) const -> uint32_t
     {
-        auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2) {
+        const auto comp = [](const std::pair<UINT, RepData>& v1, UINT v2) {
             return v1.first < v2;
         };
-        auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
+        const auto iter = lower_bound(rpts_.begin(), rpts_.end(), rep, comp);
         if((iter == rpts_.end()) || (iter->first != rep))
         {
             return getDim();
@@ -129,15 +117,16 @@ public:
         }
     }
 
-    inline int getParity() const { return parity_; }
+    [[nodiscard]] inline auto getParity() const -> int { return parity_; }
 
-    std::size_t getDim() const override { return rpts_.size(); }
+    [[nodiscard]] auto getDim() const -> std::size_t override { return rpts_.size(); }
 
-    UINT getNthRep(uint32_t n) const override { return rpts_[n].first; }
+    [[nodiscard]] UINT getNthRep(uint32_t n) const override { return rpts_[n].first; }
 
-    inline UINT flip(UINT value) const { return ((this->getUps()) ^ value); }
+    [[nodiscard]] inline UINT flip(UINT value) const { return ((this->getUps()) ^ value); }
 
-    std::pair<int, double> hamiltonianCoeff(UINT bSigma, int aidx) const override
+    [[nodiscard]] auto hamiltonianCoeff(UINT bSigma, int aidx) const
+        -> std::pair<int, double> override
     {
         using std::abs;
         using std::pow;
@@ -147,9 +136,7 @@ public:
         auto pa = rpts_[aidx].second;
         double Na = pa.numRep / double(1 + pa.parity);
 
-        UINT bRep;
-        uint32_t bRotX, bRotY;
-        std::tie(bRep, bRotX, bRotY) = this->getMinRots(bSigma);
+        auto [bRep, bRotX, bRotY] = this->getMinRots(bSigma);
         auto bidx = stateIdx(bRep);
         if(bidx == getDim())
         {
@@ -158,7 +145,9 @@ public:
             bidx = stateIdx(bRep);
 
             if(bidx == getDim())
+            {
                 return std::make_pair(-1, 0.0);
+            }
         }
 
         auto pb = rpts_[bidx].second;
@@ -167,7 +156,7 @@ public:
         return std::make_pair(bidx, c * sqrt(Nb / Na) * this->phase(bRotX, bRotY));
     }
 
-    std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
+    [[nodiscard]] auto basisVec(uint32_t n) const -> std::vector<std::pair<UINT, double>> override
     {
         using std::pow;
 
@@ -203,7 +192,7 @@ public:
             }
         }
 
-        return std::vector<std::pair<UINT, double>>(res.begin(), res.end());
+        return {res.begin(), res.end()};
     }
 };
 } // namespace edlib

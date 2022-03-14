@@ -18,7 +18,7 @@ public:
     TITFI2D(edlib::AbstractBasis2D<UINT>& basis, double J, double h) : basis_(basis), J_(J), h_(h)
     { }
 
-    std::map<std::size_t, double> getCol(UINT n) const
+    [[nodiscard]] auto getCol(UINT n) const -> std::map<std::size_t, double>
     {
         uint32_t Lx = basis_.getLx();
         uint32_t Ly = basis_.getLy();

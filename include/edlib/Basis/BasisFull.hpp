@@ -9,18 +9,19 @@ template<typename UINT> class BasisFull final : public AbstractBasis<UINT>
 {
 private:
 public:
-    BasisFull(uint32_t N) : AbstractBasis<UINT>(N) { }
+    explicit BasisFull(uint32_t N) : AbstractBasis<UINT>(N) { }
 
-    std::size_t getDim() const override { return (1u << this->getN()); }
+    [[nodiscard]] auto getDim() const -> std::size_t override { return (1U << this->getN()); }
 
-    UINT getNthRep(uint32_t n) const override { return UINT(n); }
+    [[nodiscard]] auto getNthRep(uint32_t n) const -> UINT override { return UINT(n); }
 
-    std::pair<int, double> hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const override
+    [[nodiscard]] auto hamiltonianCoeff(UINT bsigma, [[maybe_unused]] int aidx) const
+        -> std::pair<int, double> override
     {
         return std::make_pair(int(bsigma), 1.0);
     }
 
-    std::vector<std::pair<UINT, double>> basisVec(uint32_t n) const override
+    [[nodiscard]] auto basisVec(uint32_t n) const -> std::vector<std::pair<UINT, double>> override
     {
         return std::vector<std::pair<UINT, double>>{std::make_pair(UINT(n), 1.0)};
     }

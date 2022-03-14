@@ -9,14 +9,18 @@ inline void make_first_positive(Eigen::VectorXi& v)
     for(uint32_t n = 0; n < v.size(); ++n)
     {
         if(v(n) == 0)
+        {
             continue;
+        }
         if(v(n) < 0)
         {
             v *= -1;
             return;
         }
         else
+        {
             return;
+        }
     }
 }
 
@@ -27,7 +31,7 @@ struct hash_vector
         std::size_t seed = v.size();
         for(uint32_t n = 0; n < v.size(); ++n)
         {
-            seed ^= abs(v(n)) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= abs(v(n)) + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
         }
         return seed;
     }
@@ -36,11 +40,13 @@ struct hash_vector
 inline int powi(int base, unsigned int exp)
 {
     int res = 1;
-    while(exp)
+    while(exp != 0U)
     {
-        if(exp & 1)
+        if((exp & 1U) != 0U)
+        {
             res *= base;
-        exp >>= 1;
+        }
+        exp >>= 1U;
         base *= base;
     }
     return res;
@@ -49,7 +55,7 @@ inline int powi(int base, unsigned int exp)
 template<typename UINT, template<typename> class Basis>
 Eigen::MatrixXd basisMatrix(const Basis<UINT>& basis)
 {
-    Eigen::MatrixXd res = Eigen::MatrixXd::Zero(1u << basis.getN(), basis.getDim());
+    Eigen::MatrixXd res = Eigen::MatrixXd::Zero(1U << basis.getN(), basis.getDim());
     for(unsigned int n = 0; n < basis.getDim(); ++n)
     {
         auto bvec = basis.basisVec(n);

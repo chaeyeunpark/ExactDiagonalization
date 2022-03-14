@@ -16,11 +16,16 @@ protected:
     const UINT px_ = (~UINT(0)) >> (sizeof(UINT) * CHAR_BIT - Lx_);
 
     /**
-     * In two dimension, there are several different rotations that gives
-     * the same representation
+     * @brief Get minimum values among all possible x and y rotations.
+     *
+     * @param sigma The basis state
+     * @return Tuple of the minimum rotation, the number of x rotations,
+     * and the number of y rotations.
      * */
-    std::tuple<UINT, uint32_t, uint32_t> getMinRots(UINT sigma) const
+    [[nodiscard]] auto getMinRots(UINT sigma) const -> std::tuple<UINT, uint32_t, uint32_t>
     {
+        /* In two dimension, there are several different rotations that gives
+         * the same representation */
         UINT rep = sigma;
         uint32_t rotX = 0;
         uint32_t rotY = 0;
@@ -41,7 +46,12 @@ protected:
         return std::make_tuple(rep, rotX, rotY);
     }
 
-    uint32_t checkState(UINT s) const
+    /**
+     * @brief Check the given basis state can be a representative.
+     *
+     * @return How many times \f$s\f$ appears among all rotations.
+     */
+    [[nodiscard]] uint32_t checkState(UINT s) const
     {
         uint32_t cnt = 0;
         UINT sr = s;
@@ -72,7 +82,7 @@ protected:
         return cnt;
     }
 
-    int phase(int32_t rotX, int32_t rotY) const
+    [[nodiscard]] int phase(int32_t rotX, int32_t rotY) const
     {
         // return exp(2\Pi I(kx_*rotX/Lx_ + ky_*rotY/Ly_))
         int sgn = 1;
@@ -92,14 +102,14 @@ public:
         : AbstractBasis<UINT>(Lx * Ly), Lx_{Lx}, Ly_{Ly}, kx_{kx}, ky_{ky}
     { }
 
-    UINT rotateY(UINT sigma, uint32_t r) const
+    [[nodiscard]] UINT rotateY(UINT sigma, uint32_t r) const
     {
         const auto N = this->getN();
         const uint32_t count = Lx_ * r;
         return ((sigma << count) & this->getUps()) | (sigma >> (N - count));
     }
 
-    UINT rotateX(UINT sigma, uint32_t r) const
+    [[nodiscard]] UINT rotateX(UINT sigma, uint32_t r) const
     {
         assert((r >= 0) && (r <= Lx_));
         const auto Lx = Lx_;
@@ -115,11 +125,11 @@ public:
         return sigma;
     }
 
-    inline uint32_t getLx() const { return Lx_; }
-    inline uint32_t getLy() const { return Ly_; }
-    inline uint32_t getKx() const { return kx_; }
-    inline uint32_t getKy() const { return ky_; }
+    [[nodiscard]] inline uint32_t getLx() const { return Lx_; }
+    [[nodiscard]] inline uint32_t getLy() const { return Ly_; }
+    [[nodiscard]] inline uint32_t getKx() const { return kx_; }
+    [[nodiscard]] inline uint32_t getKy() const { return ky_; }
 
-    inline uint32_t toIdx(uint32_t nx, uint32_t ny) const { return ny * Lx_ + nx; }
+    [[nodiscard]] inline uint32_t toIdx(uint32_t nx, uint32_t ny) const { return ny * Lx_ + nx; }
 };
 } // namespace edlib

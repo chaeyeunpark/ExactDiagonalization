@@ -20,7 +20,7 @@ Checks: "*,
         -clang-analyzer-*,
 "
 WarningsAsErrors: '*'
-HeaderFilterRegex: '*'
+HeaderFilterRegex: '.*'
 FormatStyle:     none
 CheckOptions:
   - key:     readability-magic-numbers.IgnoredFloatingPointValues

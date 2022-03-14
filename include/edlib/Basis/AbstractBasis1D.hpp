@@ -3,12 +3,21 @@
 
 namespace edlib
 {
+/**
+ * @brief Base class for 1D Hamiltonians.
+ */
 template<typename UINT> class AbstractBasis1D : public AbstractBasis<UINT>
 {
 protected:
     const uint32_t k_;
 
-    // TODO: may change to std::optional
+    /**
+     * @brief Left rotation required to make a basis state the smallest.
+     *
+     * @param s The basis state as a number in the binary representation
+     *
+     * TODO: may change to std::optional
+     */
     int checkState(UINT s) const
     {
         UINT sr = s;
@@ -35,6 +44,12 @@ protected:
 public:
     AbstractBasis1D(uint32_t N, uint32_t k) : AbstractBasis<UINT>(N), k_{k} { }
 
+    /**
+     * @brief Rotate left the value in count times.
+     *
+     * @param value Value to rotate
+     * @param count Number of translations
+     */
     UINT rotl(UINT value, uint32_t count) const
     {
         const auto N = this->getN();
@@ -42,6 +57,12 @@ public:
         return ((value << count) & this->getUps()) | (value >> (N - count));
     }
 
+    /**
+     * @brief Find the smallest value among all rotations.
+     *
+     * @param sigma Value of the basis vector in the binary representation
+     * @return Smallest value and the corresponding rotation pair
+     */
     std::pair<UINT, uint32_t> findMinRots(UINT sigma) const
     {
         const uint32_t N = this->getN();
@@ -59,6 +80,10 @@ public:
         return std::make_pair(rep, rot);
     }
 
+    /**
+     * @brief Eigenvalue of the translational invariant
+     * \f$T| \sigma(k) \rangle = e^{ik}| \sigma(k) \ranlge \f$
+     */
     [[nodiscard]] inline uint32_t getK() const { return k_; }
 };
 } // namespace edlib
