@@ -111,7 +111,7 @@ public:
 
     [[nodiscard]] UINT rotateX(UINT sigma, uint32_t r) const
     {
-        assert((r >= 0) && (r <= Lx_));
+        assert(r <= Lx_);
         const auto Lx = Lx_;
         const auto Ly = Ly_;
         const auto px = px_;

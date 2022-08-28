@@ -1,12 +1,11 @@
 #include "utils.hpp"
 
 #include "edlib/Basis/Basis1DZ2.hpp"
-#include "edlib/Basis/ToOriginalBasis.hpp"
-#include "edlib/Hamiltonians/TIXXZ.hpp"
-#include "edlib/Op/NodeMV.hpp"
-
+#include "edlib/Basis/TransformBasis.hpp"
 #include "edlib/EDP/ConstructSparseMat.hpp"
 #include "edlib/EDP/LocalHamiltonian.hpp"
+#include "edlib/Hamiltonians/TIXXZ.hpp"
+#include "edlib/Op/NodeMV.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
@@ -17,7 +16,7 @@
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -25,6 +24,7 @@
 #include <random>
 
 using namespace edlib;
+using Catch::Approx;
 
 template<typename T>
 Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
@@ -116,6 +116,7 @@ public:
     void Test()
     {
         using namespace Eigen;
+        using Catch::Approx;
         using Spectra::CompInfo;
         using Spectra::SortRule;
         constexpr size_t max_iter = 1000;
@@ -139,7 +140,8 @@ public:
 
         const VectorXd subspaceGs = eigs.eigenvectors().col(0);
         const VectorXd gsVec1 = [&]() -> VectorXd {
-            auto v = toOriginalVectorLM(basis_, subspaceGs.data());
+            auto v = toOriginalBasis(
+                basis_, std::span{subspaceGs.data(), static_cast<size_t>(subspaceGs.size())});
             return Map<VectorXd>(v.data(), 1U << N);
         }();
 

@@ -10,7 +10,7 @@
 
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <iostream>
 #include <unordered_set>

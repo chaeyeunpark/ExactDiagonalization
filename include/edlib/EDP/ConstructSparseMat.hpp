@@ -43,9 +43,13 @@ auto constructSparseMat(size_t dim, ColFunc&& colFunc) -> Eigen::SparseMatrix<T>
     return res;
 }
 
-// basis must be sorted
-template<typename T, typename ColFunc>
-auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Eigen::SparseMatrix<T>
+/**
+ * @brief Construct subspace matrix
+ *
+ * @param basis Sorted container contains subspace configurations
+ */
+template<typename T, typename ColFunc, typename RandomIterable>
+auto constructSubspaceMat(ColFunc&& colFunc, RandomIterable&& basis) -> Eigen::SparseMatrix<T>
 {
     const size_t n = basis.size();
 
@@ -53,7 +57,7 @@ auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Ei
     std::vector<TripletT> tripletList;
     for(size_t i = 0; i < n; i++)
     {
-        std::map<uint32_t, T> m = t(basis[i]);
+        std::map<uint32_t, T> m = colFunc(basis[i]);
         auto iter = basis.begin();
         for(auto& kv : m)
         {
@@ -63,9 +67,7 @@ auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Ei
                 break;
             }
             auto j = std::distance(basis.begin(), iter);
-            {
-                tripletList.emplace_back(i, j, kv.second);
-            }
+            tripletList.emplace_back(i, j, kv.second);
         }
     }
 
@@ -73,4 +75,4 @@ auto constructSubspaceMat(ColFunc&& t, const std::vector<uint32_t>& basis) -> Ei
     res.setFromTriplets(tripletList.begin(), tripletList.end());
     return res;
 }
-}
+} // namespace edp

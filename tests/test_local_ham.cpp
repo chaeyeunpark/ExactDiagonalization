@@ -1,3 +1,4 @@
+#include "edlib/Basis/Basis1D.hpp"
 #include "edlib/EDP/ConstructSparseMat.hpp"
 #include "edlib/EDP/LocalHamiltonian.hpp"
 #include "utils.hpp"
@@ -10,7 +11,7 @@
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <algorithm>
 #include <cassert>

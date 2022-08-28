@@ -6,7 +6,6 @@
 
 #include "edlib/Basis/BasisFull.hpp"
 #include "edlib/Basis/BasisFullZ2.hpp"
-#include "edlib/Basis/ToOriginalBasis.hpp"
 #include "edlib/EDP/ConstructSparseMat.hpp"
 #include "edlib/Hamiltonians/dynamic_bitset.hpp"
 #include "edlib/Op/NodeMV.hpp"
@@ -14,7 +13,7 @@
 #include "XXZ.hpp"
 #include "utils.hpp"
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 using namespace Eigen;
 using namespace edlib;
@@ -65,6 +64,7 @@ public:
 
 TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model", "[basisfull]")
 {
+    using Catch::Matchers::WithinAbs;
     using Spectra::CompInfo;
     using Spectra::SortRule;
     constexpr uint32_t max_iter = 1000;
@@ -129,7 +129,7 @@ TEST_CASE("Test BasisFull and BasisFullZ2 using the transverse field Ising model
             }
             evFullM = eigs.eigenvalues();
         }
-        using Catch::WithinAbs;
+        using Catch::Matchers::WithinAbs;
         REQUIRE_THAT(evFull(0), WithinAbs(evFullP(0), 1e-8));
         REQUIRE_THAT(evFull(1), WithinAbs(evFullM(0), 1e-8));
     }
