@@ -18,7 +18,7 @@ protected:
      *
      * TODO: may change to std::optional
      */
-    int checkState(UINT s) const
+    [[nodiscard]] int checkState(UINT s) const
     {
         UINT sr = s;
         const auto N = this->getN();
@@ -50,7 +50,7 @@ public:
      * @param value Value to rotate
      * @param count Number of translations
      */
-    UINT rotl(UINT value, uint32_t count) const
+    [[nodiscard]] UINT rotl(UINT value, uint32_t count) const
     {
         const auto N = this->getN();
         count %= N;
@@ -63,7 +63,7 @@ public:
      * @param sigma Value of the basis vector in the binary representation
      * @return Smallest value and the corresponding rotation pair
      */
-    std::pair<UINT, uint32_t> findMinRots(UINT sigma) const
+    [[nodiscard]] std::pair<UINT, uint32_t> findMinRots(UINT sigma) const
     {
         const uint32_t N = this->getN();
         UINT rep = sigma;

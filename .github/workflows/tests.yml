@@ -36,7 +36,7 @@ jobs:
 
       - name: Run test
         run: |
-          cmake -BBuildTests -DBUILD_TESTS=ON .
+          cmake -BBuildTests -DEDLIB_BUILD_TESTS=ON .
           cmake --build ./BuildTests --target runner
           cmake --build ./BuildTests --target test
         env:

@@ -8,11 +8,11 @@ format:
 
 test:
 	rm -rf ./BuildTests
-	cmake -BBuildTests -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .
+	cmake -BBuildTests -DEDLIB_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .
 	cmake --build ./BuildTests --target runner
 	cmake --build ./BuildTests --target test
 
 check-tidy:
 	rm -rf ./BuildTidy
-	cmake -BBuildTidy -DBUILD_TESTS=ON -DENABLE_CLANG_TIDY=ON .
+	cmake -BBuildTidy -DEDLIB_BUILD_TESTS=ON -DENABLE_CLANG_TIDY=ON .
 	cmake --build ./BuildTidy
