@@ -26,7 +26,8 @@ jobs:
         run: |
           git clone https://github.com/opencollab/arpack-ng.git
           cd arpack-ng
-          cmake -Bbuild .
+          git checkout 3.8.0
+          cmake -Bbuild -DBUILD_SHARED_LIBS=ON .
           cmake --build ./build
           sudo cmake --build ./build --target install
 
