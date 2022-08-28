@@ -1,6 +1,5 @@
 #include "edlib/Basis/Basis1D.hpp"
 #include "edlib/Basis/Basis1DZ2.hpp"
-#include "edlib/Basis/ToOriginalBasis.hpp"
 #include "edlib/EDP/ConstructSparseMat.hpp"
 #include "edlib/Hamiltonians/TIXXZ.hpp"
 
@@ -8,7 +7,7 @@
 #include "utils.hpp"
 
 #include <Eigen/Dense>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <iostream>
 #include <unordered_set>

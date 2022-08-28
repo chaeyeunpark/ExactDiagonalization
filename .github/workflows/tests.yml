@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     name: Test (C++)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Cancel previous runs
@@ -26,7 +26,8 @@ jobs:
         run: |
           git clone https://github.com/opencollab/arpack-ng.git
           cd arpack-ng
-          cmake -Bbuild .
+          git checkout 3.8.0
+          cmake -Bbuild -DBUILD_SHARED_LIBS=ON .
           cmake --build ./build
           sudo cmake --build ./build --target install
 
@@ -35,7 +36,7 @@ jobs:
 
       - name: Run test
         run: |
-          cmake -BBuildTests -DBUILD_TESTS=ON .
+          cmake -BBuildTests -DEDLIB_BUILD_TESTS=ON .
           cmake --build ./BuildTests --target runner
           cmake --build ./BuildTests --target test
         env:

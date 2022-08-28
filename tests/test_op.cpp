@@ -6,7 +6,7 @@
 #include <Eigen/Sparse>
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymEigsSolver.h>
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <random>
 
@@ -16,9 +16,12 @@ struct SparseCol
 
     explicit SparseCol(uint32_t dim) : m_(dim, dim){};
 
-    inline double& coeffRef(size_t row, size_t col) { return m_.coeffRef(row, col); }
+    inline double& coeffRef(size_t row, size_t col)
+    {
+        return m_.coeffRef(static_cast<Eigen::Index>(row), static_cast<Eigen::Index>(col));
+    }
 
-    std::map<size_t, double> getCol(uint32_t col) const
+    [[nodiscard]] std::map<size_t, double> getCol(uint32_t col) const
     {
         using Eigen::SparseMatrix;
         std::map<size_t, double> res;
