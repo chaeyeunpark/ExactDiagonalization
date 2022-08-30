@@ -41,7 +41,8 @@ target_link_libraries(ed_tests_dependency INTERFACE Catch2::Catch2 Spectra edlib
 include(CTest)
 include(Catch)
 
-add_executable(runner test_arpack_solver.cpp
+add_executable(runner compile_time_tests.cpp
+                      test_arpack_solver.cpp
                       test_basisfull.cpp
                       test_basis1d.cpp
                       test_basis2d.cpp

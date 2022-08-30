@@ -24,6 +24,8 @@ public:
 
         UINT n_;
 
+        BasisJzIterator() : n_{static_cast<UINT>(0)} { }
+
         explicit BasisJzIterator(UINT val) : n_(val) { }
 
         BasisJzIterator& operator++() // prefix
