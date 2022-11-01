@@ -45,11 +45,14 @@ public:
             {
                 auto i = basis_.toIdx(nx, ny);
 
-                const auto neighbors_indices
-                    = {basis_.toIdx((nx + 1) % Lx, ny), basis_.toIdx(nx, (ny + 1) % Ly),
+                const auto nn_indices
+                    = {basis_.toIdx((nx + 1) % Lx, ny), basis_.toIdx(nx, (ny + 1) % Ly)};
+
+                const auto nnn_indices = {
                        basis_.toIdx((nx + 1) % Lx, (ny + 1) % Ly),
                        basis_.toIdx((nx + 1) % Lx, (ny - 1 + Ly) % Ly)};
-                for(const auto j : neighbors_indices)
+
+                for(const auto j : nn_indices)
                 {
                     const int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
 
@@ -63,6 +66,22 @@ public:
                     if(bidx >= 0)
                     {
                         m[bidx] += J1_ * (1 - zz) * coeff * sign_;
+                    }
+                }
+                for(const auto j : nnn_indices)
+                {
+                    const int zz = (1 - 2 * bs[i]) * (1 - 2 * bs[j]);
+
+                    m[n] += J2_ * zz;
+
+                    UINT s = a;
+                    s ^= basis_.mask({i, j});
+
+                    const auto [bidx, coeff] = basis_.hamiltonianCoeff(s, n);
+
+                    if(bidx >= 0)
+                    {
+                        m[bidx] += J2_ * (1 - zz) * coeff * sign_;
                     }
                 }
             }
