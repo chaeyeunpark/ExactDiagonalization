@@ -12,7 +12,7 @@ private:
     uint32_t nup_;
 
 public:
-    struct BasisJzIterator 
+    struct BasisJzIterator
     {
         using iterator_category = std::forward_iterator_tag;
         using iterator_concept = std::forward_iterator_tag;
