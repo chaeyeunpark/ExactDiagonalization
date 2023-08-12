@@ -4,7 +4,7 @@
 
 #include <iterator>
 
-TEST_CASE("static check BasisJz iterator", "[BasisJz]")
-{
+TEST_CASE("Tests BasisJzIterator") {
     STATIC_CHECK(std::input_iterator<edlib::BasisJz<uint32_t>::BasisJzIterator>);
+    STATIC_CHECK(std::forward_iterator<edlib::BasisJz<uint32_t>::BasisJzIterator>);
 }
