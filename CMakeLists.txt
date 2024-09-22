@@ -39,7 +39,16 @@ else()
 endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-find_package(arpack-ng REQUIRED)
+find_package(arpack QUIET)
+
+if (NOT ARPACK_FOUND)
+    find_package(ARPACK-NG QUIET)
+    find_package(ARPACKNG QUIET)
+
+    if ((NOT ARPACK-NG_FOUND) AND (NOT ARPACKNG_FOUND))
+        message(FATAL_ERROR "ARPACK must be available. If ARPACK-NG is installed, please add the path to arpackng-config.cmake in the enviroment variable CMAKE_PREFIX_PATH")
+    endif()
+endif()
 
 ################################################################################
 # Set targets
