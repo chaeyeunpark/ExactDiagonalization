@@ -40,6 +40,7 @@ else()
 endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
+<<<<<<< HEAD
 if (EDLIB_ENABLE_ARPACK_SOLVER)
     message(STATUS "ARPACK solver is enabled. Finding ARPACK-NG.")
     find_package(arpack-ng QUIET)
@@ -49,6 +50,16 @@ if (EDLIB_ENABLE_ARPACK_SOLVER)
 
     if ((NOT arpack-ng_FOUND) AND (NOT arpackng_FOUND))
         message(FATAL_ERROR "Arpack-ng is not found. Please provide a path to arpackng by arpackng_ROOT.")
+=======
+find_package(arpack QUIET)
+
+if (NOT ARPACK_FOUND)
+    find_package(ARPACK-NG QUIET)
+    find_package(ARPACKNG QUIET)
+
+    if ((NOT ARPACK-NG_FOUND) AND (NOT ARPACKNG_FOUND))
+        message(FATAL_ERROR "ARPACK must be available. If ARPACK-NG is installed, please add the path to arpackng-config.cmake in the enviroment variable CMAKE_PREFIX_PATH")
+>>>>>>> origin/master
     endif()
 endif()
 
