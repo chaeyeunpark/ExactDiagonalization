@@ -1,4 +1,6 @@
 #include "edlib/edlib.hpp"
+#include "edlib/Hamiltonians/TITFIsing.hpp"
+#include "edlib/Solver/ArpackSolver.hpp"
 
 #include <Eigen/Dense>
 
@@ -30,7 +32,7 @@ int main()
             const int dim = basis.getDim();
 
             NodeMV mv(dim, 0, dim, ham);
-            auto solver = ArpackSolver(mv, dim);
+            auto solver = ArpackSolver(mv);
 
             if(solver.solve(2) != ErrorType::NormalExit)
             {
@@ -44,7 +46,7 @@ int main()
             const int dim = basis.getDim();
 
             NodeMV mv(dim, 0, dim, ham);
-            auto solver = ArpackSolver(mv, dim);
+            auto solver = ArpackSolver(mv);
 
             if(solver.solve(2) != ErrorType::NormalExit)
             {
