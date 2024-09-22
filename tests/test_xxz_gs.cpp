@@ -123,7 +123,7 @@ public:
 
         NodeMV mv(dim, 0, dim, ham);
 
-		ArpackSolver solver(mv);
+        ArpackSolver solver(mv);
         solver.solve(2, max_iter, tol);
         const double gsEnergy1 = solver.eigenvalues()[0];
 

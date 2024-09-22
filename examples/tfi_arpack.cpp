@@ -1,6 +1,6 @@
-#include "edlib/edlib.hpp"
 #include "edlib/Hamiltonians/TITFIsing.hpp"
 #include "edlib/Solver/ArpackSolver.hpp"
+#include "edlib/edlib.hpp"
 
 #include <Eigen/Dense>
 
