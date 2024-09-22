@@ -52,7 +52,14 @@ add_executable(runner test_arpack_solver.cpp
                       test_xxz_gs.cpp
                       utils.cpp
                       XXZ.cpp)
+
 target_link_libraries(runner PRIVATE edlib Catch2::Catch2WithMain Eigen3::Eigen ed_tests_dependency)
+
+if(EDLIB_ENABLE_ARPACK_SOLVER)
+    target_sources(runner PRIVATE test_arpack_solver.cpp)
+    target_link_libraries(runner PRIVATE ARPACK::ARPACK)
+endif()
+
 
 catch_discover_tests(runner)
 
