@@ -32,7 +32,7 @@ public:
     {
         const auto biter = std::lower_bound(basis_.begin(), basis_.end(), bSigma);
 
-        if(biter == basis_.end() || biter->second != bSigma)
+        if(biter == basis_.end() || (*biter) != bSigma)
         {
             return {-1, 0.0};
         }
