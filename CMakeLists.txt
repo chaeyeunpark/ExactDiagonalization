@@ -12,6 +12,7 @@ endif()
 option(EDLIB_BUILD_TESTS "Build Tests" OFF)
 option(EDLIB_BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
+option(EDLIB_ENABLE_ARPACK_SOLVER "Enable arpack based solver (ARPACK required)" ON)
 
 ################################################################################
 # Set dependencies
@@ -39,7 +40,24 @@ else()
 endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-find_package(arpack-ng REQUIRED)
+if (EDLIB_ENABLE_ARPACK_SOLVER)
+    message(STATUS "ARPACK solver is enabled. Finding ARPACK.")
+
+    find_package(arpack QUIET)
+
+    if (NOT ARPACK_FOUND)
+        find_package(ARPACK-NG QUIET)
+        find_package(ARPACKNG QUIET)
+
+        if ((NOT ARPACK-NG_FOUND) AND (NOT ARPACKNG_FOUND))
+            message(FATAL_ERROR "ARPACK must be available when ARPACK solver is enabled."
+                                "If ARPACK or ARPACK-NG is installed, please add the path of its cmake file"
+                                "to the enviroment variable CMAKE_PREFIX_PATH")
+        endif()
+    endif()
+
+    message(STATUS "ARPACK found.")
+endif()
 
 ################################################################################
 # Set targets
@@ -54,8 +72,11 @@ add_subdirectory(include)
 add_library(EDLIB::edlib ALIAS edlib)
 
 if (EDLIB_BUILD_EXAMPLES)
+    if(NOT EDLIB_ENABLE_ARPACK_SOLVER)
+        message(FATAL_ERROR "Examples can be only built when arpack solver is available.")
+    endif()
 	add_executable(tfi_arpack "examples/tfi_arpack.cpp")
-	target_link_libraries(tfi_arpack PRIVATE edlib edlib_dependency)
+    target_link_libraries(tfi_arpack PRIVATE edlib arpack edlib_dependency)
 endif()
 
 if (EDLIB_BUILD_TESTS)

@@ -6,15 +6,13 @@
 #include "edlib/EDP/LocalHamiltonian.hpp"
 #include "edlib/Hamiltonians/TIXXZ.hpp"
 #include "edlib/Op/NodeMV.hpp"
+#include "edlib/Solver/ArpackSolver.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Sparse>
 
 #include <unsupported/Eigen/KroneckerProduct>
-
-#include <Spectra/MatOp/SparseSymMatProd.h>
-#include <Spectra/SymEigsSolver.h>
 
 #include <catch2/catch_all.hpp>
 
@@ -117,8 +115,6 @@ public:
     {
         using namespace Eigen;
         using Catch::Approx;
-        using Spectra::CompInfo;
-        using Spectra::SortRule;
         constexpr size_t max_iter = 1000;
         constexpr double tol = 1e-10;
 
@@ -127,18 +123,13 @@ public:
 
         NodeMV mv(dim, 0, dim, ham);
 
-        Spectra::SymEigsSolver<NodeMV> eigs(mv, 2, 6);
-        eigs.init();
-        eigs.compute(SortRule::SmallestAlge, max_iter, tol, SortRule::SmallestAlge);
-        if(eigs.info() != CompInfo::Successful)
-        {
-            REQUIRE(false);
-        }
-        const double gsEnergy1 = eigs.eigenvalues()[0];
+        ArpackSolver solver(mv);
+        solver.solve(2, max_iter, tol);
+        const double gsEnergy1 = solver.eigenvalues()[0];
 
         REQUIRE(gsEnergy_ == Approx(gsEnergy1).margin(1e-4));
 
-        const VectorXd subspaceGs = eigs.eigenvectors().col(0);
+        const VectorXd subspaceGs = solver.eigenvectors().col(0);
         const VectorXd gsVec1 = [&]() -> VectorXd {
             auto v = toOriginalBasis(
                 basis_, std::span{subspaceGs.data(), static_cast<size_t>(subspaceGs.size())});

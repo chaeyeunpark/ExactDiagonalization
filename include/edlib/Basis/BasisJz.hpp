@@ -12,15 +12,14 @@ private:
     uint32_t nup_;
 
 public:
-    struct BasisJzIterator : public std::iterator<std::forward_iterator_tag, UINT>
+    struct BasisJzIterator
     {
-        /*
         using iterator_category = std::forward_iterator_tag;
+        using iterator_concept = std::forward_iterator_tag;
         using value_type = UINT;
-        using different_type = void;
-        using pointer = void;
-        using reference = void;
-        */
+        using difference_type = std::ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type&;
 
         UINT n_;
 
@@ -48,8 +47,8 @@ public:
             n_ = w;
         }
         UINT operator*() const { return n_; }
-        bool operator==(const BasisJzIterator& rhs) { return n_ == rhs.n_; }
-        bool operator!=(const BasisJzIterator& rhs) { return n_ != rhs.n_; }
+        bool operator==(const BasisJzIterator& rhs) const { return n_ == rhs.n_; }
+        bool operator!=(const BasisJzIterator& rhs) const { return n_ != rhs.n_; }
     };
 
     //! Construct a basis for the subspace. The dimension is \f$N \choose nup\f$.
@@ -86,4 +85,5 @@ public:
         return res;
     }
 };
+static_assert(std::forward_iterator<BasisJz<uint32_t>::BasisJzIterator>);
 } // namespace edlib
