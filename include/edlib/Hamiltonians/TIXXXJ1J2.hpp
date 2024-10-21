@@ -38,7 +38,7 @@ public:
         for(unsigned int i = 0; i < N; i++)
         {
             {
-                const auto j = (i+1) % N;
+                const auto j = (i + 1) % N;
                 const int sgn
                     = (1 - 2 * static_cast<int>(bs[i])) * (1 - 2 * static_cast<int>(bs[j]));
 
@@ -56,7 +56,7 @@ public:
             }
 
             {
-                const auto j = (i+2) % N;
+                const auto j = (i + 2) % N;
                 const int sgn
                     = (1 - 2 * static_cast<int>(bs[i])) * (1 - 2 * static_cast<int>(bs[j]));
 
