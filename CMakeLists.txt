@@ -24,7 +24,7 @@ if (NOT TBB_FOUND)
     include(FetchContent)
     FetchContent_Declare(tbb
                          GIT_REPOSITORY https://github.com/oneapi-src/oneTBB.git
-                         GIT_TAG        v2021.5.0
+                         GIT_TAG        v2022.3.0
     )
     set(TBB_TEST OFF CACHE BOOL " " FORCE)
     FetchContent_GetProperties(tbb)
@@ -50,8 +50,8 @@ if (EDLIB_ENABLE_ARPACK_SOLVER)
         find_package(ARPACKNG QUIET)
 
         if ((NOT ARPACK-NG_FOUND) AND (NOT ARPACKNG_FOUND))
-            message(FATAL_ERROR "ARPACK must be available when ARPACK solver is enabled."
-                                "If ARPACK or ARPACK-NG is installed, please add the path of its cmake file"
+            message(FATAL_ERROR "ARPACK must be available when ARPACK solver is enabled. "
+                                "If ARPACK or ARPACK-NG is installed, please add the path of its cmake file "
                                 "to the enviroment variable CMAKE_PREFIX_PATH")
         endif()
     endif()
